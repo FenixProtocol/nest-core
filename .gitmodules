@@ -1,0 +1,3 @@
+[submodule "lib/fenix-algebra"]
+	path = lib/fenix-algebra
+	url = https://github.com/FenixProtocol/fenix-algebra
