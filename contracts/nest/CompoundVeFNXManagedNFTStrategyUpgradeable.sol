@@ -64,10 +64,8 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
      * @notice Initializes the contract in an uninitialized state and disables further initializations.
      * @dev This constructor is called at the time of contract deployment and uses `_disableInitializers()`
      *      to ensure the upgradeable contract cannot be initialized twice.
-     * @param blastGovernor_ The address of the governor, used for further setup calls.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
@@ -77,21 +75,19 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
      *      the `virtualRewarder`, and the `routerV2PathProvider`. Also fetches the FENIX token
      *      from the Voting Escrow.
      *
-     * @param blastGovernor_        The governance address capable of claiming and managing the contract.
      * @param managedNFTManager_    The address of the managed NFT manager contract.
      * @param virtualRewarder_      The address of the virtual rewarder contract for extra reward distribution.
      * @param routerV2PathProvider_ The address of the router V2 path provider for buyback route management.
      * @param name_                 The name (identifier) of this strategy, stored in base contracts.
      */
     function initialize(
-        address blastGovernor_,
         address managedNFTManager_,
         address virtualRewarder_,
         address routerV2PathProvider_,
         string memory name_
     ) external override initializer {
         _checkAddressZero(virtualRewarder_);
-        __BaseManagedNFTStrategy__init(blastGovernor_, managedNFTManager_, name_);
+        __BaseManagedNFTStrategy__init(managedNFTManager_, name_);
         __SingelTokenBuyback__init(routerV2PathProvider_);
         fenix = IVotingEscrow(votingEscrow).token();
         virtualRewarder = virtualRewarder_;

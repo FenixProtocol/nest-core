@@ -2,7 +2,6 @@
 pragma solidity =0.8.19;
 
 import {IPriceProvider} from "./interfaces/IPriceProvider.sol";
-import {BlastGovernorClaimableSetup} from "./BlastGovernorClaimableSetup.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -12,10 +11,9 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  * It is intended for use cases where the price needs to be controlled or set by an authorized account.
  * Unlike automatic price feeds, this contract requires an administrator to provide the price.
  * *
- * @dev Inherits from `BlastGovernorClaimableSetup` for integration with blast.
  * Inherits from `Ownable` for access control, allowing only the owner to set the price.
  */
-contract ManualFNXPriceProvider is IPriceProvider, Ownable, BlastGovernorClaimableSetup {
+contract ManualFNXPriceProvider is IPriceProvider, Ownable {
     /**
      * @dev Emitted when the price is updated.
      * @param oldPrice The previous price of 1 USD in FNX tokens.
@@ -34,13 +32,11 @@ contract ManualFNXPriceProvider is IPriceProvider, Ownable, BlastGovernorClaimab
     error PriceNotSetup();
 
     /**
-     * @notice Initializes the contract with the given Blast Governor address and initial price.
+     * @notice Initializes the contract with the given initial price.
      * @dev Disables further initializers to prevent re-initialization.
-     * @param blastGovernor_ The address of the Blast Governor contract.
      * @param price_ The initial price of 1 USD in FNX tokens.
      */
-    constructor(address blastGovernor_, uint256 price_) Ownable() {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor(uint256 price_) Ownable() {
         price = price_;
     }
 

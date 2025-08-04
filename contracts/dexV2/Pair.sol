@@ -8,10 +8,9 @@ import {IPair} from "./interfaces/IPair.sol";
 import {IPairCallee} from "./interfaces/IPairCallee.sol";
 import {IPairFactory} from "./interfaces/IPairFactory.sol";
 import {PairFees} from "./PairFees.sol";
-import {BlastERC20RebasingManage} from "../integration/BlastERC20RebasingManage.sol";
 
 // The base pair of pools, either stable or volatile
-contract Pair is IPair, BlastERC20RebasingManage {
+contract Pair is IPair {
     string public name;
     string public symbol;
     uint8 public constant decimals = 18;
@@ -95,14 +94,7 @@ contract Pair is IPair, BlastERC20RebasingManage {
         _unlocked = 1;
     }
 
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
-    }
-
     function initialize(
-        address _blastGovernor,
-        address _blastPoints,
-        address _blastPointsOperator,
         address _token0,
         address _token1,
         bool _stable,
@@ -112,11 +104,9 @@ contract Pair is IPair, BlastERC20RebasingManage {
 
         factory = msg.sender;
 
-        __BlastERC20RebasingManage__init(_blastGovernor, _blastPoints, _blastPointsOperator);
-
         (token0, token1, stable, communityVault) = (_token0, _token1, _stable, _communityVault);
 
-        fees = address(new PairFees(_blastGovernor, _blastPoints, _blastPointsOperator, msg.sender, _token0, _token1));
+        fees = address(new PairFees(msg.sender, _token0, _token1));
 
         _unlocked = 1;
 
@@ -139,14 +129,6 @@ contract Pair is IPair, BlastERC20RebasingManage {
         require(factoryCache.hasRole(factoryCache.PAIRS_ADMINISTRATOR_ROLE(), msg.sender), "ACCESS_DENIED");
         communityVault = communityVault_;
         emit SetCommunityVault(communityVault_);
-    }
-
-    function _checkAccessForManageBlastERC20Rebasing() internal virtual override {
-        IPairFactory factoryCache = IPairFactory(factory);
-        require(
-            msg.sender == address(factoryCache) || factoryCache.hasRole(factoryCache.PAIRS_ADMINISTRATOR_ROLE(), msg.sender),
-            "ACCESS_DENIED"
-        );
     }
 
     function observationLength() external view returns (uint) {

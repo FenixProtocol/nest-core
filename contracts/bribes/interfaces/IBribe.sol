@@ -34,7 +34,7 @@ interface IBribe {
 
     function addRewardTokens(address[] memory) external;
 
-    function initialize(address, address, address, string memory) external;
+    function initialize(address, address, string memory) external;
 
     function firstBribeTimestamp() external view returns (uint256);
 

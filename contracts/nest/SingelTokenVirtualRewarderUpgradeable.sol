@@ -3,7 +3,6 @@ pragma solidity =0.8.19;
 
 import {ISingelTokenVirtualRewarder} from "./interfaces/ISingelTokenVirtualRewarder.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {VirtualRewarderCheckpoints} from "./libraries/VirtualRewarderCheckpoints.sol";
 import {UpgradeCall} from "../integration/UpgradeCall.sol";
 
@@ -12,7 +11,7 @@ import {UpgradeCall} from "../integration/UpgradeCall.sol";
  * @dev An upgradeable contract for managing token rewards based on virtual balances and epochs. It supports functionalities
  * like deposits, withdrawals, and reward calculations based on checkpoints.
  */
-contract SingelTokenVirtualRewarderUpgradeable is ISingelTokenVirtualRewarder, BlastGovernorClaimableSetup, Initializable, UpgradeCall {
+contract SingelTokenVirtualRewarderUpgradeable is ISingelTokenVirtualRewarder, Initializable, UpgradeCall {
     /**
      * @title Struct for managing token information within a virtual reward system
      * @notice Holds all pertinent data related to individual tokens within the reward system.
@@ -79,6 +78,8 @@ contract SingelTokenVirtualRewarderUpgradeable is ISingelTokenVirtualRewarder, B
      */
     error ZeroAmount();
 
+    error AddressZero();
+    
     /**
      * @dev Modifier to restrict function calls to the strategy address
      * @notice Ensures that only the designated strategy can call certain functions.
@@ -93,21 +94,17 @@ contract SingelTokenVirtualRewarderUpgradeable is ISingelTokenVirtualRewarder, B
     /**
      * @dev Constructor that disables initialization on implementation.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract with necessary governance and operational addresses
-     * @dev Sets up blast governance and operational aspects of the contract. This function can only be called once.
+     * @dev Sets up operational aspects of the contract. This function can only be called once.
      *
-     * @param blastGovernor_ The governance address capable of claiming the contract
      * @param strategy_ The strategy address that will interact with this contract
      */
-    function initialize(address blastGovernor_, address strategy_) external override initializer {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
-
+    function initialize(address strategy_) external override initializer {
         _checkAddressZero(strategy_);
 
         strategy = strategy_;

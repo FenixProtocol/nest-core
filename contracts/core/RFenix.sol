@@ -9,15 +9,13 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
 import {IRFenix} from "./interfaces/IRFenix.sol";
 
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
-
 /**
  * @title RFenix Token Contract
  * @dev Implementation of the rFNX token, an ERC20 token with convert features.
  *      Inherits functionality from OpenZeppelin's ERC20Burnable and Ownable2Step contracts.
  *      Provides mechanisms for token conversion and owner interaction.
  */
-contract RFenix is IRFenix, BlastGovernorClaimableSetup, ERC20Burnable, Ownable2Step {
+contract RFenix is IRFenix, ERC20Burnable, Ownable2Step {
     using SafeERC20 for IERC20;
 
     uint256 internal constant _PRECISION = 1e18; // Precision for percentage calculations
@@ -27,14 +25,13 @@ contract RFenix is IRFenix, BlastGovernorClaimableSetup, ERC20Burnable, Ownable2
     address public override votingEscrow; // Address of the Voting Escrow contract for veFNX
     address public override token; // Address of the FNX token
 
+    error AddressZero();
+    
     /**
      * @dev Initializes the contract by setting the governance, token, and Voting Escrow addresses.
-     * @param blastGovernor_ Address of the Blast Governor.
      * @param votingEscrow_ Address of the Voting Escrow contract.
      */
-    constructor(address blastGovernor_, address votingEscrow_) ERC20("rFNX", "rFNX") {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
-
+    constructor(address votingEscrow_) ERC20("rFNX", "rFNX") {
         _checkAddressZero(votingEscrow_);
 
         address tokenTemp = IVotingEscrow(votingEscrow_).token();

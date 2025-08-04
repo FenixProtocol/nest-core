@@ -2,7 +2,6 @@
 pragma solidity =0.8.19;
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IVoter} from "../core/interfaces/IVoter.sol";
 import {IVotingEscrow} from "../core/interfaces/IVotingEscrow.sol";
 import {IManagedNFTManager} from "./interfaces/IManagedNFTManager.sol";
@@ -14,7 +13,7 @@ import {UpgradeCall} from "../integration/UpgradeCall.sol";
  * @dev Abstract base contract for strategies managing NFTs with voting and reward capabilities.
  * This contract serves as a foundation for specific managed NFT strategies, incorporating initializable patterns for upgradeability.
  */
-abstract contract BaseManagedNFTStrategyUpgradeable is IManagedNFTStrategy, Initializable, BlastGovernorClaimableSetup, UpgradeCall {
+abstract contract BaseManagedNFTStrategyUpgradeable is IManagedNFTStrategy, Initializable, UpgradeCall {
     /// @notice The name of the strategy for identification purposes.
     string public override name;
 
@@ -44,6 +43,8 @@ abstract contract BaseManagedNFTStrategyUpgradeable is IManagedNFTStrategy, Init
 
     /// @notice Error thrown when attempting to attach a token ID that has already been attached to another strategy.
     error AlreadyAttached();
+    
+    error AddressZero();
 
     /// @dev Ensures that only the current managed NFT manager contract can call certain functions.
     modifier onlyManagedNFTManager() {
@@ -70,19 +71,15 @@ abstract contract BaseManagedNFTStrategyUpgradeable is IManagedNFTStrategy, Init
     }
 
     /**
-     * @dev Initializes the contract, setting up blast governor setup and necessary state variables.
+     * @dev Initializes the contract, setting up necessary state variables.
      *      This initialization setup prevents further initialization and ensures proper governance setup.
-     * @param blastGovernor_ Address of the governance contract capable of claiming the contract
      * @param managedNFTManager_ Address of the managed NFT manager
      * @param name_ Descriptive name of the managed NFT strategy
      */
     function __BaseManagedNFTStrategy__init(
-        address blastGovernor_,
         address managedNFTManager_,
         string memory name_
     ) internal onlyInitializing {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
-
         _checkAddressZero(managedNFTManager_);
 
         managedNFTManager = managedNFTManager_;

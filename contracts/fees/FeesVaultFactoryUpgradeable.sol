@@ -6,13 +6,9 @@ import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 import {IFeesVaultFactory} from "./interfaces/IFeesVaultFactory.sol";
 import {IFeesVault} from "./interfaces/IFeesVault.sol";
 import {IPairIntegrationInfo} from "../integration/interfaces/IPairIntegrationInfo.sol";
-import {IBlastERC20RebasingManage} from "../integration/interfaces/IBlastERC20RebasingManage.sol";
-
-import {BlastERC20FactoryManager} from "../integration/BlastERC20FactoryManager.sol";
 import {FeesVaultProxy} from "./FeesVaultProxy.sol";
-import {IBlastRebasingTokensGovernor} from "../integration/interfaces/IBlastRebasingTokensGovernor.sol";
 
-contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, BlastERC20FactoryManager, AccessControlUpgradeable {
+contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, AccessControlUpgradeable {
     bytes32 public constant CLAIM_FEES_CALLER_ROLE = keccak256("CLAIM_FEES_CALLER_ROLE");
     bytes32 public constant WHITELISTED_CREATOR_ROLE = keccak256("WHITELISTED_CREATOR_ROLE");
     bytes32 public constant FEES_VAULT_ADMINISTRATOR_ROLE = keccak256("FEES_VAULT_ADMINISTRATOR_ROLE");
@@ -26,35 +22,25 @@ contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, BlastERC20FactoryMana
     DistributionConfig internal _defaultDistributionConfig;
     mapping(address => DistributionConfig) internal _customDistributionConfigs;
 
-    /**
-     * @dev Address of the rebasing tokens governor.
-     */
-    address public rebasingTokensGovernor;
-
     mapping(address creator => DistributionConfig) internal _creatorDistributionConfigs;
     mapping(address feesVault => address creator) internal _feesVaultCreator;
 
+    error AddressZero();
+    
     /**
      * @dev Constructor that disables initialization on implementation.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the factory with necessary parameters and default configurations.
-     * @param blastGovernor_ The governor address for BLAST protocol interaction.
-     * @param blastPoints_ The BLAST points address.
-     * @param blastPointsOperator_ The BLAST points operator address.
      * @param voter_ The default voter address for fee vaults.
      * @param feesVaultImplementation_ The default fees vault implementation address.
      * @param defaultDistributionConfig_ The default distribution configuration for fees.
      */
     function initialize(
-        address blastGovernor_,
-        address blastPoints_,
-        address blastPointsOperator_,
         address voter_,
         address feesVaultImplementation_,
         DistributionConfig memory defaultDistributionConfig_
@@ -64,7 +50,6 @@ contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, BlastERC20FactoryMana
         _checkDistributionConfig(defaultDistributionConfig_);
 
         __AccessControl_init();
-        __BlastERC20FactoryManager_init(blastGovernor_, blastPoints_, blastPointsOperator_);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
@@ -95,20 +80,6 @@ contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, BlastERC20FactoryMana
 
         emit SetVoter(voter, voter_);
         voter = voter_;
-    }
-
-    /**
-     * @notice Sets the address of the rebasing tokens governor.
-     * @dev Updates the address of the rebasing tokens governor. Can only be called by an account with the DEFAULT_ADMIN_ROLE.
-     * @param rebasingTokensGovernor_ The new address of the rebasing tokens governor.
-     *
-     * Emits a {SetRebasingTokensGovernor} event.
-     */
-    function setRebasingTokensGovernor(address rebasingTokensGovernor_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _checkAddressZero(rebasingTokensGovernor_);
-
-        emit SetRebasingTokensGovernor(rebasingTokensGovernor, rebasingTokensGovernor_);
-        rebasingTokensGovernor = rebasingTokensGovernor_;
     }
 
     /**
@@ -196,40 +167,13 @@ contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, BlastERC20FactoryMana
 
         address newFeesVault = address(new FeesVaultProxy());
 
-        IFeesVault(newFeesVault).initialize(defaultBlastGovernor, defaultBlastPoints, defaultBlastPointsOperator, address(this), pool_);
+        IFeesVault(newFeesVault).initialize(address(this), pool_);
 
         getVaultForPool[pool_] = newFeesVault;
         _feesVaultCreator[newFeesVault] = _msgSender();
 
         emit FeesVaultCreated(pool_, newFeesVault);
         return newFeesVault;
-    }
-
-    /**
-     * @notice Performs post-initialization configurations for a pool's fee vault, setting up rebasing token configurations.
-     * @param pool_ The pool whose fee vault requires post-initialization configuration.
-     */
-    function afterPoolInitialize(address pool_) external virtual override onlyRole(WHITELISTED_CREATOR_ROLE) {
-        address token0 = IPairIntegrationInfo(pool_).token0();
-        address token1 = IPairIntegrationInfo(pool_).token1();
-
-        address vault = getVaultForPool[pool_];
-
-        if (isRebaseToken[token0]) {
-            IBlastERC20RebasingManage(vault).configure(token0, configurationForBlastRebaseTokens[token0]);
-            IBlastRebasingTokensGovernor rebasingTokensGovernorCache = IBlastRebasingTokensGovernor(rebasingTokensGovernor);
-            if (address(rebasingTokensGovernorCache) != address(0)) {
-                rebasingTokensGovernorCache.addTokenHolder(token0, vault);
-            }
-        }
-
-        if (isRebaseToken[token1]) {
-            IBlastERC20RebasingManage(vault).configure(token1, configurationForBlastRebaseTokens[token1]);
-            IBlastRebasingTokensGovernor rebasingTokensGovernorCache = IBlastRebasingTokensGovernor(rebasingTokensGovernor);
-            if (address(rebasingTokensGovernorCache) != address(0)) {
-                rebasingTokensGovernorCache.addTokenHolder(token1, vault);
-            }
-        }
     }
 
     /**
@@ -339,10 +283,14 @@ contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, BlastERC20FactoryMana
     }
 
     /**
-     * @dev Overrides `BlastERC20FactoryManager#_checkAccessForBlastFactoryManager` to add custom access control logic.
+     * @dev Checked provided address on zero value, throw AddressZero error in case when addr_ is zero
+     *
+     * @param addr_ The address which will checked on zero
      */
-    function _checkAccessForBlastFactoryManager() internal view virtual override {
-        _checkRole(FEES_VAULT_ADMINISTRATOR_ROLE);
+    function _checkAddressZero(address addr_) internal pure virtual {
+        if (addr_ == address(0)) {
+            revert AddressZero();
+        }
     }
 
     /**

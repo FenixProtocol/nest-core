@@ -6,7 +6,7 @@ import "../bribes/BribeUpgradeable.sol";
 contract BribeUpgradeableMockWithFixTargetEpoch is BribeUpgradeable {
     uint256 immutable __mock_targetEpoch;
 
-    constructor(address blastGovernor_, uint256 mock_targetEpoch) BribeUpgradeable(blastGovernor_) {
+    constructor(uint256 mock_targetEpoch) {
         __mock_targetEpoch = mock_targetEpoch;
     }
 

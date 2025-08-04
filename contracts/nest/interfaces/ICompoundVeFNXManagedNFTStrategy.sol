@@ -162,15 +162,13 @@ interface ICompoundVeFNXManagedNFTStrategy is IManagedNFTStrategy, ISingelTokenB
     function erc721Recover(address recipient_, address token_, uint256[] calldata tokenIds_) external;
 
     /**
-     * @notice Initializes the contract with necessary blast governance and operational addresses, and sets specific strategy parameters.
+     * @notice Initializes the contract with necessary operational addresses, and sets specific strategy parameters.
      *
-     * @param blastGovernor_ Address of the blast governor contract.
      * @param managedNFTManager_ Address of the managed NFT manager contract.
      * @param virtualRewarder_ Address of the virtual rewarder contract.
      * @param name_ Name of the strategy.
      */
     function initialize(
-        address blastGovernor_,
         address managedNFTManager_,
         address virtualRewarder_,
         address routerV2PathProvider_,

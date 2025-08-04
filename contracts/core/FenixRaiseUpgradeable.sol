@@ -5,7 +5,6 @@ import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/acces
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import {MerkleProofUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/MerkleProofUpgradeable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IFenixRaise} from "./interfaces/IFenixRaise.sol";
 import {IVotingEscrow} from "../core/interfaces/IVotingEscrow.sol";
 
@@ -15,7 +14,7 @@ import {IVotingEscrow} from "../core/interfaces/IVotingEscrow.sol";
  *  It utilizes Merkle proof verification for whitelist management and ensures various caps
  *  and limits are adhered to during the raise.
  */
-contract FenixRaiseUpgradeable is IFenixRaise, BlastGovernorClaimableSetup, Ownable2StepUpgradeable {
+contract FenixRaiseUpgradeable is IFenixRaise, Ownable2StepUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**
@@ -180,18 +179,18 @@ contract FenixRaiseUpgradeable is IFenixRaise, BlastGovernorClaimableSetup, Owna
      * @dev Error thrown when a user tries to claim more than once
      */
     error AlreadyClaimed();
-
+    
+    error AddressZero();
+    
     /**
      * @dev Initializes the contract by disabling the initializer of the inherited upgradeable contract.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract
-     * @param blastGovernor_ The address of the BlastGovernor
      * @param token_ The address of the token being raised
      * @param rewardToken_ The address of the reward token
      * @param depositsReciever_ The address that will receive the deposits
@@ -201,7 +200,6 @@ contract FenixRaiseUpgradeable is IFenixRaise, BlastGovernorClaimableSetup, Owna
 
      */
     function initialize(
-        address blastGovernor_,
         address token_,
         address rewardToken_,
         address depositsReciever_,
@@ -221,7 +219,6 @@ contract FenixRaiseUpgradeable is IFenixRaise, BlastGovernorClaimableSetup, Owna
         }
 
         __Ownable2Step_init();
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
 
         rewardToken = rewardToken_;
         token = token_;

@@ -9,14 +9,12 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import "./interfaces/IOpenOceanVeNftDirectBuyer.sol";
 import "../core/interfaces/IVotingEscrow.sol";
 
-import {BlastGovernorClaimableSetup} from "./BlastGovernorClaimableSetup.sol";
-
 /**
  * @title OpenOceanVeNftDirectBuyer
  * @notice This contract facilitates the direct purchase of veNFTs via token swaps on the OpenOcean exchange.
- * @dev Integrates with OpenOcean, VotingEscrow, and BlastGovernorClaimableSetup to manage direct purchases of veNFTs.
+ * @dev Integrates with OpenOcean, VotingEscrow to manage direct purchases of veNFTs.
  */
-contract OpenOceanVeNftDirectBuyer is IOpenOceanVeNftDirectBuyer, Ownable, BlastGovernorClaimableSetup {
+contract OpenOceanVeNftDirectBuyer is IOpenOceanVeNftDirectBuyer, Ownable {
     using SafeERC20 for IERC20;
 
     /**
@@ -54,18 +52,19 @@ contract OpenOceanVeNftDirectBuyer is IOpenOceanVeNftDirectBuyer, Ownable, Blast
      */
     error InvalidDstReceiver();
 
+    error AddressZero();
+    
     /**
      * @notice Initializes the contract with required addresses.
-     * @param blastGovernor_ Address of the BlastGovernor contract.
      * @param votingEscrow_ Address of the VotingEscrow contract.
      * @param token_ Address of the token used for veNFT creation.
      * @param openOceanExchange_ Address of the OpenOcean exchange contract.
      */
-    constructor(address blastGovernor_, address votingEscrow_, address token_, address openOceanExchange_) {
+    constructor(address votingEscrow_, address token_, address openOceanExchange_) {
         if (votingEscrow_ == address(0) || token_ == address(0) || openOceanExchange_ == address(0)) {
             revert AddressZero();
         }
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+
         votingEscrow = votingEscrow_;
         token = token_;
         openOceanExchange = openOceanExchange_;

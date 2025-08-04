@@ -6,7 +6,6 @@ import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-u
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {ERC721HolderUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 
-import {BlastGovernorClaimableSetup} from "../../integration/BlastGovernorClaimableSetup.sol";
 import {IVotingEscrow} from "../../core/interfaces/IVotingEscrow.sol";
 import {IVoter} from "../../core/interfaces/IVoter.sol";
 import {IBribe} from "../interfaces/IBribe.sol";
@@ -29,8 +28,7 @@ import {ICustomBribeRewardRouter} from "./interfaces/ICustomBribeRewardRouter.so
 contract CustomBribeRewardRouter is
     ICustomBribeRewardRouter,
     AccessControlUpgradeable,
-    ERC721HolderUpgradeable,
-    BlastGovernorClaimableSetup
+    ERC721HolderUpgradeable
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -66,22 +64,18 @@ contract CustomBribeRewardRouter is
 
     /**
      * @notice Constructor for UUPS pattern. The main logic is in the `initialize` function.
-     * @param blastGovernor_ The address of the BlastGovernor contract for governor-controlled logic.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract.
      * @dev Grants DEFAULT_ADMIN_ROLE to the caller. Sets the voter and bribeVeFnxRewardToken addresses.
-     * @param blastGovernor_ The address of the BlastGovernor contract.
      * @param voter_ The address of the voter contract used to map pools to gauges and external bribes.
      * @param bribeVeFnxRewardToken_ The address of the brVeFNX token contract.
      */
-    function initialize(address blastGovernor_, address voter_, address bribeVeFnxRewardToken_) external initializer {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    function initialize(address voter_, address bribeVeFnxRewardToken_) external initializer {
         __AccessControl_init();
         __ERC721Holder_init();
 

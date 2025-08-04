@@ -5,7 +5,6 @@ import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/acces
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {EnumerableSetUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
 
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IVeBoost} from "./interfaces/IVeBoost.sol";
 import {IPriceProvider} from "../integration/interfaces/IPriceProvider.sol";
 
@@ -13,7 +12,7 @@ import {IPriceProvider} from "../integration/interfaces/IPriceProvider.sol";
  * @title VeBoostUpgradeable
  * @dev Implements boosting functionality within the Fenix ecosystem, allowing users to receive boosts based on locked FNX tokens.
  */
-contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable, BlastGovernorClaimableSetup {
+contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -67,28 +66,27 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable, BlastGovernorC
      */
     EnumerableSetUpgradeable.AddressSet internal _rewardTokens;
 
+    error AddressZero();
+    
     /**
      * @dev Initializes the contract by disabling the initializer of the inherited upgradeable contract.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the VeBoost contract with necessary addresses and settings.
-     * @param blastGovernor_ Address of the Blast Governor.
      * @param fenix_ Address of the Fenix token.
      * @param votingEscrow_ Address of the Voting Escrow contract.
      * @param priceProvider_ Address of the price provider contract.
      * Initializes contract state and sets up necessary approvals.
      */
-    function initialize(address blastGovernor_, address fenix_, address votingEscrow_, address priceProvider_) external initializer {
+    function initialize(address fenix_, address votingEscrow_, address priceProvider_) external initializer {
         _checkAddressZero(fenix_);
         _checkAddressZero(votingEscrow_);
         _checkAddressZero(priceProvider_);
 
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
         __Ownable2Step_init();
 
         fenix = fenix_;

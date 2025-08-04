@@ -4,17 +4,14 @@ pragma solidity =0.8.19;
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IRewardReciever} from "./interfaces/IRewardReciever.sol";
 import {IPerpetualsGauge} from "./interfaces/IPerpetualsGauge.sol";
 
 /**
  * @title PerpetualsGaugeUpgradeable
  * @dev This contract manages reward distribution in a gauge system for perpetual traders.
- *  It integrates with the BlastGovernorClaimableSetup and implements
- *  reentrancy protection and ownable functionalities.
  */
-contract PerpetualsGaugeUpgradeable is IPerpetualsGauge, BlastGovernorClaimableSetup, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract PerpetualsGaugeUpgradeable is IPerpetualsGauge, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /// @notice The address of the reward token
@@ -39,6 +36,8 @@ contract PerpetualsGaugeUpgradeable is IPerpetualsGauge, BlastGovernorClaimableS
      */
     error AccessDenied();
 
+    error AddressZero();
+    
     /**
      * @dev Modifier to check if the caller is the authorized voter.
      */
@@ -52,21 +51,18 @@ contract PerpetualsGaugeUpgradeable is IPerpetualsGauge, BlastGovernorClaimableS
     /**
      * @dev Initializes the contract and disables initializers.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract with the given parameters.
-     * @param blastGovernor_ The address of the BlastGovernor.
      * @param rewardToken_ The address of the reward token.
      * @param voter_ The address authorized to distribute rewards.
      * @param rewarder_ The address of the reward receiver contract.
      * @param name_ The name of the gauge.
      */
     function initialize(
-        address blastGovernor_,
         address rewardToken_,
         address voter_,
         address rewarder_,
@@ -76,7 +72,6 @@ contract PerpetualsGaugeUpgradeable is IPerpetualsGauge, BlastGovernorClaimableS
         _checkAddressZero(voter_);
         _checkAddressZero(rewarder_);
 
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
         __ReentrancyGuard_init();
         __Ownable_init();
 

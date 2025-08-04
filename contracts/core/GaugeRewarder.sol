@@ -2,7 +2,6 @@
 pragma solidity =0.8.19;
 
 import {AccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
@@ -15,7 +14,7 @@ import "./interfaces/IGaugeRewarder.sol";
  * @dev This contract is responsible for managing reward distributions to gauges and handling claims.
  * It allows setting rewards, transferring rewards, and claiming rewards based on a signature.
  */
-contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP712Upgradeable, BlastGovernorClaimableSetup {
+contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP712Upgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**
@@ -115,6 +114,8 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
      */
     error InsufficientAvailableBalance();
 
+    error AddressZero();
+    
     /**
      * @dev Modifier to restrict access to either a gauge or an authorized rewarder.
      */
@@ -127,28 +128,24 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
 
     /**
      * @dev Initializes the contract by disabling initializers.
-     * @param blastGovernor_ The address of the Blast Governor contract.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract with the specified parameters.
-     * @param blastGovernor_ The address of the Blast Governor contract.
      * @param token_ The address of the reward token.
      * @param voter_ The address of the voter contract.
      * @param minter_ The address of the minter contract.
      */
-    function initialize(address blastGovernor_, address token_, address voter_, address minter_) external initializer {
+    function initialize(address token_, address voter_, address minter_) external initializer {
         _checkAddressZero(token_);
         _checkAddressZero(minter_);
         _checkAddressZero(voter_);
 
         __EIP712_init("GaugeRewarder", "1");
         __AccessControlEnumerable_init();
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
 
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
 

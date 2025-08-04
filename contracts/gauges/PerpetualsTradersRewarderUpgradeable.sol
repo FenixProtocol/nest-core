@@ -4,7 +4,6 @@ pragma solidity ^0.8.19;
 import {EIP712Upgradeable, ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
 import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IPerpetualsTradersRewarder} from "./interfaces/IPerpetualsTradersRewarder.sol";
 
 /**
@@ -14,8 +13,7 @@ import {IPerpetualsTradersRewarder} from "./interfaces/IPerpetualsTradersRewarde
 contract PerpetualsTradersRewarderUpgradeable is
     IPerpetualsTradersRewarder,
     OwnableUpgradeable,
-    EIP712Upgradeable,
-    BlastGovernorClaimableSetup
+    EIP712Upgradeable
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -55,26 +53,25 @@ contract PerpetualsTradersRewarderUpgradeable is
     /// @dev Error thrown when the provided reward token address is incorrect
     error IncorrectRewardToken();
 
+    error AddressZero();
+    
     /**
      * @dev Initializes the contract by disabling initializers.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract.
-     * @param blastGovernor_ The address of the BlastGovernor.
      * @param gauge_ The address of the gauge.
      * @param token_ The address of the reward token.
      * @param signer_ The address of the signer.
      */
-    function initialize(address blastGovernor_, address gauge_, address token_, address signer_) external initializer {
+    function initialize(address gauge_, address token_, address signer_) external initializer {
         _checkAddressZero(token_);
         _checkAddressZero(gauge_);
 
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
         __EIP712_init("PerpetualsTradersRewarderUpgradeable", "1");
         __Ownable_init();
 

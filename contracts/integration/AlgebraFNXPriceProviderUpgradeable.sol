@@ -7,7 +7,6 @@ import {IAlgebraPool} from "@cryptoalgebra/integral-core/contracts/interfaces/IA
 import {OracleLibrary} from "@cryptoalgebra/integral-plugin/contracts/libraries/integration/OracleLibrary.sol";
 
 import {IPriceProvider} from "./interfaces/IPriceProvider.sol";
-import {BlastGovernorClaimableSetup} from "./BlastGovernorClaimableSetup.sol";
 
 /**
  * @title AlgebraFNXPriceProviderUpgradeable-UNSAFE
@@ -21,13 +20,14 @@ import {BlastGovernorClaimableSetup} from "./BlastGovernorClaimableSetup.sol";
  *  than the profit generated. And also where price manipulation is not profitable
  *
  * @dev Provides price data for FNX token in USD, utilizing an Algebra-based pool for price calculation.
- * Inherits from `BlastGovernorClaimableSetup` for integration with blast. Designed to be upgradeable using OpenZeppelin's upgradeable contracts framework.
+ * Designed to be upgradeable using OpenZeppelin's upgradeable contracts framework.
  */
-contract AlgebraFNXPriceProviderUpgradeable is IPriceProvider, Initializable, BlastGovernorClaimableSetup {
+contract AlgebraFNXPriceProviderUpgradeable is IPriceProvider, Initializable {
     // errors
     error PoolIsLocked();
     error UnsafeCast();
-
+    error AddressZero();
+    
     /**
      * @dev Return the value of one USD in the smallest unit based on the USD token's decimals.
      */
@@ -51,24 +51,21 @@ contract AlgebraFNXPriceProviderUpgradeable is IPriceProvider, Initializable, Bl
     /**
      * @dev Initializes the contract by disabling the initializer of the inherited upgradeable contract.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
-     * @notice Initializes the price provider with the addresses of the Blast Governor, Algebra pool, FNX token, and USD token.
+     * @notice Initializes the price provider with the addresses of the Algebra pool, FNX token, and USD token.
      * @dev Stores the necessary addresses for later use and sets ONE_USD based on the USD token's decimals.
-     * @param blastGovernor_ Address of the Blast Governor.
      * @param pool_ Address of the Algebra pool used for price calculations.
      * @param FNX_ Address of the FNX token.
      * @param USD_ Address of the USD token.
      */
-    function initialize(address blastGovernor_, address pool_, address FNX_, address USD_) external initializer {
+    function initialize(address pool_, address FNX_, address USD_) external initializer {
         _checkAddressZero(pool_);
         _checkAddressZero(FNX_);
         _checkAddressZero(USD_);
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
 
         pool = pool_;
         FNX = FNX_;

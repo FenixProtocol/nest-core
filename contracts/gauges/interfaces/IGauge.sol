@@ -33,7 +33,6 @@ interface IGauge {
     function setFeeVault(address _feeVault) external;
 
     function initialize(
-        address _governor,
         address _rewardToken,
         address _ve,
         address _token,

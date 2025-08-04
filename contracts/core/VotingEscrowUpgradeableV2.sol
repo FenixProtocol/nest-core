@@ -5,7 +5,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Enumer
 import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import "../integration/BlastGovernorClaimableSetup.sol";
 import "../nest/interfaces/IManagedNFTManager.sol";
 import "./interfaces/IVotingEscrow.sol";
 import "./interfaces/IVeArtProxy.sol";
@@ -19,14 +18,13 @@ import "./libraries/LibVotingEscrowUtils.sol";
  * @title VotingEscrowUpgradeable_V2
  * @notice Manages the locking of tokens in exchange for veNFTs, which can be used in governance and other systems.
  * @dev This upgradeable contract includes features such as permanent locking, managed NFT attachments, and boosted deposits.
- *      It integrates with various external systems including Blast Governor, VotingEscrow, and VeBoost.
+ *      It integrates with various external systems including VotingEscrow, and VeBoost.
  */
 contract VotingEscrowUpgradeableV2 is
     IVotingEscrow,
     Ownable2StepUpgradeable,
     ERC721EnumerableUpgradeable,
-    ReentrancyGuardUpgradeable,
-    BlastGovernorClaimableSetup
+    ReentrancyGuardUpgradeable
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -95,21 +93,17 @@ contract VotingEscrowUpgradeableV2 is
 
     /**
      * @notice Constructor to disable initialization on implementation.
-     * @param blastGovernor_ The address of the Blast governor.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract with the given parameters.
-     * @param blastGovernor_ The address of the Blast governor.
      * @param token_ The address of the token used for voting escrow.
      * @dev Sets the initial state of the contract and checkpoints the supply.
      */
-    function initialize(address blastGovernor_, address token_) external initializer {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    function initialize(address token_) external initializer {
         __ReentrancyGuard_init();
         __Ownable2Step_init();
         __ERC721Enumerable_init();

@@ -5,7 +5,6 @@ import {ERC20, ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensio
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import {IFenix} from "./interfaces/IFenix.sol";
-import {BlastGovernorSetup} from "../integration/BlastGovernorSetup.sol";
 
 /**
  * @title Fenix ERC20 Token, Which is the main protocol token
@@ -15,15 +14,14 @@ import {BlastGovernorSetup} from "../integration/BlastGovernorSetup.sol";
  * The Fenix token allows for minting of new tokens, which can only be initiated by the {EmmisionManager}
  * contract in standard use.
  */
-contract Fenix is IFenix, BlastGovernorSetup, ERC20Burnable, Ownable {
+contract Fenix is IFenix, ERC20Burnable, Ownable {
     /**
      * @dev Initializes the contract, giving the transferred address the right to mint
      * and also mints the initial supply
      *
      * @param minter_ Address that will be granted ownership and minting rights
      */
-    constructor(address blastGovernor_, address minter_) ERC20("Fenix", "FNX") Ownable() {
-        __BlastGovernorSetup_init(blastGovernor_);
+    constructor(address minter_) ERC20("Fenix", "FNX") Ownable() {
         _mint(msg.sender, 7_500_000e18);
         _transferOwnership(minter_);
     }

@@ -3,7 +3,6 @@ pragma solidity =0.8.19;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IMinimalLinearVesting} from "./interfaces/IMinimalLinearVesting.sol";
 
 /**
@@ -12,7 +11,7 @@ import {IMinimalLinearVesting} from "./interfaces/IMinimalLinearVesting.sol";
  * The contract allows the owner to set wallet allocations, update vesting parameters,
  * and users can claim their vested tokens over time.
  */
-contract MinimalLinearVestingUpgradeable is IMinimalLinearVesting, OwnableUpgradeable, BlastGovernorClaimableSetup {
+contract MinimalLinearVestingUpgradeable is IMinimalLinearVesting, OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**
@@ -84,25 +83,18 @@ contract MinimalLinearVestingUpgradeable is IMinimalLinearVesting, OwnableUpgrad
         _;
     }
 
-    /**
-     * @dev Constructor to initialize the contract with the Blast Governor address.
-     * @param blastGovernor_ The address of the Blast Governor contract.
-     */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the vesting contract.
      * @dev This function can only be called once, during the initialization phase.
-     * @param blastGovernor_ The address of the Blast Governor contract.
      * @param token_ The address of the token to be vested.
      * @param startTimestamp_ The timestamp when vesting starts.
      * @param duration_ The duration of the vesting period in seconds.
      */
-    function initialize(address blastGovernor_, address token_, uint256 startTimestamp_, uint256 duration_) external initializer {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    function initialize(address token_, uint256 startTimestamp_, uint256 duration_) external initializer {
         __Ownable_init();
         token = token_;
         startTimestamp = startTimestamp_;

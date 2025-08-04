@@ -2,7 +2,6 @@
 pragma solidity =0.8.19;
 
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IVotingEscrow} from "../core/interfaces/IVotingEscrow.sol";
 import {IManagedNFTStrategy} from "./interfaces/IManagedNFTStrategy.sol";
 import {IManagedNFTManager} from "./interfaces/IManagedNFTManager.sol";
@@ -12,7 +11,7 @@ import {IManagedNFTManager} from "./interfaces/IManagedNFTManager.sol";
  * @dev Manages the lifecycle and access control for NFTs used in a managed strategy, leveraging governance and escrow functionalities.
  *      This contract serves as the central point for managing NFTs, their attachments to strategies, and authorized user interactions.
  */
-contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgradeable, BlastGovernorClaimableSetup {
+contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgradeable {
     /**
      * @dev Error indicating an unauthorized access attempt.
      */
@@ -42,6 +41,9 @@ contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgrad
      * @dev Error indicating a mismatch or incorrect association between user NFTs and managed tokens.
      */
     error IncorrectUserNFT();
+
+    error AddressZero();
+    
     /**
      * @dev Represents the state and association of a user's NFT within the management system.
      * @notice Stores details about an NFT's attachment status, which managed token it's linked to, and any associated amounts.
@@ -120,19 +122,16 @@ contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgrad
     /**
      * @dev Constructor that disables initialization on implementation.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the Managed NFT Manager contract
-     * @param blastGovernor_ The address of the blast governor
      * @param votingEscrow_ The address of the voting escrow contract
      * @param voter_ The address of the voter contract
      */
-    function initialize(address blastGovernor_, address votingEscrow_, address voter_) external initializer {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    function initialize(address votingEscrow_, address voter_) external initializer {
         __AccessControl_init();
 
         _checkAddressZero(votingEscrow_);

@@ -6,22 +6,20 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {IGaugeFactory} from "./interfaces/IGaugeFactory.sol";
 import {IGauge} from "./interfaces/IGauge.sol";
 import {GaugeProxy} from "./GaugeProxy.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 
-contract GaugeFactoryUpgradeable is IGaugeFactory, BlastGovernorClaimableSetup, OwnableUpgradeable {
+contract GaugeFactoryUpgradeable is IGaugeFactory, OwnableUpgradeable {
     address public last_gauge;
     address public voter;
-    address public defaultBlastGovernor;
     address public override gaugeImplementation;
     address public override merklGaugeMiddleman;
 
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    error AddressZero();
+    
+    constructor() {
         _disableInitializers();
     }
 
     function initialize(
-        address _blastGovernor,
         address _voter,
         address _gaugeImplementation,
         address _merklGaugeMiddleman
@@ -29,10 +27,8 @@ contract GaugeFactoryUpgradeable is IGaugeFactory, BlastGovernorClaimableSetup, 
         _checkAddressZero(_voter);
         _checkAddressZero(_gaugeImplementation);
 
-        __BlastGovernorClaimableSetup_init(_blastGovernor);
         __Ownable_init();
 
-        defaultBlastGovernor = _blastGovernor;
         voter = _voter;
         gaugeImplementation = _gaugeImplementation;
         merklGaugeMiddleman = _merklGaugeMiddleman;
@@ -52,7 +48,6 @@ contract GaugeFactoryUpgradeable is IGaugeFactory, BlastGovernorClaimableSetup, 
 
         address newLastGauge = address(new GaugeProxy());
         IGauge(newLastGauge).initialize(
-            defaultBlastGovernor,
             _rewardToken,
             _ve,
             _token,
@@ -69,17 +64,6 @@ contract GaugeFactoryUpgradeable is IGaugeFactory, BlastGovernorClaimableSetup, 
         return newLastGauge;
     }
 
-    /**
-     * @dev Sets the default governor address for new fee vaults. Only callable by the contract owner.
-     *
-     * @param defaultBlastGovernor_ The new default governor address to be set.
-     */
-    function setDefaultBlastGovernor(address defaultBlastGovernor_) external virtual onlyOwner {
-        _checkAddressZero(defaultBlastGovernor_);
-
-        emit SetDefaultBlastGovernor(defaultBlastGovernor, defaultBlastGovernor_);
-        defaultBlastGovernor = defaultBlastGovernor_;
-    }
 
     function gaugeOwner() external view returns (address) {
         return owner();

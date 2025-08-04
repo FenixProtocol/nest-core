@@ -6,7 +6,6 @@ import "./interfaces/IVoter.sol";
 import "./interfaces/IVotingEscrow.sol";
 import "../bribes/interfaces/IBribe.sol";
 
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
@@ -27,14 +26,13 @@ import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-u
  *  lock parameters, either via a user-specific config or a global default config.
  *
  * @dev
- *  - Inherits from {BlastGovernorClaimableSetup} for governance claimable functionality.
  *  - Inherits from {ReentrancyGuardUpgradeable} to protect state-mutating functions
  *    from reentrancy attacks.
  *  - Relies on the Voter’s roles to manage who can call certain functions.
  *    Specifically, only addresses with the COMPOUND_KEEPER_ROLE can perform batch
  *    compounding on behalf of users.
  */
-contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, BlastGovernorClaimableSetup, ReentrancyGuardUpgradeable {
+contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**
@@ -153,13 +151,7 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Bla
         _;
     }
 
-    /**
-     * @notice Contract constructor that also initializes the BlastGovernorClaimableSetup with `blastGovernor_`.
-     *         Disables further initializers to ensure the contract cannot be re-initialized.
-     * @param blastGovernor_ The address of the BlastGovernor contract for governance-related functionality.
-     */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
@@ -169,13 +161,11 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Bla
      *  - Sets default lock duration to approximately 6 months (15724800 seconds).
      *  - Should be invoked right after deployment.
      *
-     * @param blastGovernor_ The address of the BlastGovernor contract.
      * @param voter_ The address of the Voter contract.
      * @param token_ The address of the token being locked in VotingEscrow.
      * @param votingEscrow_ The address of the VotingEscrow contract.
      */
-    function initialize(address blastGovernor_, address voter_, address token_, address votingEscrow_) external initializer {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    function initialize(address voter_, address token_, address votingEscrow_) external initializer {
         __ReentrancyGuard_init();
         voter = voter_;
         token = token_;

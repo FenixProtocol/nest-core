@@ -3,8 +3,6 @@ pragma solidity =0.8.19;
 
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IRouterV2} from "../dexV2/interfaces/IRouterV2.sol";
 import {IPairFactory} from "../dexV2/interfaces/IPairFactory.sol";
 import {IRouterV2PathProvider} from "./interfaces/IRouterV2PathProvider.sol";
@@ -15,7 +13,7 @@ import {IPairQuote} from "./interfaces/IPairQuote.sol";
  * @notice Provides management for token routing paths within a decentralized exchange platform.
  * @dev Utilizes upgradeable patterns from OpenZeppelin, including Ownable and Initializable functionalities.
  */
-contract RouterV2PathProviderUpgradeable is IRouterV2PathProvider, Ownable2StepUpgradeable, BlastGovernorClaimableSetup {
+contract RouterV2PathProviderUpgradeable is IRouterV2PathProvider, Ownable2StepUpgradeable {
     /**
      * @notice Constant used to specify the granularity of quotes in getAmountOutQuote
      */
@@ -68,29 +66,27 @@ contract RouterV2PathProviderUpgradeable is IRouterV2PathProvider, Ownable2StepU
      */
     error RouteAlreadyExist();
 
+    error AddressZero();
+    
     /**
      * @notice Disables initialization on the implementation to prevent proxy issues.
      * @dev Constructor sets up non-initializable pattern for proxy use.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract with necessary governance and operational addresses
-     * @dev Sets up blast governance and operational aspects of the contract. This function can only be called once.
+     * @dev Sets up operational aspects of the contract. This function can only be called once.
      *
-     * @param blastGovernor_ The governance address capable of claiming the contract
      * @param factory_ The factory address used to manage pairings
      * @param router_ The router address used to manage routing logic
      */
-    function initialize(address blastGovernor_, address factory_, address router_) external initializer {
+    function initialize(address factory_, address router_) external initializer {
         _checkAddressZero(factory_);
         _checkAddressZero(router_);
-
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
-
+        
         __Ownable2Step_init();
 
         factory = factory_;

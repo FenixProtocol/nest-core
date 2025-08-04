@@ -9,7 +9,6 @@ import {IGaugeFactory} from "./interfaces/IGaugeFactory.sol";
 import {IRewarder} from "./interfaces/IRewarder.sol";
 import {IMerklGaugeMiddleman} from "../integration/interfaces/IMerklGaugeMiddleman.sol";
 import {IPairIntegrationInfo} from "../integration/interfaces/IPairIntegrationInfo.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IPairInfo} from "../dexV2/interfaces/IPairInfo.sol";
 import {IPair} from "../dexV2/interfaces/IPair.sol";
 import {IBribe} from "../bribes/interfaces/IBribe.sol";
@@ -17,7 +16,7 @@ import {IGauge} from "./interfaces/IGauge.sol";
 import {IFeesVault} from "../fees/interfaces/IFeesVault.sol";
 import {UpgradeCall} from "../integration/UpgradeCall.sol";
 
-contract GaugeUpgradeable is IGauge, BlastGovernorClaimableSetup, ReentrancyGuardUpgradeable, UpgradeCall {
+contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
     using SafeERC20 for IERC20;
 
     enum GaugeType {
@@ -83,14 +82,12 @@ contract GaugeUpgradeable is IGauge, BlastGovernorClaimableSetup, ReentrancyGuar
         _;
     }
 
-    constructor(address blastGovernor_, GaugeType gaugeType_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor(GaugeType gaugeType_) {
         _disableInitializers();
         gaugeType = gaugeType_;
     }
 
     function initialize(
-        address _governor,
         address _rewardToken,
         address _ve,
         address _token,
@@ -101,7 +98,6 @@ contract GaugeUpgradeable is IGauge, BlastGovernorClaimableSetup, ReentrancyGuar
         address _merklGaugeMiddleman,
         address _feeVault
     ) external initializer {
-        __BlastGovernorClaimableSetup_init(_governor);
         __ReentrancyGuard_init();
 
         gaugeFactory = msg.sender;

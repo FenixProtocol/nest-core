@@ -63,14 +63,6 @@ interface IFeesVaultFactory is IAlgebraVaultFactory, IAccessControlUpgradeable {
     event SetVoter(address indexed oldVoter, address indexed newVoter);
 
     /**
-     * @dev Emitted when the rebasing tokens governor address is set.
-     *
-     * @param oldRebasingTokensGovernor The previous address of the rebasing tokens governor.
-     * @param newRebasingTokensGovernor The new address of the rebasing tokens governor.
-     */
-    event SetRebasingTokensGovernor(address indexed oldRebasingTokensGovernor, address indexed newRebasingTokensGovernor);
-
-    /**
      * @dev Emitted when a custom distribution configuration is set for a creator.
      * @param creator The address of the creator for which the configuration is set.
      * @param config The custom distribution configuration applied to the fees vault created by creator.

@@ -7,7 +7,6 @@ import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
 import {IVeFnxSplitMerklAidrop} from "./interfaces/IVeFnxSplitMerklAidrop.sol";
 import {MerkleProofUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/MerkleProofUpgradeable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 
 /**
  * @title VeFnxSplitMerklAidropUpgradeable
@@ -16,8 +15,7 @@ import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimable
 contract VeFnxSplitMerklAidropUpgradeable is
     IVeFnxSplitMerklAidrop,
     Ownable2StepUpgradeable,
-    PausableUpgradeable,
-    BlastGovernorClaimableSetup
+    PausableUpgradeable
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -86,25 +84,23 @@ contract VeFnxSplitMerklAidropUpgradeable is
      */
     error ZeroPureTokensRate();
 
+    error AddressZero();
+    
     /**
      * @dev Initializes the contract by disabling the initializer of the inherited upgradeable contract.
-     * @param blastGovernor_ Address of the Blast Governor contract.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @dev Initializes the contract with the provided parameters.
-     * @param blastGovernor_ Address of the Blast Governor contract.
      * @param token_ Address of the token contract.
      * @param votingEscrow_ Address of the Voting Escrow contract.
      * @param pureTokensRate_ Rate for pure tokens.
      * @notice This function can only be called once.
      */
     function initialize(
-        address blastGovernor_,
         address token_,
         address votingEscrow_,
         uint256 pureTokensRate_
@@ -113,7 +109,6 @@ contract VeFnxSplitMerklAidropUpgradeable is
         _checkAddressZero(votingEscrow_);
         _checkPureTokensRate(pureTokensRate_);
 
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
         __Ownable2Step_init();
         __Pausable_init();
 

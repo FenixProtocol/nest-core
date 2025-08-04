@@ -116,10 +116,9 @@ interface ISingelTokenVirtualRewarder {
 
     /**
      * @notice Initializes the contract with necessary governance and operational addresses
-     * @dev Sets up blast governance and operational aspects of the contract. This function can only be called once.
+     * @dev Sets up operational aspects of the contract. This function can only be called once.
      *
-     * @param blastGovernor_ The governance address capable of claiming the contract
      * @param strategy_ The strategy address that will interact with this contract
      */
-    function initialize(address blastGovernor_, address strategy_) external;
+    function initialize(address strategy_) external;
 }

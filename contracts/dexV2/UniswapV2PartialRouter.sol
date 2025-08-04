@@ -5,7 +5,7 @@ import "./RouterV2.sol";
 import {IUniswapV2PartialRouter} from "./interfaces/IUniswapV2PartialRouter.sol";
 
 contract UniswapV2PartialRouter is RouterV2, IUniswapV2PartialRouter {
-    constructor(address _blastGovernor, address _factory, address _wETH) RouterV2(_blastGovernor, _factory, _wETH) {}
+    constructor(address _factory, address _wETH) RouterV2(_factory, _wETH) {}
 
     function WETH() public view returns (address) {
         return address(wETH);

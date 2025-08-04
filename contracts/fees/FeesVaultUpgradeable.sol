@@ -5,7 +5,6 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {IPairIntegrationInfo} from "../integration/interfaces/IPairIntegrationInfo.sol";
-import {BlastERC20RebasingManage} from "../integration/BlastERC20RebasingManage.sol";
 
 import {IVoter} from "../core/interfaces/IVoter.sol";
 import {IFeesVault} from "./interfaces/IFeesVault.sol";
@@ -15,43 +14,36 @@ import {UpgradeCall} from "../integration/UpgradeCall.sol";
 /**
  * @title Fees Vault Factory
  * @dev Factory contract for creating and managing fees vault instances.
- * Implements access control and integration with BLAST protocol's rebasing mechanism.
+ * Implements access control.
  */
-contract FeesVaultUpgradeable is IFeesVault, BlastERC20RebasingManage, Initializable, UpgradeCall {
+contract FeesVaultUpgradeable is IFeesVault, Initializable, UpgradeCall {
     using SafeERC20 for IERC20;
     uint256 internal constant _PRECISION = 10000; // 100%
 
     address public override factory;
     address public override pool;
 
+    error AddressZero();
+    
     /**
      * @dev Constructor that disables initialization on implementation.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract with necessary configuration.
-     * @param blastGovernor_ Address of the BLAST governor.
-     * @param blastPoints_ Address for BLAST points management.
-     * @param blastPointsOperator_ Operator address for BLAST points.
      * @param factory_ Factory address for this vault.
      * @param pool_ Address of the liquidity pool.
      */
     function initialize(
-        address blastGovernor_,
-        address blastPoints_,
-        address blastPointsOperator_,
         address factory_,
         address pool_
     ) external virtual override initializer {
         if (factory_ == address(0) || pool_ == address(0)) {
             revert AddressZero();
         }
-
-        __BlastERC20RebasingManage__init(blastGovernor_, blastPoints_, blastPointsOperator_);
 
         factory = factory_;
         pool = pool_;
@@ -137,13 +129,6 @@ contract FeesVaultUpgradeable is IFeesVault, BlastERC20RebasingManage, Initializ
             unchecked {
                 i++;
             }
-        }
-    }
-
-    function _checkAccessForManageBlastERC20Rebasing() internal virtual override {
-        IFeesVaultFactory factoryCache = IFeesVaultFactory(factory);
-        if (msg.sender != address(factoryCache) && !factoryCache.hasRole(factoryCache.FEES_VAULT_ADMINISTRATOR_ROLE(), msg.sender)) {
-            revert AccessDenied();
         }
     }
 

@@ -77,9 +77,6 @@ interface IWETH {
     function withdraw(uint) external;
 }
 
-interface IBlast {
-    function configureGovernor(address _governor) external;
-}
 
 // Experimental Extension [ftm.guru/solidly/BaseV1Router02]
 // contract BaseV1Router02 is BaseV1Router01
@@ -105,8 +102,7 @@ contract RouterV2 {
         _;
     }
 
-    constructor(address _blastGovernor, address _factory, address _wETH) {
-        IBlast(0x4300000000000000000000000000000000000002).configureGovernor(_blastGovernor);
+    constructor(address _factory, address _wETH) {
         factory = _factory;
         wETH = IWETH(_wETH);
     }

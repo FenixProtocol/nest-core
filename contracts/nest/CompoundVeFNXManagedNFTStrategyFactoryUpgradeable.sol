@@ -2,7 +2,6 @@
 pragma solidity =0.8.19;
 
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {ICompoundVeFNXManagedNFTStrategyFactory} from "./interfaces/ICompoundVeFNXManagedNFTStrategyFactory.sol";
 import {ISingelTokenVirtualRewarder} from "./interfaces/ISingelTokenVirtualRewarder.sol";
 import {ICompoundVeFNXManagedNFTStrategy} from "./interfaces/ICompoundVeFNXManagedNFTStrategy.sol";
@@ -12,12 +11,10 @@ import {VirtualRewarderProxy} from "./VirtualRewarderProxy.sol";
 /**
  * @title Factory for Compound VeFNX Managed NFT Strategies and Virtual Rewarders
  * @notice This contract serves as a factory for creating and initializing managed NFT strategies and their corresponding virtual rewarders in the Compound VeFNX ecosystem.
- * @dev Extends BlastGovernorClaimableSetup for governance and AccessControlUpgradeable for role-based permissions.
  * It uses proxy contracts for strategy and rewarder creation to ensure upgradability.
  */
 contract CompoundVeFNXManagedNFTStrategyFactoryUpgradeable is
     ICompoundVeFNXManagedNFTStrategyFactory,
-    BlastGovernorClaimableSetup,
     AccessControlUpgradeable
 {
     /**
@@ -41,34 +38,28 @@ contract CompoundVeFNXManagedNFTStrategyFactoryUpgradeable is
     address public override managedNFTManager;
 
     /**
-     * @notice Default governance address set during the initialization of new strategies and rewarders
-     */
-    address public override defaultBlastGovernor;
-
-    /**
      * @notice The address of the Router V2 Path Provider used to fetch and calculate optimal routes for token transactions within strategies.
      */
     address public override routerV2PathProvider;
 
+    error AddressZero();
+
     /**
      * @dev Constructor that disables initialization on implementation.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the factory with the necessary addresses and default configuration.
      * @dev Sets up the contract with initial governance settings, roles, and implementations for strategies and rewarders. Marks the contract as initialized.
-     * @param blastGovernor_ The address with the governance capabilities over this contract.
      * @param strategyImplementation_ The initial implementation contract for strategies.
      * @param virtualRewarderImplementation_ The initial implementation contract for virtual rewarders.
      * @param managedNFTManager_ The manager address for interacting with managed NFTs.
      * @param routerV2PathProvider_ The address of the router V2 path provider used for fetching and calculating optimal token swap routes.
      */
     function initialize(
-        address blastGovernor_,
         address strategyImplementation_,
         address virtualRewarderImplementation_,
         address managedNFTManager_,
@@ -79,7 +70,6 @@ contract CompoundVeFNXManagedNFTStrategyFactoryUpgradeable is
         _checkAddressZero(managedNFTManager_);
         _checkAddressZero(routerV2PathProvider_);
 
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
         __AccessControl_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -87,7 +77,6 @@ contract CompoundVeFNXManagedNFTStrategyFactoryUpgradeable is
 
         strategyImplementation = strategyImplementation_;
         virtualRewarderImplementation = virtualRewarderImplementation_;
-        defaultBlastGovernor = blastGovernor_;
         managedNFTManager = managedNFTManager_;
         routerV2PathProvider = routerV2PathProvider_;
     }
@@ -102,8 +91,8 @@ contract CompoundVeFNXManagedNFTStrategyFactoryUpgradeable is
         ICompoundVeFNXManagedNFTStrategy strategy = ICompoundVeFNXManagedNFTStrategy(address(new StrategyProxy()));
         ISingelTokenVirtualRewarder virtualRewarder = ISingelTokenVirtualRewarder(address(new VirtualRewarderProxy()));
 
-        strategy.initialize(defaultBlastGovernor, managedNFTManager, address(virtualRewarder), routerV2PathProvider, name_);
-        virtualRewarder.initialize(defaultBlastGovernor, address(strategy));
+        strategy.initialize(managedNFTManager, address(virtualRewarder), routerV2PathProvider, name_);
+        virtualRewarder.initialize(address(strategy));
 
         emit CreateStrategy(address(strategy), address(virtualRewarder), name_);
 
@@ -147,17 +136,6 @@ contract CompoundVeFNXManagedNFTStrategyFactoryUpgradeable is
         routerV2PathProvider = routerV2PathProvider_;
     }
 
-    /**
-     * @dev Sets the default governor address for new fee vaults. Only callable by the contract owner.
-     *
-     * @param defaultBlastGovernor_ The new default governor address to be set.
-     */
-    function setDefaultBlastGovernor(address defaultBlastGovernor_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _checkAddressZero(defaultBlastGovernor_);
-
-        emit SetDefaultBlastGovernor(defaultBlastGovernor, defaultBlastGovernor_);
-        defaultBlastGovernor = defaultBlastGovernor_;
-    }
 
     /**
      * @dev Checked provided address on zero value, throw AddressZero error in case when addr_ is zero

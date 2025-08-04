@@ -5,30 +5,27 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {BribeProxy} from "./BribeProxy.sol";
 import {IBribe} from "./interfaces/IBribe.sol";
 import {IBribeFactory} from "./interfaces/IBribeFactory.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 
-contract BribeFactoryUpgradeable is IBribeFactory, BlastGovernorClaimableSetup, OwnableUpgradeable {
+contract BribeFactoryUpgradeable is IBribeFactory, OwnableUpgradeable {
     address public last_bribe;
     address public voter;
     address public bribeImplementation;
-    address public defaultBlastGovernor;
     address[] public defaultRewardToken;
     mapping(address => bool) public override isDefaultRewardToken;
     bool public override isRewardClaimPause;
 
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    error AddressZero();
+    
+    constructor() {
         _disableInitializers();
     }
 
-    function initialize(address _blastGovernor, address _voter, address _bribeImplementation) external initializer {
+    function initialize(address _voter, address _bribeImplementation) external initializer {
         _checkAddressZero(_voter);
         _checkAddressZero(_bribeImplementation);
 
-        __BlastGovernorClaimableSetup_init(_blastGovernor);
         __Ownable_init();
 
-        defaultBlastGovernor = _blastGovernor;
         voter = _voter;
         bribeImplementation = _bribeImplementation;
     }
@@ -38,7 +35,7 @@ contract BribeFactoryUpgradeable is IBribeFactory, BlastGovernorClaimableSetup, 
 
         address newLastBribe = address(new BribeProxy());
 
-        IBribe(newLastBribe).initialize(defaultBlastGovernor, voter, address(this), _type);
+        IBribe(newLastBribe).initialize(voter, address(this), _type);
 
         if (_token0 != address(0)) IBribe(newLastBribe).addRewardToken(_token0);
         if (_token1 != address(0)) IBribe(newLastBribe).addRewardToken(_token1);
@@ -77,18 +74,6 @@ contract BribeFactoryUpgradeable is IBribeFactory, BlastGovernorClaimableSetup, 
 
         emit SetVoter(voter, voter_);
         voter = voter_;
-    }
-
-    /**
-     * @dev Sets the default governor address for new fee vaults. Only callable by the contract owner.
-     *
-     * @param defaultBlastGovernor_ The new default governor address to be set.
-     */
-    function setDefaultBlastGovernor(address defaultBlastGovernor_) external virtual onlyOwner {
-        _checkAddressZero(defaultBlastGovernor_);
-
-        emit SetDefaultBlastGovernor(defaultBlastGovernor, defaultBlastGovernor_);
-        defaultBlastGovernor = defaultBlastGovernor_;
     }
 
     function addRewards(address _token, address[] memory _bribes) external onlyOwner {

@@ -6,7 +6,6 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import {IAlgebraFactory} from "@cryptoalgebra/integral-core/contracts/interfaces/IAlgebraFactory.sol";
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 import {IPairIntegrationInfo} from "../integration/interfaces/IPairIntegrationInfo.sol";
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
 import {IPairFactory} from "../dexV2/interfaces/IPairFactory.sol";
@@ -32,7 +31,7 @@ import "./interfaces/IVoter.sol";
  * @custom:security ReentrancyGuardUpgradeable to prevent reentrancy attacks.
  * @custom:security AccessControlUpgradeable for role-based access control.
  */
-contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, BlastGovernorClaimableSetup, ReentrancyGuardUpgradeable {
+contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /// @notice Role identifier for governance operations.
@@ -156,22 +155,18 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, BlastGovernorCl
     }
 
     /**
-     * @dev Constructor that initializes the BlastGovernorClaimableSetup with the given address and disables further initializers.
-     * @param blastGovernor_ The address of the BlastGovernor contract.
+     * @dev Constructor that disables further initializers.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract with the given parameters.
      * @dev This function can only be called once during contract initialization.
-     * @param blastGovernor_ The address of the BlastGovernor contract.
      * @param votingEscrow_ The address of the Voting Escrow contract.
      */
-    function initialize(address blastGovernor_, address votingEscrow_) external initializer {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    function initialize(address votingEscrow_) external initializer {
         __ReentrancyGuard_init();
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());

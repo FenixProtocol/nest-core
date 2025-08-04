@@ -5,7 +5,6 @@ import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/
 import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-import {BlastGovernorClaimableSetup} from "../../integration/BlastGovernorClaimableSetup.sol";
 import {IVotingEscrow} from "../../core/interfaces/IVotingEscrow.sol";
 import {IBribeVeFNXRewardToken} from "./interfaces/IBribeVeFNXRewardToken.sol";
 
@@ -19,7 +18,7 @@ import {IBribeVeFNXRewardToken} from "./interfaces/IBribeVeFNXRewardToken.sol";
  * particularly useful for "bribe" mechanisms, where veFNX positions are desired like bribes
  * without directly managing lock creation and extension.
  */
-contract BribeVeFNXRewardToken is IBribeVeFNXRewardToken, ERC20Upgradeable, BlastGovernorClaimableSetup, AccessControlUpgradeable {
+contract BribeVeFNXRewardToken is IBribeVeFNXRewardToken, ERC20Upgradeable, AccessControlUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /// @notice Role identifier for entities allowed to mint brVeFNX tokens.
@@ -37,22 +36,16 @@ contract BribeVeFNXRewardToken is IBribeVeFNXRewardToken, ERC20Upgradeable, Blas
     /// @notice Parameters used when calling createLockFor() in the VotingEscrow contract.
     CreateLockParams public override createLockParams;
 
-    /**
-     * @param blastGovernor_ The address of the BlastGovernor contract.
-     */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract.
      * @dev This function must be called only once. Sets up roles, token name/symbol, and references to VotingEscrow.
-     * @param blastGovernor_ The address of the BlastGovernor contract.
      * @param votingEscrow_ The address of the VotingEscrow contract.
      */
-    function initialize(address blastGovernor_, address votingEscrow_) external initializer {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    function initialize(address votingEscrow_) external initializer {
         __ERC20_init("Bribe VeFNX Reward Token", "brVeFNX");
         __AccessControl_init();
 

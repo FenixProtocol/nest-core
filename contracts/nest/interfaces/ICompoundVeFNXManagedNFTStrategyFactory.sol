@@ -15,14 +15,6 @@ interface ICompoundVeFNXManagedNFTStrategyFactory {
     event SetRouterV2PathProvider(address indexed oldRouterV2PathProvider, address indexed newRouterV2PathProvider);
 
     /**
-     * @dev Emitted when the default Blast governor address for new strategies is updated.
-     *
-     * @param oldDefaultBlastGovernor The address of the previous default Blast governor.
-     * @param newDefaultBlastGovernor The address of the new default Blast governor that has been set.
-     */
-    event SetDefaultBlastGovernor(address indexed oldDefaultBlastGovernor, address indexed newDefaultBlastGovernor);
-
-    /**
      * @dev Emitted when the implementation address for the virtual rewarder is changed.
      *
      * @param oldImplementation The previous implementation address of the virtual rewarder.
@@ -66,12 +58,6 @@ interface ICompoundVeFNXManagedNFTStrategyFactory {
     function managedNFTManager() external view returns (address);
 
     /**
-     * @notice Returns the current default Blast governor address.
-     * @return The address of the default Blast governor.
-     */
-    function defaultBlastGovernor() external view returns (address);
-
-    /**
      * @notice Returns the address of the Router V2 Path Provider used to fetch and calculate
      *  optimal routes for token transactions within strategies.
      * @return The address of the RouterV2PathProvider.
@@ -84,12 +70,6 @@ interface ICompoundVeFNXManagedNFTStrategyFactory {
      * @return The address of the newly created strategy instance
      */
     function createStrategy(string calldata name_) external returns (address);
-
-    /**
-     * @notice Sets a new default Blast governor address for newly created strategies.
-     * @param defaultBlastGovernor_ The new default governor address to be set.
-     */
-    function setDefaultBlastGovernor(address defaultBlastGovernor_) external;
 
     /**
      * @notice Sets a new RouterV2PathProvider.

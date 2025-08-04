@@ -7,7 +7,6 @@ import {AccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgrad
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
 import {IVeFnxDistributor} from "./interfaces/IVeFnxDistributor.sol";
 
-import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimableSetup.sol";
 
 /**
  * @title VeFnxDistributorUpgradeable
@@ -16,11 +15,10 @@ import {BlastGovernorClaimableSetup} from "../integration/BlastGovernorClaimable
  *  - Inherits from:
  *      1) IVeFnxDistributor (interface with function signatures for distribution and recovery).
  *      2) AccessControlEnumerableUpgradeable (for role-based access control).
- *      3) BlastGovernorClaimableSetup (for integration with Blast Governor).
  *  - The contract allows authorized roles to set whitelisted "reasons" for airdrops, distribute locked FNX (veFnx),
  *    and recover tokens if needed.
  */
-contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerableUpgradeable, BlastGovernorClaimableSetup {
+contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**
@@ -60,26 +58,24 @@ contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerab
     /// @notice Thrown if the provided arrayies with diff length.
     error ArrayLengthMismatch();
 
+    error AddressZero();
+    
     /**
      * @notice Constructor that ensures the implementation contract cannot be initialized more than once.
-     * @param blastGovernor_ The address of the Blast Governor contract.
      */
-    constructor(address blastGovernor_) {
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
+    constructor() {
         _disableInitializers();
     }
 
     /**
      * @notice Initializes the contract, setting up the FNX and Voting Escrow addresses and granting admin roles.
-     * @param blastGovernor_ The address of the Blast Governor contract.
      * @param fenix_ The address of the FNX token contract (non-zero).
      * @param votingEscrow_ The address of the Voting Escrow contract (non-zero).
      * @dev Grants the DEFAULT_ADMIN_ROLE to the deployer (caller of `initialize`).
      */
-    function initialize(address blastGovernor_, address fenix_, address votingEscrow_) external initializer {
+    function initialize(address fenix_, address votingEscrow_) external initializer {
         _checkAddressZero(fenix_);
         _checkAddressZero(votingEscrow_);
-        __BlastGovernorClaimableSetup_init(blastGovernor_);
         __AccessControlEnumerable_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
