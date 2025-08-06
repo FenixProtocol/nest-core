@@ -31,46 +31,23 @@ describe('GaugeFactoryUpgradeable', function () {
 
   describe('Deployment', function () {
     it('Should fail if try initialize on implementation', async function () {
-      let t = await factory.deploy(signers.blastGovernor.address);
-      await expect(t.initialize(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS)).to.be.revertedWith(
-        ERRORS.Initializable.Initialized,
-      );
+      let t = await factory.deploy();
+      await expect(t.initialize(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS)).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
     it('Should fail if try second time to initialize', async function () {
       await expect(
-        gaugeFactory.initialize(
-          signers.blastGovernor.address,
-          deployed.voter.target,
-          deployed.gaugeImplementation.target,
-          deployed.merklGaugeMiddleman.target,
-        ),
+        gaugeFactory.initialize(deployed.voter.target, deployed.gaugeImplementation.target, deployed.merklGaugeMiddleman.target),
       ).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
     it('Should corect set initial parameters', async function () {
       expect(await gaugeFactory.last_gauge()).to.be.equal(ZERO_ADDRESS);
-      expect(await gaugeFactory.gaugeOwner()).to.be.equal(signers.deployer.address);
-      expect(await gaugeFactory.owner()).to.be.equal(signers.deployer.address);
-      expect(await gaugeFactory.defaultBlastGovernor()).to.be.equal(signers.blastGovernor.address);
+      expect(await gaugeFactory.gaugeOwner()).to.be.equal(signers.deployer);
+      expect(await gaugeFactory.owner()).to.be.equal(signers.deployer);
       expect(await gaugeFactory.gaugeImplementation()).to.be.equal(deployed.gaugeImplementation.target);
       expect(await gaugeFactory.merklGaugeMiddleman()).to.be.equal(deployed.merklGaugeMiddleman.target);
     });
   });
-  describe('#setDefaultBlastGovernor', async () => {
-    it('fails if caller is not have owner', async () => {
-      await expect(gaugeFactory.connect(signers.otherUser1).setDefaultBlastGovernor(signers.otherUser1.address)).to.be.revertedWith(
-        ERRORS.Ownable.NotOwner,
-      );
-    });
-    it('should corect set default blast governor ', async () => {
-      expect(await gaugeFactory.defaultBlastGovernor()).to.be.eq(signers.blastGovernor.address);
-      await expect(gaugeFactory.setDefaultBlastGovernor(signers.otherUser1.address))
-        .to.be.emit(gaugeFactory, 'SetDefaultBlastGovernor')
-        .withArgs(signers.blastGovernor.address, signers.otherUser1.address);
 
-      expect(await gaugeFactory.defaultBlastGovernor()).to.be.not.eq(signers.blastGovernor.address);
-      expect(await gaugeFactory.defaultBlastGovernor()).to.be.eq(signers.otherUser1.address);
-    });
-  });
   describe('#setMerklGaugeMiddleman', async () => {
     it('fails if caller is not owner', async () => {
       await expect(gaugeFactory.connect(signers.otherUser1).setMerklGaugeMiddleman(signers.otherUser1.address)).to.be.revertedWith(

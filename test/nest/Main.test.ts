@@ -13,7 +13,7 @@ import {
   VoterUpgradeableV2,
   VotingEscrowUpgradeableV2,
 } from '../../typechain-types';
-import { WETH_PREDEPLOYED_ADDRESS, ZERO } from '../utils/constants';
+import { ZERO } from '../utils/constants';
 import completeFixture, {
   CoreFixtureDeployed,
   SignersList,
@@ -88,9 +88,7 @@ describe('Nest Main Contract', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (
-            await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [signers.blastGovernor.address])
-          ).getAddress(),
+          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
     )) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
@@ -99,26 +97,21 @@ describe('Nest Main Contract', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [signers.blastGovernor.address])).getAddress(),
+          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [])).getAddress(),
         )
       ).target,
     ) as RouterV2PathProviderUpgradeable;
 
-    routerV2 = await ethers.deployContract('RouterV2', [
-      signers.blastGovernor.address,
-      deployed.v2PairFactory.target,
-      WETH_PREDEPLOYED_ADDRESS,
-    ]);
+    routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
 
-    await routerV2PathProvider.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target);
+    await routerV2PathProvider.initialize(deployed.v2PairFactory.target, routerV2.target);
 
     await strategyFactory.initialize(
-      signers.blastGovernor.address,
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
       ).target,
       (
-        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])
       ).target,
       managedNFTManager.target,
       routerV2PathProvider.target,

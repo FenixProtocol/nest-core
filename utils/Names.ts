@@ -27,8 +27,6 @@ export enum AliasDeployedContracts {
   CompoundVeFNXManagedNFTStrategyFactoryUpgradeable_Proxy = 'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable_Proxy',
   ManagedNFTManagerUpgradeable_Implementation = 'ManagedNFTManagerUpgradeable_Implementation',
   ManagedNFTManagerUpgradeable_Proxy = 'ManagedNFTManagerUpgradeable_Proxy',
-  BlastRebasingTokensGovernorUpgradeable_Implementation = 'BlastRebasingTokensGovernorUpgradeable_Implementation',
-  BlastRebasingTokensGovernorUpgradeable_Proxy = 'BlastRebasingTokensGovernorUpgradeable_Proxy',
   MerklGaugeMiddleman = 'MerklGaugeMiddleman',
   BribeFactoryUpgradeable_Implementation = 'BribeFactoryUpgradeable_Implementation',
   BribeFactoryUpgradeable_Proxy = 'BribeFactoryUpgradeable_Proxy',
@@ -59,9 +57,6 @@ export enum AliasDeployedContracts {
   AlgebraFNXPriceProviderUpgradeable_Implementation = 'AlgebraFNXPriceProviderUpgradeable_Implementation',
   AlgebraFNXPriceProviderUpgradeable_Proxy = 'AlgebraFNXPriceProviderUpgradeable_Proxy',
   Fenix = 'Fenix',
-  BlastGovernorUpgradeable_Implementation = 'BlastGovernorUpgradeable_Implementation',
-  BlastGovernorUpgradeable_Proxy = 'BlastGovernorUpgradeable_Proxy',
-  MDCBlastMock = 'MDCBlastMock',
   MinimalLinearVestingUpgradeable_Proxy = 'MinimalLinearVestingUpgradeable_Proxy',
   MinimalLinearVestingUpgradeable_Implementation = 'MinimalLinearVestingUpgradeable_Implementation',
   GaugeRewader_Implementation = 'GaugeRewader_Implementation',
@@ -80,10 +75,6 @@ export enum AliasDeployedContracts {
   CustomBribeRewardRouter_Implementation = 'CustomBribeRewardRouter_Implementation',
   CompoundEmissionExtensionUpgradeable_Proxy = 'CompoundEmissionExtensionUpgradeable_Proxy',
   CompoundEmissionExtensionUpgradeable_Implementation = 'CompoundEmissionExtensionUpgradeable_Implementation',
-}
-
-enum ThirdPart {
-  Blast = 'IBlastFull',
 }
 
 enum ContractsInstanceName {
@@ -107,7 +98,6 @@ enum ContractsInstanceName {
   RouterV2PathProviderUpgradeable = 'RouterV2PathProviderUpgradeable',
   CompoundVeFNXManagedNFTStrategyFactoryUpgradeable = 'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable',
   ManagedNFTManagerUpgradeable = 'ManagedNFTManagerUpgradeable',
-  BlastRebasingTokensGovernorUpgradeable = 'BlastRebasingTokensGovernorUpgradeable',
   MerklGaugeMiddleman = 'MerklGaugeMiddleman',
   BribeFactoryUpgradeable = 'BribeFactoryUpgradeable',
   VeNFTAPIUpgradeable = 'VeNFTAPIUpgradeable',
@@ -125,7 +115,6 @@ enum ContractsInstanceName {
   AlgebraFNXPriceProviderUpgradeable = 'AlgebraFNXPriceProviderUpgradeable',
   Fenix = 'Fenix',
   TransparentUpgradeableProxy = 'TransparentUpgradeableProxy',
-  BlastGovernorUpgradeable = 'BlastGovernorUpgradeable',
   MinimalLinearVestingUpgradeable = 'MinimalLinearVestingUpgradeable',
   GaugeRewarder = 'GaugeRewarder',
   ManualFNXPriceProvider = 'ManualFNXPriceProvider',
@@ -142,8 +131,7 @@ enum ContractsMocksInstanceName {
 
 export const InstanceName = {
   ...ContractsInstanceName,
-  ...ThirdPart,
   ...ContractsMocksInstanceName,
 };
 
-export type InstanceName = ContractsInstanceName | ContractsMocksInstanceName | ThirdPart;
+export type InstanceName = ContractsInstanceName | ContractsMocksInstanceName;

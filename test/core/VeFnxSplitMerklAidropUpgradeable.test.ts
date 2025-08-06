@@ -12,7 +12,7 @@ import {
   VeFnxSplitMerklAidropUpgradeable,
   VotingEscrowUpgradeableV2,
 } from '../../typechain-types/index';
-import { ERRORS, ONE, ONE_ETHER, WETH_PREDEPLOYED_ADDRESS, ZERO, ZERO_ADDRESS } from '../utils/constants';
+import { ERRORS, ONE, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, deployTransaperntUpgradeableProxy, SignersList } from '../utils/coreFixture';
 
 function getProof(address: string, tree: any): string[] {
@@ -55,9 +55,7 @@ describe('VeFnxSplitMerklAidropUpgradeable Contract', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (
-            await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [signers.blastGovernor.address])
-          ).getAddress(),
+          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
     )) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
@@ -67,26 +65,21 @@ describe('VeFnxSplitMerklAidropUpgradeable Contract', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [signers.blastGovernor.address])).getAddress(),
+          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [])).getAddress(),
         )
       ).target,
     ) as RouterV2PathProviderUpgradeable;
 
-    routerV2 = await ethers.deployContract('RouterV2', [
-      signers.blastGovernor.address,
-      deployed.v2PairFactory.target,
-      WETH_PREDEPLOYED_ADDRESS,
-    ]);
+    routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
 
-    await routerV2PathProvider.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target);
+    await routerV2PathProvider.initialize(deployed.v2PairFactory.target, routerV2.target);
 
     await strategyFactory.initialize(
-      signers.blastGovernor.address,
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
       ).target,
       (
-        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])
       ).target,
       managedNFTManager.target,
       routerV2PathProvider.target,
@@ -99,7 +92,7 @@ describe('VeFnxSplitMerklAidropUpgradeable Contract', function () {
     signers = deployed.signers;
     fenix = deployed.fenix;
 
-    implementation = await ethers.deployContract('VeFnxSplitMerklAidropUpgradeable', [signers.blastGovernor.address]);
+    implementation = await ethers.deployContract('VeFnxSplitMerklAidropUpgradeable', []);
     proxy = await ethers.getContractAt(
       'VeFnxSplitMerklAidropUpgradeable',
       (
@@ -107,7 +100,7 @@ describe('VeFnxSplitMerklAidropUpgradeable Contract', function () {
       ).target,
     );
 
-    await proxy.initialize(signers.blastGovernor.address, fenix.target, votingEscrow.target, TO_PURE_TOKESN_RATE);
+    await proxy.initialize(fenix.target, votingEscrow.target, TO_PURE_TOKESN_RATE);
 
     managedNFTManager = deployed.managedNFTManager;
 
@@ -116,14 +109,14 @@ describe('VeFnxSplitMerklAidropUpgradeable Contract', function () {
 
   describe('Deployment', function () {
     it('fail if try initialize on implementation', async () => {
-      await expect(
-        implementation.initialize(signers.blastGovernor.address, fenix.target, votingEscrow.target, TO_PURE_TOKESN_RATE),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(implementation.initialize(fenix.target, votingEscrow.target, TO_PURE_TOKESN_RATE)).to.be.revertedWith(
+        ERRORS.Initializable.Initialized,
+      );
     });
     it('fail if try initialize second time', async () => {
-      await expect(
-        proxy.initialize(signers.blastGovernor.address, fenix.target, votingEscrow.target, TO_PURE_TOKESN_RATE),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(proxy.initialize(fenix.target, votingEscrow.target, TO_PURE_TOKESN_RATE)).to.be.revertedWith(
+        ERRORS.Initializable.Initialized,
+      );
     });
     it('fail if try set zero address', async () => {
       let uninitializedProxy = await ethers.getContractAt(
@@ -132,16 +125,15 @@ describe('VeFnxSplitMerklAidropUpgradeable Contract', function () {
           await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, signers.proxyAdmin.address, '0x'])
         ).target,
       );
-      await expect(
-        uninitializedProxy.initialize(ZERO_ADDRESS, fenix.target, votingEscrow.target, TO_PURE_TOKESN_RATE),
-      ).to.be.revertedWithCustomError(uninitializedProxy, 'AddressZero');
-      await expect(
-        uninitializedProxy.initialize(signers.blastGovernor.address, ZERO_ADDRESS, votingEscrow.target, TO_PURE_TOKESN_RATE),
-      ).to.be.revertedWithCustomError(uninitializedProxy, 'AddressZero');
+      await expect(uninitializedProxy.initialize(ZERO_ADDRESS, votingEscrow.target, TO_PURE_TOKESN_RATE)).to.be.revertedWithCustomError(
+        uninitializedProxy,
+        'AddressZero',
+      );
 
-      await expect(
-        uninitializedProxy.initialize(signers.blastGovernor.address, fenix.target, ZERO_ADDRESS, TO_PURE_TOKESN_RATE),
-      ).to.be.revertedWithCustomError(uninitializedProxy, 'AddressZero');
+      await expect(uninitializedProxy.initialize(fenix.target, ZERO_ADDRESS, TO_PURE_TOKESN_RATE)).to.be.revertedWithCustomError(
+        uninitializedProxy,
+        'AddressZero',
+      );
     });
     it('fail if try set pure tokens rate more then 100%', async () => {
       let uninitializedProxy = await ethers.getContractAt(
@@ -151,14 +143,15 @@ describe('VeFnxSplitMerklAidropUpgradeable Contract', function () {
         ).target,
       );
       await expect(
-        uninitializedProxy.initialize(signers.blastGovernor.address, fenix.target, votingEscrow.target, ethers.parseEther('1') + BigInt(1)),
+        uninitializedProxy.initialize(fenix.target, votingEscrow.target, ethers.parseEther('1') + BigInt(1)),
       ).to.be.revertedWithCustomError(uninitializedProxy, 'IncorrectPureTokensRate');
       await expect(
-        uninitializedProxy.initialize(signers.blastGovernor.address, fenix.target, votingEscrow.target, ethers.parseEther('1')),
+        uninitializedProxy.initialize(fenix.target, votingEscrow.target, ethers.parseEther('1')),
       ).to.be.not.revertedWithCustomError(uninitializedProxy, 'IncorrectPureTokensRate');
-      await expect(
-        uninitializedProxy.initialize(signers.blastGovernor.address, fenix.target, votingEscrow.target, 0),
-      ).to.be.not.revertedWithCustomError(uninitializedProxy, 'IncorrectPureTokensRate');
+      await expect(uninitializedProxy.initialize(fenix.target, votingEscrow.target, 0)).to.be.not.revertedWithCustomError(
+        uninitializedProxy,
+        'IncorrectPureTokensRate',
+      );
     });
     describe('success deployment', async () => {
       it('correct setup params', async () => {
@@ -168,7 +161,7 @@ describe('VeFnxSplitMerklAidropUpgradeable Contract', function () {
       });
 
       it('owner should be deployer', async () => {
-        expect(await proxy.owner()).to.be.eq(signers.deployer.address);
+        expect(await proxy.owner()).to.be.eq(signers.deployer);
       });
 
       it('paused state by default', async () => {
@@ -410,11 +403,11 @@ describe('VeFnxSplitMerklAidropUpgradeable Contract', function () {
       let transferAmount = ethers.parseEther('0.99');
 
       let startContractBalance = await fenix.balanceOf(proxy.target);
-      let startBalance = await fenix.balanceOf(signers.deployer.address);
+      let startBalance = await fenix.balanceOf(signers.deployer);
 
       await expect(proxy.recoverToken(transferAmount)).to.be.emit(proxy, 'Recover').withArgs(signers.deployer.address, transferAmount);
 
-      expect(await fenix.balanceOf(signers.deployer.address)).to.be.eq(startBalance + transferAmount);
+      expect(await fenix.balanceOf(signers.deployer)).to.be.eq(startBalance + transferAmount);
 
       expect(await fenix.balanceOf(proxy.target)).to.be.eq(startContractBalance - transferAmount);
       expect(await fenix.balanceOf(proxy.target)).to.be.eq(ethers.parseEther('0.01'));

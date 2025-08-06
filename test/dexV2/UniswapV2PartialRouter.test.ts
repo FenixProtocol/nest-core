@@ -2,7 +2,7 @@ import { loadFixture, time } from '@nomicfoundation/hardhat-toolbox/network-help
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { ERC20Mock, Pair, PairFactoryUpgradeable, RouterV2, UniswapV2PartialRouter, WETH9 } from '../../typechain-types';
-import { WETH_PREDEPLOYED_ADDRESS, ZERO_ADDRESS } from '../utils/constants';
+import { ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, SignersList, deployERC20MockToken } from '../utils/coreFixture';
 
 describe('Pair Contract', function () {
@@ -29,7 +29,7 @@ describe('Pair Contract', function () {
     tokenTK6 = await deployERC20MockToken(deployed.signers.deployer, 'TK6', 'TK6', 6);
     weth9 = await ethers.deployContract('WETH9');
 
-    router = await ethers.deployContract('UniswapV2PartialRouter', [signers.deployer.address, pairFactory.target, weth9]);
+    router = await ethers.deployContract('UniswapV2PartialRouter', [pairFactory.target, weth9]);
 
     pairStable = await ethers.getContractAt(
       'Pair',

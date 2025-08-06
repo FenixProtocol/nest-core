@@ -7,10 +7,9 @@ import {
   ManagedNFTManagerMock,
   ManagedNFTManagerUpgradeable,
   MinimalLinearVestingUpgradeable,
-  VeArtProxyUpgradeable,
   VotingEscrowUpgradeableV2,
 } from '../../typechain-types';
-import completeFixture, { deployERC20MockToken, mockBlast } from '../utils/coreFixture';
+import completeFixture, { deployERC20MockToken } from '../utils/coreFixture';
 
 import { ContractTransactionResponse } from 'ethers';
 import { ERRORS, ONE, ONE_ETHER } from '../utils/constants';
@@ -19,7 +18,6 @@ import { bigint } from 'hardhat/internal/core/params/argumentTypes';
 
 type Signers = {
   deployer: HardhatEthersSigner;
-  blastGovernor: HardhatEthersSigner;
   proxyAdmin: HardhatEthersSigner;
   user1: HardhatEthersSigner;
   user2: HardhatEthersSigner;
@@ -27,9 +25,8 @@ type Signers = {
 };
 
 async function fixture() {
-  await mockBlast();
   let signers = await ethers.getSigners();
-  let MinimalLinearVesting_Implementation = await ethers.deployContract('MinimalLinearVestingUpgradeable', [signers[1].address]);
+  let MinimalLinearVesting_Implementation = await ethers.deployContract('MinimalLinearVestingUpgradeable', []);
 
   let MinimalLinearVesting = (await ethers.deployContract('TransparentUpgradeableProxy', [
     MinimalLinearVesting_Implementation.target,
@@ -40,7 +37,6 @@ async function fixture() {
   return {
     signers: {
       deployer: signers[0],
-      blastGovernor: signers[1],
       proxyAdmin: signers[2],
       user1: signers[3],
       user2: signers[4],
@@ -67,20 +63,20 @@ describe('MinimalLinearVestingUpgradeable', function () {
     signers = deployed.signers;
     token = await deployERC20MockToken(signers.deployer, 'MOK', 'MOK', 18);
     startTimestamp = (await time.latest()) + 10000000;
-    initializeTx = await MinimalLinearVesting.initialize(signers.blastGovernor.address, token.target, startTimestamp, duration);
+    initializeTx = await MinimalLinearVesting.initialize(token.target, startTimestamp, duration);
   });
 
   describe('Deployment', async () => {
     describe('should fail if', async () => {
       it('try call initialize on implementation', async () => {
-        await expect(
-          MinimalLinearVesting_Implementation.initialize(signers.blastGovernor.address, token.target, startTimestamp, duration),
-        ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+        await expect(MinimalLinearVesting_Implementation.initialize(token.target, startTimestamp, duration)).to.be.revertedWith(
+          ERRORS.Initializable.Initialized,
+        );
       });
       it('try recall initialize on proxy', async () => {
-        await expect(
-          MinimalLinearVesting.initialize(signers.blastGovernor.address, token.target, startTimestamp, duration),
-        ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+        await expect(MinimalLinearVesting.initialize(token.target, startTimestamp, duration)).to.be.revertedWith(
+          ERRORS.Initializable.Initialized,
+        );
       });
     });
 

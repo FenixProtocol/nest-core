@@ -1,8 +1,7 @@
 import { setCode, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { BlastMock__factory, Fenix, MinterUpgradeable, VoterEscrowMock, VoterMock } from '../../../typechain-types/index';
-import { BLAST_PREDEPLOYED_ADDRESS, ERRORS, ONE, ZERO, ZERO_ADDRESS } from '../../utils/constants';
+import { Fenix, MinterUpgradeable, VoterEscrowMock, VoterMock } from '../../../typechain-types/index';
 import { SignersList, deployFenixToken, deployMinter, getSigners } from '../../utils/coreFixture';
 
 describe('BehavierWithShiftOneWeekPatch.test Contract', function () {
@@ -21,10 +20,8 @@ describe('BehavierWithShiftOneWeekPatch.test Contract', function () {
   }
 
   before(async function () {
-    await setCode(BLAST_PREDEPLOYED_ADDRESS, BlastMock__factory.bytecode);
-
     signers = await getSigners();
-    fenix = await deployFenixToken(signers.deployer, signers.blastGovernor.address, signers.deployer.address);
+    fenix = await deployFenixToken(signers.deployer, signers.deployer.address);
     voterMock = await ethers.deployContract('VoterMock');
     voterEscrow = await ethers.deployContract('VoterEscrowMock');
 
@@ -34,7 +31,7 @@ describe('BehavierWithShiftOneWeekPatch.test Contract', function () {
     minter = await deployMinter(
       signers.deployer,
       signers.proxyAdmin.address,
-      signers.blastGovernor.address,
+
       await voterMock.getAddress(),
       await voterEscrow.getAddress(),
     );

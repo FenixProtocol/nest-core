@@ -4,7 +4,6 @@ import { ethers } from 'hardhat';
 import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 
 import {
-  BlastPointsMock,
   BribeFactoryUpgradeable,
   BribeUpgradeable,
   ERC20Mock,
@@ -79,11 +78,11 @@ describe('GaugeRewarder Contract', function () {
 
     factory = await ethers.getContractFactory('GaugeRewarder');
 
-    implementation = await factory.deploy(signers.blastGovernor.address);
+    implementation = await factory.deploy();
 
     instance = await newInstance();
 
-    await instance.initialize(signers.blastGovernor.address, fenix.target, deployed.voter.target, deployed.minter.target);
+    await instance.initialize(fenix.target, deployed.voter.target, deployed.minter.target);
 
     currentMinterPeriod = await deployed.minter.active_period();
   });
@@ -115,41 +114,37 @@ describe('GaugeRewarder Contract', function () {
 
     describe('should fail if', async () => {
       it('try initialize on implementations', async () => {
-        await expect(
-          implementation.initialize(ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress),
-        ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+        await expect(implementation.initialize(ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress)).to.be.revertedWith(
+          ERRORS.Initializable.Initialized,
+        );
       });
 
       it('try initialize second time on proxy', async () => {
-        await expect(
-          instance.initialize(ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress),
-        ).to.be.revertedWith(ERRORS.Initializable.Initialized);
-      });
-
-      it('provide zero blastGovernor address ', async () => {
-        let newInst = await newInstance();
-        await expect(
-          newInst.initialize(ethers.ZeroAddress, fenix.target, deployed.voter.target, deployed.minter.target),
-        ).to.be.revertedWithCustomError(newInst, 'AddressZero');
+        await expect(instance.initialize(ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress)).to.be.revertedWith(
+          ERRORS.Initializable.Initialized,
+        );
       });
 
       it('provide zero token address ', async () => {
         let newInst = await newInstance();
-        await expect(
-          newInst.initialize(signers.blastGovernor.address, ethers.ZeroAddress, deployed.voter.target, deployed.minter.target),
-        ).to.be.revertedWithCustomError(newInst, 'AddressZero');
+        await expect(newInst.initialize(ethers.ZeroAddress, deployed.voter.target, deployed.minter.target)).to.be.revertedWithCustomError(
+          newInst,
+          'AddressZero',
+        );
       });
       it('provide zero voter address ', async () => {
         let newInst = await newInstance();
-        await expect(
-          newInst.initialize(signers.blastGovernor.address, fenix.target, ethers.ZeroAddress, deployed.minter.target),
-        ).to.be.revertedWithCustomError(newInst, 'AddressZero');
+        await expect(newInst.initialize(fenix.target, ethers.ZeroAddress, deployed.minter.target)).to.be.revertedWithCustomError(
+          newInst,
+          'AddressZero',
+        );
       });
       it('provide zero minter address ', async () => {
         let newInst = await newInstance();
-        await expect(
-          newInst.initialize(signers.blastGovernor.address, fenix.target, deployed.voter.target, ethers.ZeroAddress),
-        ).to.be.revertedWithCustomError(newInst, 'AddressZero');
+        await expect(newInst.initialize(fenix.target, deployed.voter.target, ethers.ZeroAddress)).to.be.revertedWithCustomError(
+          newInst,
+          'AddressZero',
+        );
       });
     });
   });

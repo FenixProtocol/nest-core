@@ -11,7 +11,7 @@ import {
   VoterUpgradeableV2,
   VotingEscrowUpgradeableV2,
 } from '../../../typechain-types';
-import { ERRORS, WEEK, WETH_PREDEPLOYED_ADDRESS, ZERO, getAccessControlError } from '../../utils/constants';
+import { ERRORS, WEEK, ZERO, getAccessControlError } from '../../utils/constants';
 import completeFixture, {
   CoreFixtureDeployed,
   SignersList,

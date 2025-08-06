@@ -37,7 +37,7 @@ describe.skip('BribeFactoryUpgradeable Contract', function () {
 
     bribeFactory = deployed.bribeFactory;
     let currentEpoch = (BigInt(await time.latest()) / (86400n * 7n)) * 86400n * 7n;
-    let newImpl = await ethers.deployContract('BribeUpgradeableMockWithFixTargetEpoch', [signers.blastGovernor.address, currentEpoch]);
+    let newImpl = await ethers.deployContract('BribeUpgradeableMockWithFixTargetEpoch', [currentEpoch]);
     await bribeFactory.changeImplementation(newImpl.target);
 
     await deployed.v2PairFactory.createPair(token18.target, token9.target, false);

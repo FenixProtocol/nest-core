@@ -9,7 +9,7 @@ import {
   RouterV2PathProviderUpgradeable,
   RouterV2PathProviderUpgradeable__factory,
 } from '../../typechain-types';
-import { ERRORS, ONE_ETHER, WETH_PREDEPLOYED_ADDRESS, ZERO, ZERO_ADDRESS } from '../utils/constants';
+import { ERRORS, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, {
   CoreFixtureDeployed,
   SignersList,
@@ -40,18 +40,14 @@ describe('RouterV2PathProviderUpgradeable Contract', function () {
     FENIX = await deployERC20MockToken(signers.deployer, 'FENIX', 'FNX', 18);
 
     factory = await ethers.getContractFactory('RouterV2PathProviderUpgradeable');
-    pathProviderImpl = await factory.deploy(signers.deployer.address);
+    pathProviderImpl = await factory.deploy();
 
     pathProvider = factory.attach(
       (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await pathProviderImpl.getAddress())).target,
     ) as any as RouterV2PathProviderUpgradeable;
 
-    routerV2 = await ethers.deployContract('RouterV2', [
-      signers.blastGovernor.address,
-      deployed.v2PairFactory.target,
-      WETH_PREDEPLOYED_ADDRESS,
-    ]);
-    await pathProvider.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target);
+    routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
+    await pathProvider.initialize(deployed.v2PairFactory.target, routerV2.target);
   });
 
   async function createPairWithObservation(
@@ -92,15 +88,15 @@ describe('RouterV2PathProviderUpgradeable Contract', function () {
 
   describe('Deployment', async () => {
     it('fail if try initialize on implementatrion', async () => {
-      await expect(
-        pathProviderImpl.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(pathProviderImpl.initialize(deployed.v2PairFactory.target, routerV2.target)).to.be.revertedWith(
+        ERRORS.Initializable.Initialized,
+      );
     });
 
     it('fail if try initialize second time', async () => {
-      await expect(
-        pathProviderImpl.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(pathProviderImpl.initialize(deployed.v2PairFactory.target, routerV2.target)).to.be.revertedWith(
+        ERRORS.Initializable.Initialized,
+      );
     });
 
     it('fail if `factory` is zero address', async () => {
@@ -108,24 +104,26 @@ describe('RouterV2PathProviderUpgradeable Contract', function () {
         (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await pathProviderImpl.getAddress())).target,
       ) as any as RouterV2PathProviderUpgradeable;
 
-      await expect(
-        newPathProvider.initialize(signers.blastGovernor.address, ZERO_ADDRESS, deployed.v2PairFactory.target),
-      ).to.be.revertedWithCustomError(newPathProvider, 'AddressZero');
+      await expect(newPathProvider.initialize(ZERO_ADDRESS, deployed.v2PairFactory.target)).to.be.revertedWithCustomError(
+        newPathProvider,
+        'AddressZero',
+      );
     });
     it('fail if `router` is zero address', async () => {
       let newPathProvider = factory.attach(
         (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await pathProviderImpl.getAddress())).target,
       ) as any as RouterV2PathProviderUpgradeable;
 
-      await expect(
-        newPathProvider.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, ZERO_ADDRESS),
-      ).to.be.revertedWithCustomError(newPathProvider, 'AddressZero');
+      await expect(newPathProvider.initialize(deployed.v2PairFactory.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(
+        newPathProvider,
+        'AddressZero',
+      );
     });
 
     it('correct set provided params', async () => {
       expect(await pathProvider.factory()).to.be.eq(deployed.v2PairFactory.target);
       expect(await pathProvider.router()).to.be.eq(routerV2.target);
-      expect(await pathProvider.owner()).to.be.eq(signers.deployer.address);
+      expect(await pathProvider.owner()).to.be.eq(signers.deployer);
     });
   });
 
@@ -407,40 +405,40 @@ describe('RouterV2PathProviderUpgradeable Contract', function () {
       expect(await pathProvider.getRoutesTokenToToken(deployed.fenix.target, deployed.fenix.target)).to.be.deep.eq([]);
 
       await pathProvider.addRouteToToken(deployed.fenix.target, {
-        from: signers.blastGovernor.address,
+        from: signers.otherUser5.address,
         to: deployed.fenix.target,
         stable: false,
       });
 
       expect(await pathProvider.getRoutesTokenToToken(USDT.target, deployed.fenix.target)).to.be.deep.eq([
         [
-          [USDT.target, signers.blastGovernor.address, true],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [USDT.target, signers.otherUser5.address, true],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
-          [USDT.target, signers.blastGovernor.address, false],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [USDT.target, signers.otherUser5.address, false],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
       ]);
 
       expect(await pathProvider.getRoutesTokenToToken(WETH.target, deployed.fenix.target)).to.be.deep.eq([
         [
-          [WETH.target, signers.blastGovernor.address, true],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [WETH.target, signers.otherUser5.address, true],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
-          [WETH.target, signers.blastGovernor.address, false],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [WETH.target, signers.otherUser5.address, false],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
       ]);
       expect(await pathProvider.getRoutesTokenToToken(deployed.fenix.target, deployed.fenix.target)).to.be.deep.eq([
         [
-          [deployed.fenix.target, signers.blastGovernor.address, true],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [deployed.fenix.target, signers.otherUser5.address, true],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
-          [deployed.fenix.target, signers.blastGovernor.address, false],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [deployed.fenix.target, signers.otherUser5.address, false],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
       ]);
 
@@ -452,12 +450,12 @@ describe('RouterV2PathProviderUpgradeable Contract', function () {
 
       expect(await pathProvider.getRoutesTokenToToken(USDT.target, deployed.fenix.target)).to.be.deep.eq([
         [
-          [USDT.target, signers.blastGovernor.address, true],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [USDT.target, signers.otherUser5.address, true],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
-          [USDT.target, signers.blastGovernor.address, false],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [USDT.target, signers.otherUser5.address, false],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
           [USDT.target, WETH.target, true],
@@ -471,22 +469,22 @@ describe('RouterV2PathProviderUpgradeable Contract', function () {
 
       expect(await pathProvider.getRoutesTokenToToken(WETH.target, deployed.fenix.target)).to.be.deep.eq([
         [
-          [WETH.target, signers.blastGovernor.address, true],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [WETH.target, signers.otherUser5.address, true],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
-          [WETH.target, signers.blastGovernor.address, false],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [WETH.target, signers.otherUser5.address, false],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
       ]);
       expect(await pathProvider.getRoutesTokenToToken(deployed.fenix.target, deployed.fenix.target)).to.be.deep.eq([
         [
-          [deployed.fenix.target, signers.blastGovernor.address, true],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [deployed.fenix.target, signers.otherUser5.address, true],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
-          [deployed.fenix.target, signers.blastGovernor.address, false],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [deployed.fenix.target, signers.otherUser5.address, false],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
           [deployed.fenix.target, WETH.target, true],
@@ -536,7 +534,7 @@ describe('RouterV2PathProviderUpgradeable Contract', function () {
       ]);
 
       await pathProvider.addRouteToToken(deployed.fenix.target, {
-        from: signers.blastGovernor.address,
+        from: signers.otherUser5.address,
         to: deployed.fenix.target,
         stable: false,
       });
@@ -559,22 +557,22 @@ describe('RouterV2PathProviderUpgradeable Contract', function () {
           [WETH.target, deployed.fenix.target, true],
         ],
         [
-          [USDT.target, signers.blastGovernor.address, true],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [USDT.target, signers.otherUser5.address, true],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
-          [USDT.target, signers.blastGovernor.address, false],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [USDT.target, signers.otherUser5.address, false],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
       ]);
       expect(await pathProvider.getRoutesTokenToToken(WETH.target, deployed.fenix.target)).to.be.deep.eq([
         [
-          [WETH.target, signers.blastGovernor.address, true],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [WETH.target, signers.otherUser5.address, true],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
         [
-          [WETH.target, signers.blastGovernor.address, false],
-          [signers.blastGovernor.address, deployed.fenix.target, false],
+          [WETH.target, signers.otherUser5.address, false],
+          [signers.otherUser5.address, deployed.fenix.target, false],
         ],
       ]);
 

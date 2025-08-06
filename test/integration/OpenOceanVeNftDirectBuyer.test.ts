@@ -71,12 +71,7 @@ describe('OpenOceanVeNftDirectBuyer', function () {
 
     OpenOceanCaller = await ethers.deployContract('OpenOceanCallerMock');
 
-    OpenOceanVeNftDirectBuyer = await factory.deploy(
-      signers.blastGovernor.address,
-      VotingEscrow.target,
-      Fenix.target,
-      OpenOceanExchange.target,
-    );
+    OpenOceanVeNftDirectBuyer = await factory.deploy(VotingEscrow.target, Fenix.target, OpenOceanExchange.target);
     await TOK18.mint(signers.otherUser1.address, ethers.parseEther('100'));
     await TOK9.mint(signers.otherUser1.address, 1e9);
     await TOK18.connect(signers.otherUser1).approve(OpenOceanVeNftDirectBuyer.target, ethers.parseEther('100'));
@@ -86,31 +81,29 @@ describe('OpenOceanVeNftDirectBuyer', function () {
 
   describe('Deployment', async () => {
     describe('should fail if try', async () => {
-      it('deploy with zero blastGovernor address', async () => {
-        await expect(
-          factory.deploy(ethers.ZeroAddress, VotingEscrow.target, Fenix.target, OpenOceanExchange.target),
-        ).to.be.revertedWithCustomError(factory, 'AddressZero');
-      });
       it('deploy with zero votingEscrow address', async () => {
-        await expect(
-          factory.deploy(signers.blastGovernor.address, ethers.ZeroAddress, Fenix.target, OpenOceanExchange.target),
-        ).to.be.revertedWithCustomError(factory, 'AddressZero');
+        await expect(factory.deploy(ethers.ZeroAddress, Fenix.target, OpenOceanExchange.target)).to.be.revertedWithCustomError(
+          factory,
+          'AddressZero',
+        );
       });
       it('deploy with zero token address', async () => {
-        await expect(
-          factory.deploy(signers.blastGovernor.address, VotingEscrow.target, ethers.ZeroAddress, OpenOceanExchange.target),
-        ).to.be.revertedWithCustomError(factory, 'AddressZero');
+        await expect(factory.deploy(VotingEscrow.target, ethers.ZeroAddress, OpenOceanExchange.target)).to.be.revertedWithCustomError(
+          factory,
+          'AddressZero',
+        );
       });
       it('deploy with zero open ocean address', async () => {
-        await expect(
-          factory.deploy(signers.blastGovernor.address, VotingEscrow.target, Fenix.target, ethers.ZeroAddress),
-        ).to.be.revertedWithCustomError(factory, 'AddressZero');
+        await expect(factory.deploy(VotingEscrow.target, Fenix.target, ethers.ZeroAddress)).to.be.revertedWithCustomError(
+          factory,
+          'AddressZero',
+        );
       });
     });
 
     describe('success deployed, init params and setup owner', async () => {
       it('owner', async () => {
-        expect(await OpenOceanVeNftDirectBuyer.owner()).to.be.eq(signers.deployer.address);
+        expect(await OpenOceanVeNftDirectBuyer.owner()).to.be.eq(signers.deployer);
       });
       it('token', async () => {
         expect(await OpenOceanVeNftDirectBuyer.token()).to.be.eq(Fenix.target);
@@ -150,13 +143,13 @@ describe('OpenOceanVeNftDirectBuyer', function () {
       it('erc20 token', async () => {
         let amount = ethers.parseEther('1');
         await Fenix.transfer(OpenOceanVeNftDirectBuyer.target, amount);
-        let ownerBalanceBefore = await Fenix.balanceOf(signers.deployer.address);
+        let ownerBalanceBefore = await Fenix.balanceOf(signers.deployer);
         expect(await Fenix.balanceOf(OpenOceanVeNftDirectBuyer.target)).to.be.eq(amount);
         await expect(OpenOceanVeNftDirectBuyer.rescueFunds(Fenix.target))
           .to.be.emit(Fenix, 'Transfer')
           .withArgs(OpenOceanVeNftDirectBuyer.target, signers.deployer.address, amount);
         expect(await Fenix.balanceOf(OpenOceanVeNftDirectBuyer.target)).to.be.eq(ZERO);
-        expect(await Fenix.balanceOf(signers.deployer.address)).to.be.eq(ownerBalanceBefore + amount);
+        expect(await Fenix.balanceOf(signers.deployer)).to.be.eq(ownerBalanceBefore + amount);
       });
     });
   });

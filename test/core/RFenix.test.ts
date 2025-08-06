@@ -21,15 +21,12 @@ describe('rFNX', function () {
 
     factory = await ethers.getContractFactory('RFenix');
 
-    instance = await factory.deploy(signers.blastGovernor.address, votingEscrow.target);
+    instance = await factory.deploy(votingEscrow.target);
   });
 
   describe('Deployment', function () {
-    it('should fail if provide zero blast governor address', async function () {
-      await expect(factory.deploy(ZERO_ADDRESS, votingEscrow.target)).to.be.revertedWithCustomError(factory, 'AddressZero');
-    });
     it('should fail if provide zero votingEscrow', async function () {
-      await expect(factory.deploy(signers.blastGovernor.address, ZERO_ADDRESS)).to.be.revertedWithCustomError(factory, 'AddressZero');
+      await expect(factory.deploy(ZERO_ADDRESS)).to.be.revertedWithCustomError(factory, 'AddressZero');
     });
     it('should correct set inital parameters', async () => {
       expect(await instance.symbol()).to.be.eq('rFNX');
@@ -99,8 +96,8 @@ describe('rFNX', function () {
 
       expect(await instance.totalSupply()).to.equal(ONE);
 
-      await instance.mint(signers.blastGovernor.address, ONE_ETHER);
-      expect(await instance.balanceOf(signers.blastGovernor.address)).to.equal(ONE_ETHER);
+      await instance.mint(signers.deployer.address, ONE_ETHER);
+      expect(await instance.balanceOf(signers.deployer.address)).to.equal(ONE_ETHER);
       expect(await instance.totalSupply()).to.equal(ONE_ETHER + ONE);
     });
 

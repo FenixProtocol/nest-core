@@ -11,7 +11,7 @@ import {
   VoterUpgradeableV2,
   VotingEscrowUpgradeableV2,
 } from '../../../typechain-types';
-import { ERRORS, WEEK, WETH_PREDEPLOYED_ADDRESS, ZERO, getAccessControlError } from '../../utils/constants';
+import { ERRORS, WEEK, ZERO, getAccessControlError } from '../../utils/constants';
 import completeFixture, {
   CoreFixtureDeployed,
   SignersList,
@@ -38,9 +38,7 @@ describe.skip('Voting pause functionality', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (
-            await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [signers.blastGovernor.address])
-          ).getAddress(),
+          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
     )) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
@@ -50,26 +48,21 @@ describe.skip('Voting pause functionality', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [signers.blastGovernor.address])).getAddress(),
+          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [])).getAddress(),
         )
       ).target,
     ) as RouterV2PathProviderUpgradeable;
 
-    routerV2 = await ethers.deployContract('RouterV2', [
-      signers.blastGovernor.address,
-      deployed.v2PairFactory.target,
-      WETH_PREDEPLOYED_ADDRESS,
-    ]);
+    routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
 
-    await routerV2PathProvider.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target);
+    await routerV2PathProvider.initialize(deployed.v2PairFactory.target, routerV2.target);
 
     await StrategyFactory.initialize(
-      signers.blastGovernor.address,
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
       ).target,
       (
-        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])
       ).target,
       ManagedNFTManager.target,
       routerV2PathProvider.target,
@@ -130,17 +123,6 @@ describe.skip('Voting pause functionality', function () {
 
     await VotingEscrow.createLockFor(ethers.parseEther('100'), 0, signers.otherUser2.address, false, true, 0);
     otherUser2VeNftTokenId = await VotingEscrow.lastMintedTokenId();
-  });
-
-  it('should fail if call from not default admin', async () => {
-    await expect(Voter.connect(signers.otherUser1).fixVotePower()).to.be.revertedWith(
-      getAccessControlError(await Voter.DEFAULT_ADMIN_ROLE(), signers.otherUser1.address),
-    );
-  });
-
-  it('should fail if try call second time', async () => {
-    await Voter.fixVotePower();
-    await expect(Voter.fixVotePower()).to.be.revertedWith(ERRORS.Initializable.Initialized);
   });
 
   describe('should success fix votes', async () => {

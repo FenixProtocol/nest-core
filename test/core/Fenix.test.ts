@@ -2,13 +2,12 @@ import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 import { setCode } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { BlastMock__factory, Fenix } from '../../typechain-types/index';
-import { BLAST_PREDEPLOYED_ADDRESS, ERRORS, ONE, ONE_ETHER, ZERO } from '../utils/constants';
+import { Fenix } from '../../typechain-types/index';
+import { ERRORS, ONE, ONE_ETHER, ZERO } from '../utils/constants';
 
 describe('Fenix Contract', function () {
   let fenixInstance: Fenix;
   let emissionManager: HardhatEthersSigner;
-  let blastGovernor: HardhatEthersSigner;
   let otherUser: HardhatEthersSigner;
   let deployer: HardhatEthersSigner;
 
@@ -20,11 +19,9 @@ describe('Fenix Contract', function () {
   };
 
   before(async function () {
-    await setCode(BLAST_PREDEPLOYED_ADDRESS, BlastMock__factory.bytecode);
-
     const Fenix = await ethers.getContractFactory('Fenix');
-    [deployer, emissionManager, blastGovernor, otherUser] = await ethers.getSigners();
-    fenixInstance = (await Fenix.deploy(blastGovernor.address, await emissionManager.getAddress())) as Fenix;
+    [deployer, emissionManager, otherUser] = await ethers.getSigners();
+    fenixInstance = (await Fenix.deploy(await emissionManager.getAddress())) as Fenix;
   });
 
   describe('Deployment', function () {

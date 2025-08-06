@@ -11,7 +11,7 @@ import {
   SingelTokenBuybackUpgradeableMock,
   SingelTokenBuybackUpgradeableMock__factory,
 } from '../../typechain-types';
-import { ERRORS, ONE_ETHER, WETH_PREDEPLOYED_ADDRESS, ZERO, ZERO_ADDRESS } from '../utils/constants';
+import { ERRORS, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, {
   CoreFixtureDeployed,
   SignersList,
@@ -81,18 +81,14 @@ describe('SingelTokenBuybackUpgradeable Contract', function () {
     FENIX = await deployERC20MockToken(signers.deployer, 'FENIX', 'FNX', 18);
 
     let pathProviderFactory = await ethers.getContractFactory('RouterV2PathProviderUpgradeable');
-    let pathProviderImpl = await pathProviderFactory.deploy(signers.deployer.address);
+    let pathProviderImpl = await pathProviderFactory.deploy();
 
     pathProvider = pathProviderFactory.attach(
       (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await pathProviderImpl.getAddress())).target,
     ) as any as RouterV2PathProviderUpgradeable;
 
-    routerV2 = await ethers.deployContract('RouterV2', [
-      signers.blastGovernor.address,
-      deployed.v2PairFactory.target,
-      WETH_PREDEPLOYED_ADDRESS,
-    ]);
-    await pathProvider.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target);
+    routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
+    await pathProvider.initialize(deployed.v2PairFactory.target, routerV2.target);
 
     factory = await ethers.getContractFactory('SingelTokenBuybackUpgradeableMock');
     singelTokenBuybackImpl = await factory.deploy();
@@ -114,7 +110,7 @@ describe('SingelTokenBuybackUpgradeable Contract', function () {
 
     it('correct set provided params', async () => {
       expect(await singelTokenBuyback.routerV2PathProvider()).to.be.eq(pathProvider.target);
-      expect(await singelTokenBuyback.owner()).to.be.eq(signers.deployer.address);
+      expect(await singelTokenBuyback.owner()).to.be.eq(signers.deployer);
     });
 
     it('correct init params', async () => {

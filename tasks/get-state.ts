@@ -4,7 +4,6 @@ import { getDeployedContractsAddressList } from '../utils/Utils';
 import { AliasDeployedContracts, InstanceName } from '../utils/Names';
 import {
   getAlgebraFactoryState,
-  getBlastGovernor,
   getFenixState,
   getMinterState,
   getPairFactoryState,
@@ -25,7 +24,6 @@ import AlgebraPool_Artifact from '@cryptoalgebra/integral-core/artifacts/contrac
 import { AlgebraFactoryUpgradeable, AlgebraPool } from '@cryptoalgebra/integral-core/typechain';
 
 import AllConfigs from './config';
-import { THIRD_PART_CONTRACTS } from '../utils/Constants';
 const Config = AllConfigs['get-state'];
 
 task('get-state', 'Get all relevant state information including PairFactory, pairs, fenix, minter, and fees vaults')
@@ -138,18 +136,6 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
       );
     }
 
-    const Blast = await hre.ethers.getContractAt(InstanceName.Blast, THIRD_PART_CONTRACTS.Blast);
-    const listAddresses = [
-      ...pairsInfo.map((t) => t.fees),
-      ...pairsInfo.map((t) => t.address),
-      ...pairsInfo.map((t) => t.feesVaultInfo.address),
-      ...poolsInfo.map((t) => t.address),
-      ...poolsInfo.map((t) => t.feesVaultInfo.address),
-      ...poolsInfo.map((t) => t.plugin),
-      ...Object.values(deployData),
-      ...(Config.governoMapAdditionalAddress || []),
-    ];
-    const governorMap = await getBlastGovernor(Blast, listAddresses);
     const result = {
       fenixState,
       minterState,
@@ -165,7 +151,6 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
       pairsInfo,
       algebraFactoryState,
       poolsInfo,
-      governorMap,
     };
 
     console.log(JSON.stringify(result, (key, value) => (typeof value === 'bigint' ? value.toString() : value), 2));

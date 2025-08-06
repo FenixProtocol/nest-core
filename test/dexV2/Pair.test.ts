@@ -38,17 +38,9 @@ describe('Pair Contract', function () {
 
   describe('deployments', async () => {
     it('fail if try initialzie second time', async () => {
-      await expect(
-        pairVolatily.initialize(
-          signers.blastGovernor.address,
-          deployed.blastPoints.target,
-          signers.blastGovernor.address,
-          tokenTK18.target,
-          tokenTK6.target,
-          true,
-          signers.otherUser1.address,
-        ),
-      ).to.be.revertedWith('Initialized');
+      await expect(pairVolatily.initialize(tokenTK18.target, tokenTK6.target, true, signers.otherUser1.address)).to.be.revertedWith(
+        'Initialized',
+      );
     });
     it('corect initialize start parameters', async () => {
       expect(await pairVolatily.factory()).to.be.eq(pairFactory.target);
@@ -562,27 +554,6 @@ describe('Pair Contract', function () {
         .to.be.emit(pairVolatily, 'SetCommunityVault')
         .withArgs(signers.otherUser1);
       expect(await pairVolatily.communityVault()).to.be.eq(signers.otherUser1.address);
-    });
-  });
-
-  describe('#claim', async () => {
-    it('fails if caller is not PAIR_ADMINISTRATOR or factory', async () => {
-      await expect(pairVolatily.connect(signers.otherUser1).claim(tokenTK18.target, signers.otherUser1.address, 1)).to.be.revertedWith(
-        'ACCESS_DENIED',
-      );
-
-      await pairFactory.grantRole(await pairFactory.PAIRS_ADMINISTRATOR_ROLE(), signers.otherUser1.address);
-      await expect(pairVolatily.connect(signers.otherUser1).claim(tokenTK18.target, signers.otherUser1.address, 1)).to.be.not.revertedWith(
-        'ACCESS_DENIED',
-      );
-    });
-  });
-
-  describe('#configure', async () => {
-    it('fails if caller is not PAIR_ADMINISTRATOR or factory', async () => {
-      await expect(pairVolatily.connect(signers.otherUser1).configure(tokenTK18.target, 1)).to.be.revertedWith('ACCESS_DENIED');
-      await pairFactory.grantRole(await pairFactory.PAIRS_ADMINISTRATOR_ROLE(), signers.otherUser1.address);
-      await expect(pairVolatily.connect(signers.otherUser1).configure(tokenTK18.target, 1)).to.be.not.revertedWith('ACCESS_DENIED');
     });
   });
 });

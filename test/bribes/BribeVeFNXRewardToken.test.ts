@@ -33,7 +33,7 @@ describe('BribeVeFNXRewardToken Contract', function () {
     deployed = await loadFixture(completeFixture);
     signers = deployed.signers;
 
-    BribeVeFNXRewardToken_Implementation = await ethers.deployContract('BribeVeFNXRewardToken', [signers.blastGovernor]);
+    BribeVeFNXRewardToken_Implementation = await ethers.deployContract('BribeVeFNXRewardToken', []);
 
     let Proxy = await ethers.deployContract('TransparentUpgradeableProxy', [
       BribeVeFNXRewardToken_Implementation,
@@ -42,19 +42,17 @@ describe('BribeVeFNXRewardToken Contract', function () {
     ]);
 
     BribeVeFNXRewardToken = await ethers.getContractAt('BribeVeFNXRewardToken', Proxy.target);
-    await BribeVeFNXRewardToken.initialize(signers.blastGovernor, deployed.votingEscrow);
+    await BribeVeFNXRewardToken.initialize(deployed.votingEscrow);
     VotingEscrow = deployed.votingEscrow;
   });
 
   describe('Deployment', async () => {
     describe('Should fail if', async () => {
       it('initialzie second time', async () => {
-        await expect(BribeVeFNXRewardToken.initialize(signers.blastGovernor, deployed.votingEscrow)).to.be.revertedWith(
-          ERRORS.Initializable.Initialized,
-        );
+        await expect(BribeVeFNXRewardToken.initialize(deployed.votingEscrow)).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
       it('initialzie on implementation', async () => {
-        await expect(BribeVeFNXRewardToken_Implementation.initialize(signers.blastGovernor, deployed.votingEscrow)).to.be.revertedWith(
+        await expect(BribeVeFNXRewardToken_Implementation.initialize(deployed.votingEscrow)).to.be.revertedWith(
           ERRORS.Initializable.Initialized,
         );
       });

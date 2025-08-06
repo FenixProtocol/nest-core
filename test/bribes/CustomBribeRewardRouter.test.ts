@@ -47,7 +47,7 @@ describe('CustomBribeRewardRouter Contract', function () {
     Voter = deployed.voter;
     Fenix = deployed.fenix;
 
-    let BribeVeFNXRewardToken_Implementation = await ethers.deployContract('BribeVeFNXRewardToken', [signers.blastGovernor]);
+    let BribeVeFNXRewardToken_Implementation = await ethers.deployContract('BribeVeFNXRewardToken', []);
 
     let Proxy = await ethers.deployContract('TransparentUpgradeableProxy', [
       BribeVeFNXRewardToken_Implementation,
@@ -56,15 +56,15 @@ describe('CustomBribeRewardRouter Contract', function () {
     ]);
 
     BribeVeFNXRewardToken = await ethers.getContractAt('BribeVeFNXRewardToken', Proxy.target);
-    await BribeVeFNXRewardToken.initialize(signers.blastGovernor, deployed.votingEscrow);
+    await BribeVeFNXRewardToken.initialize(deployed.votingEscrow);
 
-    CustomBribeRewardRouter_Implementation = await ethers.deployContract('CustomBribeRewardRouter', [signers.blastGovernor]);
+    CustomBribeRewardRouter_Implementation = await ethers.deployContract('CustomBribeRewardRouter', []);
 
     Proxy = await ethers.deployContract('TransparentUpgradeableProxy', [CustomBribeRewardRouter_Implementation, signers.proxyAdmin, '0x']);
 
     CustomBribeRewardRouter = await ethers.getContractAt('CustomBribeRewardRouter', Proxy.target);
 
-    await CustomBribeRewardRouter.initialize(signers.blastGovernor, Voter, BribeVeFNXRewardToken);
+    await CustomBribeRewardRouter.initialize(Voter, BribeVeFNXRewardToken);
 
     await BribeVeFNXRewardToken.grantRole(await BribeVeFNXRewardToken.MINTER_ROLE(), CustomBribeRewardRouter);
 
@@ -91,14 +91,12 @@ describe('CustomBribeRewardRouter Contract', function () {
   describe('Deployment', async () => {
     describe('Should fail if', async () => {
       it('initialzie second time', async () => {
-        await expect(CustomBribeRewardRouter.initialize(signers.blastGovernor, Voter, BribeVeFNXRewardToken)).to.be.revertedWith(
-          ERRORS.Initializable.Initialized,
-        );
+        await expect(CustomBribeRewardRouter.initialize(Voter, BribeVeFNXRewardToken)).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
       it('initialzie on implementation', async () => {
-        await expect(
-          CustomBribeRewardRouter_Implementation.initialize(signers.blastGovernor, Voter, BribeVeFNXRewardToken),
-        ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+        await expect(CustomBribeRewardRouter_Implementation.initialize(Voter, BribeVeFNXRewardToken)).to.be.revertedWith(
+          ERRORS.Initializable.Initialized,
+        );
       });
     });
 

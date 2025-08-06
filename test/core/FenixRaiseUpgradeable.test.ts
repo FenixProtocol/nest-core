@@ -3,7 +3,7 @@ import { setCode, time, mine, loadFixture } from '@nomicfoundation/hardhat-toolb
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { ERC20Mock, FenixRaiseUpgradeable, VotingEscrowUpgradeableV2 } from '../../typechain-types/index';
-import { BLAST_PREDEPLOYED_ADDRESS, ERRORS, ONE, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
+import { ERRORS, ONE, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, deployERC20MockToken } from '../utils/coreFixture';
 import { deploy } from '@openzeppelin/hardhat-upgrades/dist/utils';
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
@@ -22,9 +22,9 @@ function getProof(address: string, tree: any): string[] {
 describe('FenixRaiseUpgradeable Contract', function () {
   let implementation: FenixRaiseUpgradeable;
   let proxy: FenixRaiseUpgradeable;
-  let blastGovernor: HardhatEthersSigner;
   let otherUser: HardhatEthersSigner;
   let otherUser2: HardhatEthersSigner;
+  let otherUser3: HardhatEthersSigner;
 
   let deployer: HardhatEthersSigner;
   let proxyAdmin: HardhatEthersSigner;
@@ -50,7 +50,6 @@ describe('FenixRaiseUpgradeable Contract', function () {
     );
 
     await uninitializedProxy.initialize(
-      blastGovernor.address,
       depositToken.target,
       rewardToken.target,
       depositsReciever.address,
@@ -65,9 +64,9 @@ describe('FenixRaiseUpgradeable Contract', function () {
     deployed = await loadFixture(completeFixture);
     votingEscrow = deployed.votingEscrow;
 
-    [deployer, proxyAdmin, depositsReciever, blastGovernor, otherUser, otherUser2] = await ethers.getSigners();
+    [deployer, proxyAdmin, depositsReciever, otherUser, otherUser2, otherUser3] = await ethers.getSigners();
 
-    implementation = await ethers.deployContract('FenixRaiseUpgradeable', [blastGovernor.address]);
+    implementation = await ethers.deployContract('FenixRaiseUpgradeable', []);
     proxy = await ethers.getContractAt(
       'FenixRaiseUpgradeable',
       (
@@ -77,43 +76,19 @@ describe('FenixRaiseUpgradeable Contract', function () {
     usdb = await deployERC20MockToken(deployer, 'USDB', 'USDB', 18);
     Fenix = await deployERC20MockToken(deployer, 'FNX', 'FNX', 18);
 
-    await proxy.initialize(
-      blastGovernor.address,
-      usdb.target,
-      Fenix.target,
-      depositsReciever.address,
-      ethers.parseEther('1'),
-      ethers.ZeroAddress,
-      0,
-    );
+    await proxy.initialize(usdb.target, Fenix.target, depositsReciever.address, ethers.parseEther('1'), ethers.ZeroAddress, 0);
   });
 
   describe('Deployment', function () {
     it('fail if try initialize on implementation', async () => {
       await expect(
-        implementation.initialize(
-          blastGovernor.address,
-          usdb.target,
-          Fenix.target,
-          depositsReciever.address,
-          ethers.parseEther('1'),
-          ethers.ZeroAddress,
-          0,
-        ),
+        implementation.initialize(usdb.target, Fenix.target, depositsReciever.address, ethers.parseEther('1'), ethers.ZeroAddress, 0),
       ).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
 
     it('fail if try initialize second time', async () => {
       await expect(
-        proxy.initialize(
-          blastGovernor.address,
-          usdb.target,
-          Fenix.target,
-          depositsReciever.address,
-          ethers.parseEther('1'),
-          ethers.ZeroAddress,
-          0,
-        ),
+        proxy.initialize(usdb.target, Fenix.target, depositsReciever.address, ethers.parseEther('1'), ethers.ZeroAddress, 0),
       ).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
 
@@ -126,7 +101,6 @@ describe('FenixRaiseUpgradeable Contract', function () {
       );
       await expect(
         uninitializedProxy.initialize(
-          blastGovernor.address,
           usdb.target,
           Fenix.target,
           depositsReciever.address,
@@ -146,7 +120,6 @@ describe('FenixRaiseUpgradeable Contract', function () {
       );
       await expect(
         uninitializedProxy.initialize(
-          blastGovernor.address,
           usdb.target,
           Fenix.target,
           depositsReciever.address,
@@ -165,61 +138,18 @@ describe('FenixRaiseUpgradeable Contract', function () {
         ).target,
       );
       await expect(
-        uninitializedProxy.initialize(
-          ZERO_ADDRESS,
-          usdb.target,
-          Fenix.target,
-          depositsReciever.address,
-          ethers.parseEther('1'),
-          ethers.ZeroAddress,
-          0,
-        ),
+        uninitializedProxy.initialize(ZERO_ADDRESS, Fenix.target, depositsReciever.address, ethers.parseEther('1'), ethers.ZeroAddress, 0),
       ).to.be.revertedWithCustomError(uninitializedProxy, 'AddressZero');
       await expect(
-        uninitializedProxy.initialize(
-          blastGovernor.address,
-          ZERO_ADDRESS,
-          Fenix.target,
-          depositsReciever.address,
-          ethers.parseEther('1'),
-          ethers.ZeroAddress,
-          0,
-        ),
-      ).to.be.revertedWithCustomError(uninitializedProxy, 'AddressZero');
-      await expect(
-        uninitializedProxy.initialize(
-          blastGovernor.address,
-          usdb.target,
-          ZERO_ADDRESS,
-          depositsReciever.address,
-          ethers.parseEther('1'),
-          ethers.ZeroAddress,
-          0,
-        ),
+        uninitializedProxy.initialize(usdb.target, ZERO_ADDRESS, depositsReciever.address, ethers.parseEther('1'), ethers.ZeroAddress, 0),
       ).to.be.revertedWithCustomError(uninitializedProxy, 'AddressZero');
 
       await expect(
-        uninitializedProxy.initialize(
-          blastGovernor.address,
-          usdb.target,
-          Fenix.target,
-          ZERO_ADDRESS,
-          ethers.parseEther('1'),
-          ethers.ZeroAddress,
-          0,
-        ),
+        uninitializedProxy.initialize(usdb.target, Fenix.target, ZERO_ADDRESS, ethers.parseEther('1'), ethers.ZeroAddress, 0),
       ).to.be.revertedWithCustomError(uninitializedProxy, 'AddressZero');
 
       await expect(
-        uninitializedProxy.initialize(
-          blastGovernor.address,
-          usdb.target,
-          Fenix.target,
-          depositsReciever.address,
-          ethers.parseEther('1'),
-          ethers.ZeroAddress,
-          1,
-        ),
+        uninitializedProxy.initialize(usdb.target, Fenix.target, depositsReciever.address, ethers.parseEther('1'), ethers.ZeroAddress, 1),
       ).to.be.revertedWithCustomError(uninitializedProxy, 'AddressZero');
     });
 
@@ -640,10 +570,10 @@ describe('FenixRaiseUpgradeable Contract', function () {
       beforeEach(async () => {
         await usdb.connect(otherUser).approve(proxy.target, ethers.MaxUint256);
         await usdb.connect(otherUser2).approve(proxy.target, ethers.MaxUint256);
-        await usdb.connect(blastGovernor).approve(proxy.target, ethers.MaxUint256);
+        await usdb.connect(otherUser3).approve(proxy.target, ethers.MaxUint256);
         await usdb.mint(otherUser.address, ethers.parseEther('10'));
         await usdb.mint(otherUser2.address, ethers.parseEther('10'));
-        await usdb.mint(blastGovernor.address, ethers.parseEther('10'));
+        await usdb.mint(otherUser3.address, ethers.parseEther('10'));
         const timeNow = await time.latest();
         await proxy.setTimestamps(timeNow + 100, timeNow * 2, timeNow * 3, timeNow * 4);
         await proxy.setDepositCaps(ethers.parseEther('1.5'), ethers.parseEther('0.5'), ethers.parseEther('0.25'));
@@ -652,7 +582,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
           [
             [otherUser.address, ethers.parseEther('1')],
             [otherUser2.address, ethers.parseEther('0.5')],
-            [blastGovernor.address, 0],
+            [otherUser3.address, 0],
           ],
           ['address', 'uint256'],
         );
@@ -676,9 +606,9 @@ describe('FenixRaiseUpgradeable Contract', function () {
         proof = getProof(otherUser2.address, tree);
         await proxy.connect(otherUser2).deposit(ethers.parseEther('0.5'), ethers.parseEther('0.5'), proof);
 
-        proof = getProof(blastGovernor.address, tree);
+        proof = getProof(otherUser3.address, tree);
 
-        await expect(proxy.connect(blastGovernor).deposit(1, 0, proof)).to.be.revertedWithCustomError(proxy, 'TotalDepositCap');
+        await expect(proxy.connect(otherUser3).deposit(1, 0, proof)).to.be.revertedWithCustomError(proxy, 'TotalDepositCap');
       });
 
       it('should fail if user try deposit more then own cap', async () => {
@@ -695,12 +625,12 @@ describe('FenixRaiseUpgradeable Contract', function () {
       });
 
       it('if zero cap in tree, than should get cap from default whitelist user cap', async () => {
-        let proof = getProof(blastGovernor.address, tree);
-        await expect(proxy.connect(blastGovernor).deposit(ethers.parseEther('0.6'), 0, proof)).to.be.revertedWithCustomError(
+        let proof = getProof(otherUser3.address, tree);
+        await expect(proxy.connect(otherUser3).deposit(ethers.parseEther('0.6'), 0, proof)).to.be.revertedWithCustomError(
           proxy,
           'UserDepositCap',
         );
-        await expect(proxy.connect(blastGovernor).deposit(ethers.parseEther('0.5'), 0, proof)).to.be.not.reverted;
+        await expect(proxy.connect(otherUser3).deposit(ethers.parseEther('0.5'), 0, proof)).to.be.not.reverted;
       });
 
       it('should correct deposits and update values', async () => {
@@ -708,10 +638,10 @@ describe('FenixRaiseUpgradeable Contract', function () {
         expect(await proxy.totalDeposited()).to.be.eq(0);
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(0);
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(0);
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(0);
         expect(await proxy.userDepositsWhitelistPhase(otherUser.address)).to.be.eq(0);
         expect(await proxy.userDepositsWhitelistPhase(otherUser2.address)).to.be.eq(0);
-        expect(await proxy.userDepositsWhitelistPhase(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDepositsWhitelistPhase(otherUser3.address)).to.be.eq(0);
         expect(await usdb.balanceOf(proxy.target)).to.be.eq(0);
 
         let proof = getProof(otherUser.address, tree);
@@ -723,10 +653,10 @@ describe('FenixRaiseUpgradeable Contract', function () {
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(ethers.parseEther('0.1'));
         expect(await usdb.balanceOf(proxy.target)).to.be.eq(ethers.parseEther('0.1'));
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(0);
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(0);
         expect(await proxy.userDepositsWhitelistPhase(otherUser.address)).to.be.eq(ethers.parseEther('0.1'));
         expect(await proxy.userDepositsWhitelistPhase(otherUser2.address)).to.be.eq(0);
-        expect(await proxy.userDepositsWhitelistPhase(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDepositsWhitelistPhase(otherUser3.address)).to.be.eq(0);
 
         proof = getProof(otherUser2.address, tree);
         tx = await proxy.connect(otherUser2).deposit(ethers.parseEther('0.5'), ethers.parseEther('0.5'), proof);
@@ -735,10 +665,10 @@ describe('FenixRaiseUpgradeable Contract', function () {
         expect(await proxy.totalDeposited()).to.be.eq(ethers.parseEther('0.6'));
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(ethers.parseEther('0.1'));
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(ethers.parseEther('0.5'));
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(0);
         expect(await proxy.userDepositsWhitelistPhase(otherUser.address)).to.be.eq(ethers.parseEther('0.1'));
         expect(await proxy.userDepositsWhitelistPhase(otherUser2.address)).to.be.eq(ethers.parseEther('0.5'));
-        expect(await proxy.userDepositsWhitelistPhase(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDepositsWhitelistPhase(otherUser3.address)).to.be.eq(0);
         expect(await usdb.balanceOf(proxy.target)).to.be.eq(ethers.parseEther('0.6'));
         await expect(proxy.connect(otherUser2).deposit(1, ethers.parseEther('0.5'), proof)).to.be.revertedWithCustomError(
           proxy,
@@ -758,10 +688,10 @@ describe('FenixRaiseUpgradeable Contract', function () {
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(ethers.parseEther('1'));
         expect(await usdb.balanceOf(proxy.target)).to.be.eq(ethers.parseEther('1.5'));
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(ethers.parseEther('0.5'));
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(0);
         expect(await proxy.userDepositsWhitelistPhase(otherUser.address)).to.be.eq(ethers.parseEther('1'));
         expect(await proxy.userDepositsWhitelistPhase(otherUser2.address)).to.be.eq(ethers.parseEther('0.5'));
-        expect(await proxy.userDepositsWhitelistPhase(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDepositsWhitelistPhase(otherUser3.address)).to.be.eq(0);
         proof = getProof(otherUser.address, tree);
         await expect(proxy.connect(otherUser).deposit(1, ethers.parseEther('1'), proof)).to.be.revertedWithCustomError(
           proxy,
@@ -774,8 +704,8 @@ describe('FenixRaiseUpgradeable Contract', function () {
           'UserDepositCap',
         );
 
-        proof = getProof(blastGovernor.address, tree);
-        await expect(proxy.connect(blastGovernor).deposit(1, 0, proof)).to.be.revertedWithCustomError(proxy, 'TotalDepositCap');
+        proof = getProof(otherUser3.address, tree);
+        await expect(proxy.connect(otherUser3).deposit(1, 0, proof)).to.be.revertedWithCustomError(proxy, 'TotalDepositCap');
       });
     });
 
@@ -785,16 +715,16 @@ describe('FenixRaiseUpgradeable Contract', function () {
       beforeEach(async () => {
         await usdb.connect(otherUser).approve(proxy.target, ethers.MaxUint256);
         await usdb.connect(otherUser2).approve(proxy.target, ethers.MaxUint256);
-        await usdb.connect(blastGovernor).approve(proxy.target, ethers.MaxUint256);
+        await usdb.connect(otherUser3).approve(proxy.target, ethers.MaxUint256);
         await usdb.mint(otherUser.address, ethers.parseEther('10'));
         await usdb.mint(otherUser2.address, ethers.parseEther('10'));
-        await usdb.mint(blastGovernor.address, ethers.parseEther('10'));
+        await usdb.mint(otherUser3.address, ethers.parseEther('10'));
         await proxy.setDepositCaps(ethers.parseEther('1.5'), ethers.parseEther('0.5'), ethers.parseEther('0.25'));
         tree = StandardMerkleTree.of(
           [
             [otherUser.address, ethers.parseEther('1')],
             [otherUser2.address, ethers.parseEther('0.5')],
-            [blastGovernor.address, 0],
+            [otherUser3.address, 0],
           ],
           ['address', 'uint256'],
         );
@@ -810,7 +740,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
       afterEach(async () => {
         expect(await proxy.userDepositsWhitelistPhase(otherUser.address)).to.be.eq(ethers.parseEther('1'));
         expect(await proxy.userDepositsWhitelistPhase(otherUser2.address)).to.be.eq(0);
-        expect(await proxy.userDepositsWhitelistPhase(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDepositsWhitelistPhase(otherUser3.address)).to.be.eq(0);
       });
 
       it('state after whitelist phase', async () => {
@@ -818,7 +748,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
         expect(await proxy.totalDeposited()).to.be.eq(ethers.parseEther('1'));
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(ethers.parseEther('1'));
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(0);
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(0);
       });
 
       it('fail if user try deposit more then public phase user cap', async () => {
@@ -836,7 +766,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
         expect(await proxy.totalDeposited()).to.be.eq(ethers.parseEther('1.25'));
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(ethers.parseEther('1'));
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(ethers.parseEther('0.25'));
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(0);
       });
 
       it('fail if user try deposit more then total deposit cap', async () => {
@@ -844,7 +774,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
         await usdb.approve(proxy.target, ethers.MaxUint256);
         await usdb.mint(deployer.address, ethers.parseEther('10'));
         await proxy.connect(deployer).deposit(ethers.parseEther('0.25'), 0, []);
-        await expect(proxy.connect(blastGovernor).deposit(1, 0, [])).to.be.revertedWithCustomError(proxy, 'TotalDepositCap');
+        await expect(proxy.connect(otherUser3).deposit(1, 0, [])).to.be.revertedWithCustomError(proxy, 'TotalDepositCap');
       });
 
       it('should use public cap, even if the user deposited during the whitelist', async () => {
@@ -882,31 +812,31 @@ describe('FenixRaiseUpgradeable Contract', function () {
         expect(await proxy.totalDeposited()).to.be.eq(ethers.parseEther('1.25'));
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(ethers.parseEther('1'));
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(ethers.parseEther('0.25'));
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(0);
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(0);
 
         await expect(proxy.connect(otherUser2).deposit(1, 0, [])).to.be.revertedWithCustomError(proxy, 'UserDepositCap');
 
-        tx = await proxy.connect(blastGovernor).deposit(ethers.parseEther('0.1'), 0, []);
-        await expect(tx).to.be.emit(proxy, 'Deposit').withArgs(blastGovernor.address, ethers.parseEther('0.1'));
-        await expect(tx).to.be.emit(usdb, 'Transfer').withArgs(blastGovernor.address, proxy.target, ethers.parseEther('0.1'));
+        tx = await proxy.connect(otherUser3).deposit(ethers.parseEther('0.1'), 0, []);
+        await expect(tx).to.be.emit(proxy, 'Deposit').withArgs(otherUser3.address, ethers.parseEther('0.1'));
+        await expect(tx).to.be.emit(usdb, 'Transfer').withArgs(otherUser3.address, proxy.target, ethers.parseEther('0.1'));
 
         expect(await usdb.balanceOf(proxy.target)).to.be.eq(ethers.parseEther('1.35'));
         expect(await proxy.totalDeposited()).to.be.eq(ethers.parseEther('1.35'));
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(ethers.parseEther('1'));
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(ethers.parseEther('0.25'));
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(ethers.parseEther('0.1'));
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(ethers.parseEther('0.1'));
 
-        tx = await proxy.connect(blastGovernor).deposit(ethers.parseEther('0.15'), 0, []);
-        await expect(tx).to.be.emit(proxy, 'Deposit').withArgs(blastGovernor.address, ethers.parseEther('0.15'));
-        await expect(tx).to.be.emit(usdb, 'Transfer').withArgs(blastGovernor.address, proxy.target, ethers.parseEther('0.15'));
+        tx = await proxy.connect(otherUser3).deposit(ethers.parseEther('0.15'), 0, []);
+        await expect(tx).to.be.emit(proxy, 'Deposit').withArgs(otherUser3.address, ethers.parseEther('0.15'));
+        await expect(tx).to.be.emit(usdb, 'Transfer').withArgs(otherUser3.address, proxy.target, ethers.parseEther('0.15'));
 
         expect(await usdb.balanceOf(proxy.target)).to.be.eq(ethers.parseEther('1.5'));
         expect(await proxy.totalDeposited()).to.be.eq(ethers.parseEther('1.5'));
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(ethers.parseEther('1'));
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(ethers.parseEther('0.25'));
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(ethers.parseEther('0.25'));
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(ethers.parseEther('0.25'));
 
-        await expect(proxy.connect(blastGovernor).deposit(1, 0, [])).to.be.revertedWithCustomError(proxy, 'UserDepositCap');
+        await expect(proxy.connect(otherUser3).deposit(1, 0, [])).to.be.revertedWithCustomError(proxy, 'UserDepositCap');
         await expect(proxy.connect(deployer).deposit(1, 0, [])).to.be.revertedWithCustomError(proxy, 'TotalDepositCap');
 
         await expect(proxy.whithdrawDeposits()).to.be.revertedWithCustomError(proxy, 'RaiseNotFinished');
@@ -922,7 +852,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
         expect(await proxy.totalDeposited()).to.be.eq(ethers.parseEther('1.5'));
         expect(await proxy.userDeposited(otherUser.address)).to.be.eq(ethers.parseEther('1'));
         expect(await proxy.userDeposited(otherUser2.address)).to.be.eq(ethers.parseEther('0.25'));
-        expect(await proxy.userDeposited(blastGovernor.address)).to.be.eq(ethers.parseEther('0.25'));
+        expect(await proxy.userDeposited(otherUser3.address)).to.be.eq(ethers.parseEther('0.25'));
         expect(await usdb.balanceOf(depositsReciever.address)).to.be.eq(ethers.parseEther('1.5'));
       });
     });
@@ -938,22 +868,14 @@ describe('FenixRaiseUpgradeable Contract', function () {
           ).target,
         );
 
-        await proxy.initialize(
-          blastGovernor.address,
-          usdb.target,
-          Fenix.target,
-          depositsReciever.address,
-          ethers.parseEther('0.125'),
-          votingEscrow.target,
-          0,
-        );
+        await proxy.initialize(usdb.target, Fenix.target, depositsReciever.address, ethers.parseEther('0.125'), votingEscrow.target, 0);
 
         await usdb.connect(otherUser).approve(proxy.target, ethers.MaxUint256);
         await usdb.connect(otherUser2).approve(proxy.target, ethers.MaxUint256);
-        await usdb.connect(blastGovernor).approve(proxy.target, ethers.MaxUint256);
+        await usdb.connect(otherUser3).approve(proxy.target, ethers.MaxUint256);
         await usdb.mint(otherUser.address, ethers.parseEther('10'));
         await usdb.mint(otherUser2.address, ethers.parseEther('10'));
-        await usdb.mint(blastGovernor.address, ethers.parseEther('10'));
+        await usdb.mint(otherUser3.address, ethers.parseEther('10'));
 
         await Fenix.mint(proxy.target, ethers.parseEther('100'));
         let startTime = await time.latest();
@@ -1020,19 +942,11 @@ describe('FenixRaiseUpgradeable Contract', function () {
           ).target,
         );
         usdb = await deployERC20MockToken(deployer, 'T', 'T', 6);
-        await proxy.initialize(
-          blastGovernor.address,
-          usdb.target,
-          Fenix.target,
-          depositsReciever.address,
-          ethers.parseEther('1.25'),
-          votingEscrow.target,
-          0,
-        );
+        await proxy.initialize(usdb.target, Fenix.target, depositsReciever.address, ethers.parseEther('1.25'), votingEscrow.target, 0);
 
         await usdb.connect(otherUser).approve(proxy.target, ethers.MaxUint256);
         await usdb.connect(otherUser2).approve(proxy.target, ethers.MaxUint256);
-        await usdb.connect(blastGovernor).approve(proxy.target, ethers.MaxUint256);
+        await usdb.connect(otherUser3).approve(proxy.target, ethers.MaxUint256);
         await usdb.mint(otherUser.address, 10e6);
         await usdb.mint(otherUser2.address, 10e6);
 
@@ -1104,7 +1018,6 @@ describe('FenixRaiseUpgradeable Contract', function () {
         );
         usdb = await deployERC20MockToken(deployer, 'T', 'T', 18);
         await proxy.initialize(
-          blastGovernor.address,
           usdb.target,
           Fenix.target,
           depositsReciever.address,
@@ -1115,7 +1028,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
 
         await usdb.connect(otherUser).approve(proxy.target, ethers.MaxUint256);
         await usdb.connect(otherUser2).approve(proxy.target, ethers.MaxUint256);
-        await usdb.connect(blastGovernor).approve(proxy.target, ethers.MaxUint256);
+        await usdb.connect(otherUser3).approve(proxy.target, ethers.MaxUint256);
         await usdb.mint(otherUser.address, ethers.parseEther('100'));
         await usdb.mint(otherUser2.address, ethers.parseEther('100'));
 
@@ -1192,7 +1105,6 @@ describe('FenixRaiseUpgradeable Contract', function () {
         );
 
         await proxy.initialize(
-          blastGovernor.address,
           usdb.target,
           Fenix.target,
           depositsReciever.address,
@@ -1203,10 +1115,9 @@ describe('FenixRaiseUpgradeable Contract', function () {
 
         await usdb.connect(otherUser).approve(proxy.target, ethers.MaxUint256);
         await usdb.connect(otherUser2).approve(proxy.target, ethers.MaxUint256);
-        await usdb.connect(blastGovernor).approve(proxy.target, ethers.MaxUint256);
         await usdb.mint(otherUser.address, ethers.parseEther('10'));
         await usdb.mint(otherUser2.address, ethers.parseEther('10'));
-        await usdb.mint(blastGovernor.address, ethers.parseEther('10'));
+        await usdb.mint(otherUser3.address, ethers.parseEther('10'));
 
         await Fenix.transfer(proxy.target, ethers.parseEther('100'));
         let startTime = await time.latest();

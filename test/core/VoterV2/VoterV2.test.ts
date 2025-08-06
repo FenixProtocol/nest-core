@@ -27,12 +27,10 @@ describe('VotingEscrow_V2', function () {
   describe('Deployment', async () => {
     describe('should fail if', async () => {
       it('try call initialize on implementation', async () => {
-        await expect(Voter.initialize(signers.blastGovernor.address, VotingEscrow.target)).to.be.revertedWith(
-          ERRORS.Initializable.Initialized,
-        );
+        await expect(Voter.initialize(VotingEscrow.target)).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
       it('try recall initialize on proxy', async () => {
-        await expect(Voter.initialize(signers.blastGovernor.address, token.target)).to.be.revertedWith(ERRORS.Initializable.Initialized);
+        await expect(Voter.initialize(token.target)).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
     });
     describe('State after deployment and initialization', async () => {

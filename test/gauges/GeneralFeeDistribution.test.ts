@@ -61,7 +61,7 @@ describe('GaugeFactoryUpgradeable', function () {
     v2GaugeFactory = await deployGaugeFactory(
       signers.deployer,
       signers.proxyAdmin.address,
-      signers.blastGovernor.address,
+
       deployed.voter.target.toString(),
       v2PairsGaugeImplementation.target.toString(),
       ethers.ZeroAddress,
@@ -70,13 +70,13 @@ describe('GaugeFactoryUpgradeable', function () {
     v3GaugeFactory = await deployGaugeFactory(
       signers.deployer,
       signers.proxyAdmin.address,
-      signers.blastGovernor.address,
+
       deployed.voter.target.toString(),
       v3PairsGuageImplementation.target.toString(),
       ethers.ZeroAddress,
     );
 
-    let algebraCore = await deployAlgebraCore(await deployed.blastPoints.getAddress());
+    let algebraCore = await deployAlgebraCore();
 
     AlgebraFactory = algebraCore.factory;
     await AlgebraFactory.grantRole(await AlgebraFactory.POOLS_CREATOR_ROLE(), signers.deployer.address);
@@ -338,7 +338,7 @@ describe('GaugeFactoryUpgradeable', function () {
       await Fenix.transfer(signers.otherUser3.address, ethers.parseEther('2'));
       await tokenTR6.mint(signers.otherUser3.address, 2e6);
 
-      let router = await ethers.deployContract('RouterV2', [signers.blastGovernor.address, PairFactory.target, ethers.ZeroAddress]);
+      let router = await ethers.deployContract('RouterV2', [PairFactory.target, ethers.ZeroAddress]);
       await Fenix.connect(signers.otherUser3).approve(router.target, ethers.parseEther('10000'));
       await tokenTR6.connect(signers.otherUser3).approve(router.target, 2e6);
 
@@ -422,7 +422,7 @@ describe('GaugeFactoryUpgradeable', function () {
       await Fenix.transfer(signers.otherUser3.address, ethers.parseEther('2'));
       await tokenTR6.mint(signers.otherUser3.address, 2e6);
 
-      let router = await ethers.deployContract('RouterV2', [signers.blastGovernor.address, PairFactory.target, ethers.ZeroAddress]);
+      let router = await ethers.deployContract('RouterV2', [PairFactory.target, ethers.ZeroAddress]);
       await Fenix.connect(signers.otherUser3).approve(router.target, ethers.parseEther('10000'));
       await tokenTR6.connect(signers.otherUser3).approve(router.target, 2e6);
 
@@ -508,7 +508,7 @@ describe('GaugeFactoryUpgradeable', function () {
       await Fenix.transfer(signers.otherUser3.address, ethers.parseEther('2'));
       await tokenTR6.mint(signers.otherUser3.address, 2e6);
 
-      let router = await ethers.deployContract('RouterV2', [signers.blastGovernor.address, PairFactory.target, ethers.ZeroAddress]);
+      let router = await ethers.deployContract('RouterV2', [PairFactory.target, ethers.ZeroAddress]);
       await Fenix.connect(signers.otherUser3).approve(router.target, ethers.parseEther('10000'));
       await tokenTR6.connect(signers.otherUser3).approve(router.target, 2e6);
 

@@ -40,12 +40,12 @@ describe('VeBoostUpgradeable', function () {
     fnxReserve: bigint,
   ): Promise<AlgebraFNXPriceProviderUpgradeable> {
     let factoryPriceProvider = await ethers.getContractFactory('AlgebraFNXPriceProviderUpgradeable');
-    let implementationPriceProvider = await factoryPriceProvider.deploy(signers.deployer.address);
+    let implementationPriceProvider = await factoryPriceProvider.deploy();
     priceProvider = factoryPriceProvider.attach(
       await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementationPriceProvider.getAddress()),
     ) as AlgebraFNXPriceProviderUpgradeable;
 
-    let algebraCore = await deployAlgebraCore(await deployed.blastPoints.getAddress());
+    let algebraCore = await deployAlgebraCore();
 
     let algebraFactory = algebraCore.factory;
     await algebraFactory.grantRole(await algebraFactory.POOLS_CREATOR_ROLE(), signers.deployer.address);
@@ -61,7 +61,7 @@ describe('VeBoostUpgradeable', function () {
     }
     await pool.initialize(price);
 
-    await priceProvider.initialize(signers.blastGovernor.address, pool.target, fenix.target, usdToken.target);
+    await priceProvider.initialize(pool.target, fenix.target, usdToken.target);
     return priceProvider;
   }
 
@@ -77,46 +77,41 @@ describe('VeBoostUpgradeable', function () {
     let pp = await deployPriceProviderWith(tokenTR6, BigInt(1e6), ONE_ETHER);
 
     factory = await ethers.getContractFactory('VeBoostUpgradeable');
-    veBoostImplementation = await factory.deploy(signers.deployer.address);
+    veBoostImplementation = await factory.deploy();
     veBoost = factory.attach(
       (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await veBoostImplementation.getAddress()))
         .target,
     ) as VeBoostUpgradeable;
-    await veBoost.initialize(signers.blastGovernor.address, fenix.target, mockVotingEscrow.address, pp.target);
+    await veBoost.initialize(fenix.target, mockVotingEscrow.address, pp.target);
   });
 
   describe('Deployment', function () {
     it('Should fail if try initialize on implementation', async function () {
       await expect(
-        veBoostImplementation.initialize(
-          signers.blastGovernor.address,
-          await fenix.getAddress(),
-          mockVotingEscrow.address,
-          priceProvider.target,
-        ),
+        veBoostImplementation.initialize(await fenix.getAddress(), mockVotingEscrow.address, priceProvider.target),
       ).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
     it('Should fail if try second time to initialize', async function () {
-      await expect(
-        veBoost.initialize(signers.blastGovernor.address, await fenix.getAddress(), mockVotingEscrow.address, priceProvider.target),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(veBoost.initialize(await fenix.getAddress(), mockVotingEscrow.address, priceProvider.target)).to.be.revertedWith(
+        ERRORS.Initializable.Initialized,
+      );
     });
     it('Should fail if try set zero address', async function () {
       const veB = factory.attach(
         await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await veBoostImplementation.getAddress()),
       ) as VeBoostUpgradeable;
-      await expect(
-        veB.initialize(ZERO_ADDRESS, await fenix.getAddress(), mockVotingEscrow.address, priceProvider.target),
-      ).to.be.revertedWithCustomError(veB, 'AddressZero');
-      await expect(
-        veB.initialize(signers.blastGovernor.address, ZERO_ADDRESS, mockVotingEscrow.address, priceProvider.target),
-      ).to.be.revertedWithCustomError(veB, 'AddressZero');
-      await expect(
-        veB.initialize(signers.blastGovernor.address, await fenix.getAddress(), ZERO_ADDRESS, priceProvider.target),
-      ).to.be.revertedWithCustomError(veB, 'AddressZero');
-      await expect(
-        veB.initialize(signers.blastGovernor.address, await fenix.getAddress(), mockVotingEscrow.address, ZERO_ADDRESS),
-      ).to.be.revertedWithCustomError(veB, 'AddressZero');
+      await expect(veB.initialize(ZERO_ADDRESS, mockVotingEscrow.address, priceProvider.target)).to.be.revertedWithCustomError(
+        veB,
+        'AddressZero',
+      );
+      await expect(veB.initialize(await fenix.getAddress(), ZERO_ADDRESS, priceProvider.target)).to.be.revertedWithCustomError(
+        veB,
+        'AddressZero',
+      );
+      await expect(veB.initialize(await fenix.getAddress(), mockVotingEscrow.address, ZERO_ADDRESS)).to.be.revertedWithCustomError(
+        veB,
+        'AddressZero',
+      );
     });
 
     it('Should corect set initial parameters', async function () {

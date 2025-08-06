@@ -3,7 +3,7 @@ import { mine, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { ERC20Mock, ManagedNFTManagerMock, VeArtProxy, VoterMock, VotingEscrowUpgradeableV2 } from '../../../typechain-types';
-import { deployArtProxy, deployERC20MockToken, mockBlast } from '../../utils/coreFixture';
+import { deployArtProxy, deployERC20MockToken } from '../../utils/coreFixture';
 
 import { ContractTransactionResponse } from 'ethers';
 import { ERRORS, ONE_ETHER, VotingEscrowDepositType } from '../../utils/constants';
@@ -13,7 +13,6 @@ const WEEK = 86400 * 7;
 
 type Signers = {
   deployer: HardhatEthersSigner;
-  blastGovernor: HardhatEthersSigner;
   proxyAdmin: HardhatEthersSigner;
   user1: HardhatEthersSigner;
   user2: HardhatEthersSigner;
@@ -32,9 +31,8 @@ async function getRestForNextEpoch() {
 }
 
 async function fixture() {
-  await mockBlast();
   let signers = await ethers.getSigners();
-  let VotingEscrow_Implementation = await ethers.deployContract('VotingEscrowUpgradeableV2', [signers[1].address]);
+  let VotingEscrow_Implementation = await ethers.deployContract('VotingEscrowUpgradeableV2', []);
 
   let VotingEscrow = (await ethers.deployContract('TransparentUpgradeableProxy', [
     VotingEscrow_Implementation.target,
@@ -47,7 +45,6 @@ async function fixture() {
   return {
     signers: {
       deployer: signers[0],
-      blastGovernor: signers[1],
       proxyAdmin: signers[2],
       user1: signers[3],
       user2: signers[4],
@@ -83,7 +80,7 @@ describe('VotingEscrow_V2', function () {
     veBoost = signers.others[1];
     initialVoterContract = deployed.Voter;
     token = await deployERC20MockToken(signers.deployer, 'MOK', 'MOK', 18);
-    initializeTx = await VotingEscrow.initialize(signers.blastGovernor.address, token.target);
+    initializeTx = await VotingEscrow.initialize(token.target);
     VeArtProxyUpgradeable = await deployArtProxy(signers.deployer, VotingEscrow.target.toString(), managedNFTManager.target.toString());
 
     await VotingEscrow.updateAddress('voter', initialVoterContract.target);
@@ -95,14 +92,10 @@ describe('VotingEscrow_V2', function () {
   describe('Deployment', async () => {
     describe('should fail if', async () => {
       it('try call initialize on implementation', async () => {
-        await expect(VotingEscrow_Implementation.initialize(signers.blastGovernor.address, token.target)).to.be.revertedWith(
-          ERRORS.Initializable.Initialized,
-        );
+        await expect(VotingEscrow_Implementation.initialize(token.target)).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
       it('try recall initialize on proxy', async () => {
-        await expect(VotingEscrow.initialize(signers.blastGovernor.address, token.target)).to.be.revertedWith(
-          ERRORS.Initializable.Initialized,
-        );
+        await expect(VotingEscrow.initialize(token.target)).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
     });
     describe('State after deployment and initialization', async () => {

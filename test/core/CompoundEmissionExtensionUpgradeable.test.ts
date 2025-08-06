@@ -90,16 +90,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
   describe('Deployment', async () => {
     describe('Should fail if', async () => {
       it('try call initialize on implementation', async () => {
-        let implementation = await ethers.deployContract('CompoundEmissionExtensionUpgradeable', [signers.deployer]);
-        await expect(implementation.initialize(signers.blastGovernor, Voter, Fenix, VotingEscrow)).to.be.revertedWith(
-          ERRORS.Initializable.Initialized,
-        );
+        let implementation = await ethers.deployContract('CompoundEmissionExtensionUpgradeable', []);
+        await expect(implementation.initialize(Voter, Fenix, VotingEscrow)).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
 
       it('try call initialize second time ', async () => {
-        await expect(CompoundEmissionExtension.initialize(signers.blastGovernor, Voter, Fenix, VotingEscrow)).to.be.revertedWith(
-          ERRORS.Initializable.Initialized,
-        );
+        await expect(CompoundEmissionExtension.initialize(Voter, Fenix, VotingEscrow)).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
     });
 

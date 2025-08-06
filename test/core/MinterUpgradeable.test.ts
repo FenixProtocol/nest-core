@@ -1,8 +1,8 @@
 import { setCode, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { BlastMock__factory, Fenix, MinterUpgradeable, VoterEscrowMock, VoterMock } from '../../typechain-types/index';
-import { BLAST_PREDEPLOYED_ADDRESS, ERRORS, ONE, ZERO, ZERO_ADDRESS } from '../utils/constants';
+import { Fenix, MinterUpgradeable, VoterEscrowMock, VoterMock } from '../../typechain-types/index';
+import { ERRORS, ONE, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import { SignersList, deployFenixToken, deployMinter, getSigners } from '../utils/coreFixture';
 
 describe('MinterUpgradeable Contract', function () {
@@ -21,10 +21,8 @@ describe('MinterUpgradeable Contract', function () {
   }
 
   beforeEach(async function () {
-    await setCode(BLAST_PREDEPLOYED_ADDRESS, BlastMock__factory.bytecode);
-
     signers = await getSigners();
-    fenix = await deployFenixToken(signers.deployer, signers.blastGovernor.address, signers.deployer.address);
+    fenix = await deployFenixToken(signers.deployer, signers.deployer.address);
     voterMock = await ethers.deployContract('VoterMock');
     voterEscrow = await ethers.deployContract('VoterEscrowMock');
 
@@ -34,7 +32,7 @@ describe('MinterUpgradeable Contract', function () {
     minter = await deployMinter(
       signers.deployer,
       signers.proxyAdmin.address,
-      signers.blastGovernor.address,
+
       await voterMock.getAddress(),
       await voterEscrow.getAddress(),
     );
@@ -63,13 +61,13 @@ describe('MinterUpgradeable Contract', function () {
       expect(await minter.active_period()).to.be.eq(inTwoPeriod);
     });
     it('Should set deployed like owner', async () => {
-      expect(await minter.owner()).to.be.eq(signers.deployer.address);
+      expect(await minter.owner()).to.be.eq(signers.deployer);
     });
     it('Minter should be owner of Fenix token', async () => {
       expect(await fenix.owner()).to.be.eq(minter.target);
     });
     it('Should fail if try call initialize second time', async () => {
-      await expect(minter.initialize(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS)).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(minter.initialize(ZERO_ADDRESS, ZERO_ADDRESS)).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
   });
 
@@ -193,7 +191,7 @@ describe('MinterUpgradeable Contract', function () {
       expect(afterCS).to.be.eq((await fenix.totalSupply()) - ONE);
       expect(beforeCS - afterCS).to.be.eq(ONE);
 
-      await fenix.transfer(voterEscrow.target, await fenix.balanceOf(signers.deployer.address));
+      await fenix.transfer(voterEscrow.target, await fenix.balanceOf(signers.deployer));
 
       expect(await minter.circulating_supply()).to.be.eq(ZERO);
     });
@@ -214,7 +212,7 @@ describe('MinterUpgradeable Contract', function () {
     it('Should not distribute emission and emit event ', async () => {
       expect(await fenix.balanceOf(minter.target)).to.be.eq(ZERO);
       expect(await fenix.balanceOf(voterMock.target)).to.be.eq(ZERO);
-      expect(await fenix.balanceOf(signers.deployer.address)).to.be.eq(INITIAL_TOKEN_SUPPLY);
+      expect(await fenix.balanceOf(signers.deployer)).to.be.eq(INITIAL_TOKEN_SUPPLY);
 
       await time.increase(WEEK);
       let toTeam = ((await minter.weekly()) * BigInt(500)) / BigInt(10000);
@@ -223,7 +221,7 @@ describe('MinterUpgradeable Contract', function () {
         .withArgs(signers.otherUser1.address, WEEKLY, INITIAL_TOKEN_SUPPLY + WEEKLY);
 
       expect(await fenix.balanceOf(voterMock.target)).to.be.eq(WEEKLY - toTeam);
-      expect(await fenix.balanceOf(signers.deployer.address)).to.be.eq(INITIAL_TOKEN_SUPPLY + toTeam);
+      expect(await fenix.balanceOf(signers.deployer)).to.be.eq(INITIAL_TOKEN_SUPPLY + toTeam);
       expect(await fenix.balanceOf(minter.target)).to.be.eq(ZERO);
     });
     it('Should not update after start and change balance or mint ', async () => {
@@ -245,7 +243,7 @@ describe('MinterUpgradeable Contract', function () {
     it('Should corect mint first value without any decay or inflation but eq weekly amount ', async () => {
       let tsBefore = await fenix.totalSupply();
       let periodBefore = await minter.active_period();
-      let balanceOwnerBefore = await fenix.balanceOf(signers.deployer.address);
+      let balanceOwnerBefore = await fenix.balanceOf(signers.deployer);
 
       await time.increase(WEEK);
 
@@ -259,7 +257,7 @@ describe('MinterUpgradeable Contract', function () {
       expect(await minter.weekly()).to.be.eq(WEEKLY);
       expect(await fenix.balanceOf(voterMock.target)).to.be.eq(WEEKLY - ethers.parseEther('11250'));
       expect(await fenix.balanceOf(minter.target)).to.be.eq(ZERO);
-      expect(await fenix.balanceOf(signers.deployer.address)).to.be.eq(balanceOwnerBefore + ethers.parseEther('11250')); // 5% from WEEKLY
+      expect(await fenix.balanceOf(signers.deployer)).to.be.eq(balanceOwnerBefore + ethers.parseEther('11250')); // 5% from WEEKLY
 
       expect(await minter.active_period()).to.be.eq(periodBefore + WEEK);
 
@@ -438,7 +436,7 @@ describe('MinterUpgradeable Contract', function () {
       });
       it('mint additional supply and transfer to owner', async () => {
         expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('75000000'));
-        expect(await fenix.balanceOf(signers.deployer.address)).to.be.eq(ethers.parseEther('75000000'));
+        expect(await fenix.balanceOf(signers.deployer)).to.be.eq(ethers.parseEther('75000000'));
       });
 
       it('change weekly state minter', async () => {

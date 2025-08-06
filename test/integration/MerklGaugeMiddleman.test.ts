@@ -34,11 +34,7 @@ describe('MerklGaugeMiddleman Contract', function () {
     merklGaugeMiddlemanFactory = await ethers.getContractFactory('MerklGaugeMiddleman');
     merkleDistributorCreatorMock = await ethers.deployContract('MerkleDistributionCreatorMock');
 
-    merklGaugeMiddleman = await merklGaugeMiddlemanFactory.deploy(
-      signers.blastGovernor.address,
-      fenix.target,
-      merkleDistributorCreatorMock.target,
-    );
+    merklGaugeMiddleman = await merklGaugeMiddlemanFactory.deploy(fenix.target, merkleDistributorCreatorMock.target);
 
     poolMockFactory = await ethers.getContractFactory('PoolMock');
     poolMock = await poolMockFactory.deploy();
@@ -78,22 +74,16 @@ describe('MerklGaugeMiddleman Contract', function () {
     it('should correct set merklDistributionCreator', async () => {
       expect(await merklGaugeMiddleman.merklDistributionCreator()).to.be.eq(merkleDistributorCreatorMock.target);
     });
-    it('fails if provide zero governor address', async () => {
-      await expect(
-        merklGaugeMiddlemanFactory.connect(signers.deployer).deploy(ZERO_ADDRESS, fenix.target, merkleDistributorCreatorMock.target),
-      ).to.be.revertedWithCustomError(merklGaugeMiddlemanFactory, 'AddressZero');
-    });
     it('fails if provide zero fenix  address', async () => {
       await expect(
-        merklGaugeMiddlemanFactory
-          .connect(signers.deployer)
-          .deploy(signers.blastGovernor.address, ZERO_ADDRESS, merkleDistributorCreatorMock.target),
+        merklGaugeMiddlemanFactory.connect(signers.deployer).deploy(ZERO_ADDRESS, merkleDistributorCreatorMock.target),
       ).to.be.revertedWithCustomError(merklGaugeMiddlemanFactory, 'AddressZero');
     });
     it('fails if provide merkleDistributorCreator zero address', async () => {
-      await expect(
-        merklGaugeMiddlemanFactory.connect(signers.deployer).deploy(signers.blastGovernor.address, fenix.target, ZERO_ADDRESS),
-      ).to.be.revertedWithCustomError(merklGaugeMiddlemanFactory, 'AddressZero');
+      await expect(merklGaugeMiddlemanFactory.connect(signers.deployer).deploy(fenix.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(
+        merklGaugeMiddlemanFactory,
+        'AddressZero',
+      );
     });
     it('corect set MAX_UINT256 allowance in fenix token to merkle distributor creator', async () => {
       expect(await fenix.allowance(merklGaugeMiddleman.target, merkleDistributorCreatorMock.target)).to.be.eq(ethers.MaxUint256);

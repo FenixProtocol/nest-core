@@ -12,7 +12,7 @@ import {
   RouterV2PathProviderUpgradeable,
   SingelTokenVirtualRewarderUpgradeable,
 } from '../../typechain-types';
-import { ERRORS, WETH_PREDEPLOYED_ADDRESS, ZERO, ZERO_ADDRESS } from '../utils/constants';
+import { ERRORS, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, {
   CoreFixtureDeployed,
   SignersList,
@@ -55,7 +55,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
     proxyAdmin: string,
   ): Promise<CompoundVeFNXManagedNFTStrategyFactoryUpgradeable> {
     const factory = await ethers.getContractFactory('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable');
-    const implementation = await factory.connect(deployer).deploy(deployer.address);
+    const implementation = await factory.connect(deployer).deploy();
     const proxy = await deployTransaperntUpgradeableProxy(deployer, proxyAdmin, await implementation.getAddress());
     const attached = factory.attach(proxy.target) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
     return attached;
@@ -66,7 +66,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
     signers = deployed.signers;
     managedNFTManager = deployed.managedNFTManager;
 
-    let routerV2Impl = await ethers.deployContract('RouterV2PathProviderUpgradeable', [signers.blastGovernor.address]);
+    let routerV2Impl = await ethers.deployContract('RouterV2PathProviderUpgradeable', []);
     const proxy = await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await routerV2Impl.getAddress());
     routerV2PathProvider = (await ethers.getContractFactory('RouterV2PathProviderUpgradeable')).attach(
       proxy.target,
@@ -77,17 +77,12 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
     )) as any as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable__factory;
     strategyFactory = await deployStrategyFactory(signers.deployer, signers.proxyAdmin.address);
 
-    strategyImplementation = await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [signers.blastGovernor.address]);
-    virtualRewarderImplementation = await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [signers.blastGovernor.address]);
-    routerV2 = await ethers.deployContract('RouterV2', [
-      signers.blastGovernor.address,
-      deployed.v2PairFactory.target,
-      WETH_PREDEPLOYED_ADDRESS,
-    ]);
+    strategyImplementation = await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', []);
+    virtualRewarderImplementation = await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', []);
+    routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
 
-    await routerV2PathProvider.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target);
+    await routerV2PathProvider.initialize(deployed.v2PairFactory.target, routerV2.target);
     await strategyFactory.initialize(
-      signers.blastGovernor.address,
       strategyImplementation.target,
       virtualRewarderImplementation.target,
       managedNFTManager.target,
@@ -123,13 +118,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
   describe('Deployment', async function () {
     it('Should fail if try second time to initialize', async function () {
       await expect(
-        firstStrategy.initialize(
-          signers.blastGovernor.address,
-          managedNFTManager.target,
-          ZERO_ADDRESS,
-          routerV2PathProvider.target,
-          'VeMax',
-        ),
+        firstStrategy.initialize(managedNFTManager.target, ZERO_ADDRESS, routerV2PathProvider.target, 'VeMax'),
       ).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
 
@@ -151,7 +140,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
       await managedNFTManager.grantRole(await managedNFTManager.DEFAULT_ADMIN_ROLE(), signers.deployer.address);
       await expect(firstStrategy.setRouterV2PathProvider(ZERO_ADDRESS)).to.be.revertedWithCustomError(firstStrategy, 'AddressZero');
     });
-    it('success set new default blast governor address and emit event', async () => {
+    it('success set new router v2 path provider', async () => {
       await managedNFTManager.grantRole(await managedNFTManager.DEFAULT_ADMIN_ROLE(), signers.deployer.address);
 
       expect(await firstStrategy.routerV2PathProvider()).to.be.eq(routerV2PathProvider.target);

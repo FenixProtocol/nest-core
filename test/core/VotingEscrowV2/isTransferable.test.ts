@@ -4,7 +4,7 @@ import { loadFixture, mine, time } from '@nomicfoundation/hardhat-toolbox/networ
 import { expect, use } from 'chai';
 import { ethers } from 'hardhat';
 import * as typechainTypes from '../../../typechain-types';
-import { ERRORS, ONE_ETHER, WEEK, WETH_PREDEPLOYED_ADDRESS, ZERO, ZERO_ADDRESS } from '../../utils/constants';
+import { ERRORS, ONE_ETHER, WEEK, ZERO, ZERO_ADDRESS } from '../../utils/constants';
 import completeFixture, {
   CoreFixtureDeployed,
   SignersList,
@@ -38,9 +38,7 @@ describe('VotingEscrow-depositToAttachedNFT', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (
-            await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [signers.blastGovernor.address])
-          ).getAddress(),
+          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
     )) as typechainTypes.CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
@@ -50,26 +48,21 @@ describe('VotingEscrow-depositToAttachedNFT', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [signers.blastGovernor.address])).getAddress(),
+          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [])).getAddress(),
         )
       ).target,
     ) as typechainTypes.RouterV2PathProviderUpgradeable;
 
-    routerV2 = await ethers.deployContract('RouterV2', [
-      signers.blastGovernor.address,
-      deployed.v2PairFactory.target,
-      WETH_PREDEPLOYED_ADDRESS,
-    ]);
+    routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
 
-    await routerV2PathProvider.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target);
+    await routerV2PathProvider.initialize(deployed.v2PairFactory.target, routerV2.target);
 
     await strategyFactory.initialize(
-      signers.blastGovernor.address,
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
       ).target,
       (
-        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])
       ).target,
       managedNFTManager.target,
       routerV2PathProvider.target,
@@ -82,12 +75,12 @@ describe('VotingEscrow-depositToAttachedNFT', function () {
     fnxReserve: bigint,
   ): Promise<typechainTypes.AlgebraFNXPriceProviderUpgradeable> {
     let factoryPriceProvider = await ethers.getContractFactory('AlgebraFNXPriceProviderUpgradeable');
-    let implementationPriceProvider = await factoryPriceProvider.deploy(signers.blastGovernor.address);
+    let implementationPriceProvider = await factoryPriceProvider.deploy();
     priceProvider = factoryPriceProvider.attach(
       await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementationPriceProvider.getAddress()),
     ) as typechainTypes.AlgebraFNXPriceProviderUpgradeable;
 
-    let algebraCore = await deployAlgebraCore(await deployed.blastPoints.getAddress());
+    let algebraCore = await deployAlgebraCore();
 
     let algebraFactory = algebraCore.factory;
     await algebraFactory.grantRole(await algebraFactory.POOLS_CREATOR_ROLE(), signers.deployer.address);
@@ -103,7 +96,7 @@ describe('VotingEscrow-depositToAttachedNFT', function () {
     }
     await pool.initialize(price);
 
-    await priceProvider.initialize(signers.blastGovernor.address, pool.target, fenix.target, usdToken.target);
+    await priceProvider.initialize(pool.target, fenix.target, usdToken.target);
     return priceProvider;
   }
 
@@ -132,14 +125,7 @@ describe('VotingEscrow-depositToAttachedNFT', function () {
 
     await deployStrategyFactory();
 
-    await veBoost.initialize(
-      signers.blastGovernor.address,
-      fenix.target,
-      votingEscrow.target,
-      (
-        await deployPriceProviderWith(tokenTR6, BigInt(1e6), ONE_ETHER)
-      ).target,
-    );
+    await veBoost.initialize(fenix.target, votingEscrow.target, (await deployPriceProviderWith(tokenTR6, BigInt(1e6), ONE_ETHER)).target);
     await veBoost.setMinUSDAmount(1);
     await votingEscrow.updateAddress('veBoost', veBoost.target);
     mVeNftId = 1n;

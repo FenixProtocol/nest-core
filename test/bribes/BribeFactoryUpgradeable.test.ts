@@ -27,7 +27,7 @@ describe('BribeFactoryUpgradeable Contract', function () {
 
   async function deployBribeFactory(deployer: HardhatEthersSigner, proxyAdmin: string): Promise<BribeFactoryUpgradeable> {
     const factory = await ethers.getContractFactory('BribeFactoryUpgradeable');
-    const implementation = await factory.connect(deployer).deploy(deployer.address);
+    const implementation = await factory.connect(deployer).deploy();
     const proxy = await deployTransaperntUpgradeableProxy(deployer, proxyAdmin, await implementation.getAddress());
     const attached = factory.attach(proxy.target) as BribeFactoryUpgradeable;
     return attached;
@@ -50,38 +50,28 @@ describe('BribeFactoryUpgradeable Contract', function () {
 
   describe('Deployment', async function () {
     it('Should fail if try call initialize on implementation', async function () {
-      let implementation = await bribeFactoryUpgradeableFactory.deploy(signers.deployer.address);
-      await expect(
-        implementation.initialize(signers.blastGovernor.address, deployed.voter.target, deployed.bribeImplementation.target),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      let implementation = await bribeFactoryUpgradeableFactory.deploy();
+      await expect(implementation.initialize(deployed.voter.target, deployed.bribeImplementation.target)).to.be.revertedWith(
+        ERRORS.Initializable.Initialized,
+      );
     });
     it('Should fail if try second time to initialize', async function () {
-      await expect(
-        bribeFactory.initialize(signers.blastGovernor.address, deployed.voter.target, deployed.bribeImplementation.target),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(bribeFactory.initialize(deployed.voter.target, deployed.bribeImplementation.target)).to.be.revertedWith(
+        ERRORS.Initializable.Initialized,
+      );
     });
     it('Should correct set initial settings', async function () {
-      expect(await bribeFactory.owner()).to.be.equal(signers.deployer.address);
+      expect(await bribeFactory.owner()).to.be.equal(signers.deployer);
       expect(await bribeFactory.voter()).to.be.equal(deployed.voter.target);
       expect(await bribeFactory.last_bribe()).to.be.equal(ZERO_ADDRESS);
-      expect(await bribeFactory.defaultBlastGovernor()).to.be.equal(signers.blastGovernor.address);
       expect(await bribeFactory.bribeImplementation()).to.be.equal(deployed.bribeImplementation.target);
-      expect(await bribeFactory.bribeOwner()).to.be.equal(signers.deployer.address);
+      expect(await bribeFactory.bribeOwner()).to.be.equal(signers.deployer);
     });
     it('Should fail if one of main address is zero', async function () {
       let proxy = await deployBribeFactory(signers.deployer, signers.proxyAdmin.address);
 
-      await expect(
-        proxy.initialize(ZERO_ADDRESS, deployed.voter.target, deployed.bribeImplementation.target),
-      ).to.be.revertedWithCustomError(proxy, 'AddressZero');
-
-      await expect(
-        proxy.initialize(signers.blastGovernor.address, ZERO_ADDRESS, deployed.bribeImplementation.target),
-      ).to.be.revertedWithCustomError(proxy, 'AddressZero');
-      await expect(proxy.initialize(signers.blastGovernor.address, deployed.voter.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(
-        proxy,
-        'AddressZero',
-      );
+      await expect(proxy.initialize(ZERO_ADDRESS, deployed.bribeImplementation.target)).to.be.revertedWithCustomError(proxy, 'AddressZero');
+      await expect(proxy.initialize(deployed.voter.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(proxy, 'AddressZero');
     });
   });
   describe('Create bribe', async function () {
@@ -102,9 +92,7 @@ describe('BribeFactoryUpgradeable Contract', function () {
       });
       it('Fail if try initialize second time', async function () {
         let bribe = (await ethers.getContractFactory('BribeUpgradeable')).attach(deployedBribeAddress) as BribeUpgradeable;
-        await expect(bribe.initialize(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, '123')).to.be.revertedWith(
-          ERRORS.Initializable.Initialized,
-        );
+        await expect(bribe.initialize(ZERO_ADDRESS, ZERO_ADDRESS, '123')).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
       it('Should corect initialize deployead bribe', async function () {
         let bribe = (await ethers.getContractFactory('BribeUpgradeable')).attach(deployedBribeAddress) as BribeUpgradeable;
@@ -155,7 +143,7 @@ describe('BribeFactoryUpgradeable Contract', function () {
         let voter = await deployVoter(
           signers.deployer,
           signers.proxyAdmin.address,
-          signers.blastGovernor.address,
+
           await deployed.votingEscrow.getAddress(),
           await deployed.v2PairFactory.getAddress(),
           await deployed.gaugeFactory.getAddress(),
@@ -328,14 +316,6 @@ describe('BribeFactoryUpgradeable Contract', function () {
       });
       it('#changeImplementation - Should success called from owner', async () => {
         await expect(bribeFactory.changeImplementation(signers.otherUser1.address)).to.be.not.reverted;
-      });
-      it('#setDefaultBlastGovernor - Should fail if call from not owner', async () => {
-        await expect(bribeFactory.connect(signers.otherUser1).setDefaultBlastGovernor(signers.otherUser1.address)).to.be.revertedWith(
-          ERRORS.Ownable.NotOwner,
-        );
-      });
-      it('#setDefaultBlastGovernor - Should success called from owner', async () => {
-        await expect(bribeFactory.setDefaultBlastGovernor(signers.otherUser1.address)).to.be.not.reverted;
       });
       it('#addRewards - Should fail if call from not owner', async () => {
         await expect(bribeFactory.connect(signers.otherUser1)['addRewards(address,address[])'](token18.target, [])).to.be.revertedWith(

@@ -12,7 +12,7 @@ import {
   VeFnxDistributorUpgradeable__factory,
   VotingEscrowUpgradeableV2,
 } from '../../typechain-types';
-import { ERRORS, getAccessControlError, ONE, ONE_ETHER, WETH_PREDEPLOYED_ADDRESS, ZERO, ZERO_ADDRESS } from '../utils/constants';
+import { ERRORS, getAccessControlError, ONE, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, SignersList, deployTransaperntUpgradeableProxy } from '../utils/coreFixture';
 
 describe('VeFnxDistributorUpgradeable', function () {
@@ -46,9 +46,7 @@ describe('VeFnxDistributorUpgradeable', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (
-            await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [signers.blastGovernor.address])
-          ).getAddress(),
+          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
     )) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
@@ -58,26 +56,21 @@ describe('VeFnxDistributorUpgradeable', function () {
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [signers.blastGovernor.address])).getAddress(),
+          await (await ethers.deployContract('RouterV2PathProviderUpgradeable', [])).getAddress(),
         )
       ).target,
     ) as RouterV2PathProviderUpgradeable;
 
-    routerV2 = await ethers.deployContract('RouterV2', [
-      signers.blastGovernor.address,
-      deployed.v2PairFactory.target,
-      WETH_PREDEPLOYED_ADDRESS,
-    ]);
+    routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
 
-    await routerV2PathProvider.initialize(signers.blastGovernor.address, deployed.v2PairFactory.target, routerV2.target);
+    await routerV2PathProvider.initialize(deployed.v2PairFactory.target, routerV2.target);
 
     await strategyFactory.initialize(
-      signers.blastGovernor.address,
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
       ).target,
       (
-        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [signers.blastGovernor.address])
+        await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])
       ).target,
       managedNFTManager.target,
       routerV2PathProvider.target,
@@ -104,34 +97,20 @@ describe('VeFnxDistributorUpgradeable', function () {
 
   describe('Deployment', async () => {
     it('Should fail if try initialize on implementation', async function () {
-      let implementation = await factory.deploy(signers.deployer.address);
-      await expect(implementation.initialize(signers.blastGovernor.address, fenix.target, votingEscrow.target)).to.be.revertedWith(
-        ERRORS.Initializable.Initialized,
-      );
+      let implementation = await factory.deploy();
+      await expect(implementation.initialize(fenix.target, votingEscrow.target)).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
     it('Should fail if try second time initialize', async function () {
-      await expect(veFnxDistributor.initialize(signers.blastGovernor.address, fenix.target, votingEscrow.target)).to.be.revertedWith(
-        ERRORS.Initializable.Initialized,
-      );
+      await expect(veFnxDistributor.initialize(fenix.target, votingEscrow.target)).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
     it('Should fail if try set zero address', async function () {
-      let implementation = await factory.deploy(signers.deployer.address);
+      let implementation = await factory.deploy();
 
       const distributor = factory.attach(
         await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
       ) as VeFnxDistributorUpgradeable;
-      await expect(distributor.initialize(ZERO_ADDRESS, fenix.target, votingEscrow.target)).to.be.revertedWithCustomError(
-        distributor,
-        'AddressZero',
-      );
-      await expect(distributor.initialize(signers.blastGovernor.address, ZERO_ADDRESS, votingEscrow.target)).to.be.revertedWithCustomError(
-        distributor,
-        'AddressZero',
-      );
-      await expect(distributor.initialize(signers.blastGovernor.address, fenix.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(
-        distributor,
-        'AddressZero',
-      );
+      await expect(distributor.initialize(ZERO_ADDRESS, votingEscrow.target)).to.be.revertedWithCustomError(distributor, 'AddressZero');
+      await expect(distributor.initialize(fenix.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(distributor, 'AddressZero');
     });
 
     it('Should correct setup parameters and grant admin role for deployer', async function () {

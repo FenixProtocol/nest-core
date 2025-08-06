@@ -74,9 +74,7 @@ describe('Pair Contract', function () {
     for (let index = 0; index < 10; index++) {
       await dai.transfer(pairStable.target, 10000000);
       await frax.transfer(pairStable.target, 10000000);
-      await expect(pairStable.mint.staticCall(signers.deployer.address)).to.be.rejectedWith(
-        'Pair: stable deposits must be above minimum k',
-      );
+      await expect(pairStable.mint.staticCall(signers.deployer)).to.be.rejectedWith('Pair: stable deposits must be above minimum k');
       return;
     }
     await frax.transfer(pairStable.target, ethers.parseEther('1'));
@@ -91,6 +89,6 @@ describe('Pair Contract', function () {
     await dai.transfer(pairStable.target, 10000000);
     await frax.transfer(pairStable.target, 10000000);
 
-    await expect(pairStable.mint(signers.deployer.address)).to.be.revertedWith('Pair: stable deposits must be above minimum k');
+    await expect(pairStable.mint(signers.deployer)).to.be.revertedWith('Pair: stable deposits must be above minimum k');
   });
 });

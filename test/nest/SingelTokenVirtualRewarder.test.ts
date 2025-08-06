@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { SingelTokenVirtualRewarderUpgradeable, SingelTokenVirtualRewarderUpgradeable__factory } from '../../typechain-types';
 import { ERRORS, ZERO, ZERO_ADDRESS } from '../utils/constants';
-import { SignersList, deployTransaperntUpgradeableProxy, getSigners, mockBlast } from '../utils/coreFixture';
+import { SignersList, deployTransaperntUpgradeableProxy, getSigners } from '../utils/coreFixture';
 
 describe('SingelTokenVirtualRewarder Contract', function () {
   let signers: SignersList;
@@ -29,31 +29,26 @@ describe('SingelTokenVirtualRewarder Contract', function () {
   }
 
   beforeEach(async function () {
-    await mockBlast();
     signers = await getSigners();
     strategy = signers.fenixTeam;
 
     factory = await ethers.getContractFactory('SingelTokenVirtualRewarderUpgradeable');
-    rewarderImpl = await factory.deploy(signers.deployer.address);
+    rewarderImpl = await factory.deploy();
 
     rewarder = factory.attach(
       (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await rewarderImpl.getAddress())).target,
     ) as any as SingelTokenVirtualRewarderUpgradeable;
 
-    await rewarder.initialize(signers.blastGovernor.address, strategy.address);
+    await rewarder.initialize(strategy.address);
   });
 
   describe('Deployment', async () => {
     it('fail if try initialize on implementatrion', async () => {
-      await expect(rewarderImpl.initialize(signers.blastGovernor.address, strategy.address)).to.be.revertedWith(
-        ERRORS.Initializable.Initialized,
-      );
+      await expect(rewarderImpl.initialize(strategy.address)).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
 
     it('fail if try initialize second time', async () => {
-      await expect(rewarder.initialize(signers.blastGovernor.address, strategy.address)).to.be.revertedWith(
-        ERRORS.Initializable.Initialized,
-      );
+      await expect(rewarder.initialize(strategy.address)).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
 
     it('fail if `strategy` is zero address', async () => {
@@ -61,10 +56,7 @@ describe('SingelTokenVirtualRewarder Contract', function () {
         (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await rewarderImpl.getAddress())).target,
       ) as any as SingelTokenVirtualRewarderUpgradeable;
 
-      await expect(newRewarder.initialize(signers.blastGovernor.address, ZERO_ADDRESS)).to.be.revertedWithCustomError(
-        newRewarder,
-        'AddressZero',
-      );
+      await expect(newRewarder.initialize(ZERO_ADDRESS)).to.be.revertedWithCustomError(newRewarder, 'AddressZero');
     });
 
     it('correct set `strategy`', async () => {

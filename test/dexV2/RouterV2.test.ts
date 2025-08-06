@@ -2,7 +2,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { ERC20Mock, Pair, PairFactoryUpgradeable, RouterV2 } from '../../typechain-types';
-import { WETH_PREDEPLOYED_ADDRESS, ZERO_ADDRESS } from '../utils/constants';
+import { ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, SignersList, deployERC20MockToken } from '../utils/coreFixture';
 
 describe('Pair Contract', function () {
@@ -20,7 +20,7 @@ describe('Pair Contract', function () {
 
     pairFactory = deployed.v2PairFactory;
 
-    router = await ethers.deployContract('RouterV2', [signers.deployer.address, pairFactory.target, WETH_PREDEPLOYED_ADDRESS]);
+    router = await ethers.deployContract('RouterV2', [pairFactory.target, ethers.Wallet.createRandom()]);
 
     tokenTK18 = await deployERC20MockToken(deployed.signers.deployer, 'TK18', 'TK18', 18);
     tokenTK6 = await deployERC20MockToken(deployed.signers.deployer, 'TK6', 'TK6', 6);
@@ -28,7 +28,7 @@ describe('Pair Contract', function () {
     await deployed.v2PairFactory.connect(signers.deployer).createPair(deployed.fenix.target, tokenTK6.target, true);
     await deployed.v2PairFactory.connect(signers.deployer).createPair(tokenTK18.target, tokenTK6.target, false);
   });
-  it('RouterV2 should return zero address if pair not create', async () => {
+  describe('RouterV2 should return zero address if pair not create', async () => {
     it('tokenTK18.target, tokenTK6.target, true', async () => {
       expect(await pairFactory.getPair(tokenTK18.target, tokenTK6.target, true)).to.be.eq(ZERO_ADDRESS);
       expect(await router.pairFor(tokenTK18.target, tokenTK6.target, true)).to.be.eq(ZERO_ADDRESS);
@@ -39,13 +39,9 @@ describe('Pair Contract', function () {
       );
     });
     it('tokenTK18.target, tokenTK6.target, false', async () => {
-      expect(await pairFactory.getPair(tokenTK18.target, tokenTK6.target, false)).to.be.eq(ZERO_ADDRESS);
-      expect(await router.pairFor(tokenTK18.target, tokenTK6.target, false)).to.be.eq(ZERO_ADDRESS);
-      await pairFactory.createPair(tokenTK18.target, tokenTK6.target, false);
       expect(await pairFactory.getPair(tokenTK18.target, tokenTK6.target, false)).to.be.not.eq(ZERO_ADDRESS);
-      expect(await pairFactory.getPair(tokenTK18.target, tokenTK6.target, false)).to.be.eq(
-        await router.pairFor(tokenTK18.target, tokenTK6.target, false),
-      );
+      expect(await router.pairFor(tokenTK18.target, tokenTK6.target, false)).to.be.not.eq(ZERO_ADDRESS);
+      await expect(pairFactory.createPair(tokenTK18.target, tokenTK6.target, false)).to.be.reverted;
     });
   });
   describe('RouterV2 pairFor should always return the same address ', async () => {

@@ -32,7 +32,7 @@ describe('BaseManagedNFTStrategy Contract', function () {
       (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await strategyImpl.getAddress())).target,
     ) as any as BaseManagedNFTStrategyUpgradeableMock;
 
-    await strategy.initialize(signers.blastGovernor.address, managedNFTManager.target, 'Name 1');
+    await strategy.initialize(managedNFTManager.target, 'Name 1');
 
     managedNFTId = await managedNFTManager.createManagedNFT.staticCall(strategy.target);
 
@@ -41,20 +41,7 @@ describe('BaseManagedNFTStrategy Contract', function () {
 
   describe('Deployment', async () => {
     it('fail if try initialize second time', async () => {
-      await expect(strategy.initialize(signers.blastGovernor.address, managedNFTManager.target, 'Name 1')).to.be.revertedWith(
-        ERRORS.Initializable.Initialized,
-      );
-    });
-
-    it('fail if `blastGovernor` is zero address', async () => {
-      let newStrategy = factory.attach(
-        (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await strategyImpl.getAddress())).target,
-      ) as any as BaseManagedNFTStrategyUpgradeableMock;
-
-      await expect(newStrategy.initialize(ZERO_ADDRESS, managedNFTManager.target, 'name')).to.be.revertedWithCustomError(
-        newStrategy,
-        'AddressZero',
-      );
+      await expect(strategy.initialize(managedNFTManager.target, 'Name 1')).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
 
     it('fail if `managedNFTManager` is zero address', async () => {
@@ -62,10 +49,7 @@ describe('BaseManagedNFTStrategy Contract', function () {
         (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await strategyImpl.getAddress())).target,
       ) as any as BaseManagedNFTStrategyUpgradeableMock;
 
-      await expect(newStrategy.initialize(signers.blastGovernor.address, ZERO_ADDRESS, 'name')).to.be.revertedWithCustomError(
-        newStrategy,
-        'AddressZero',
-      );
+      await expect(newStrategy.initialize(ZERO_ADDRESS, 'name')).to.be.revertedWithCustomError(newStrategy, 'AddressZero');
     });
 
     it('correct initialize fields', async () => {
@@ -139,7 +123,7 @@ describe('BaseManagedNFTStrategy Contract', function () {
       let newStrategy = factory.attach(
         (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await strategyImpl.getAddress())).target,
       ) as any as BaseManagedNFTStrategyUpgradeableMock;
-      await newStrategy.initialize(signers.blastGovernor.address, managedNFTManager.target, '1');
+      await newStrategy.initialize(managedNFTManager.target, '1');
       await expect(newStrategy.attachManagedNFT(10)).to.be.revertedWithCustomError(newStrategy, 'IncorrectManagedTokenId');
     });
 
@@ -147,7 +131,7 @@ describe('BaseManagedNFTStrategy Contract', function () {
       let newStrategy = factory.attach(
         (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await strategyImpl.getAddress())).target,
       ) as any as BaseManagedNFTStrategyUpgradeableMock;
-      await newStrategy.initialize(signers.blastGovernor.address, managedNFTManager.target, '1');
+      await newStrategy.initialize(managedNFTManager.target, '1');
 
       let nftId = await managedNFTManager.createManagedNFT.staticCall(newStrategy.target);
       await managedNFTManager.createManagedNFT(newStrategy.target);
@@ -155,7 +139,7 @@ describe('BaseManagedNFTStrategy Contract', function () {
       let newStrategy2 = factory.attach(
         (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await strategyImpl.getAddress())).target,
       ) as any as BaseManagedNFTStrategyUpgradeableMock;
-      await newStrategy2.initialize(signers.blastGovernor.address, managedNFTManager.target, '1');
+      await newStrategy2.initialize(managedNFTManager.target, '1');
 
       await expect(newStrategy2.attachManagedNFT(nftId)).to.be.revertedWithCustomError(newStrategy2, 'IncorrectManagedTokenId');
     });
@@ -168,7 +152,7 @@ describe('BaseManagedNFTStrategy Contract', function () {
       let newStrategy = factory.attach(
         (await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await strategyImpl.getAddress())).target,
       ) as any as BaseManagedNFTStrategyUpgradeableMock;
-      await newStrategy.initialize(signers.blastGovernor.address, managedNFTManager.target, '1');
+      await newStrategy.initialize(managedNFTManager.target, '1');
 
       expect(await newStrategy.managedTokenId()).to.be.eq(0);
       let nftId = await managedNFTManager.createManagedNFT.staticCall(newStrategy.target);

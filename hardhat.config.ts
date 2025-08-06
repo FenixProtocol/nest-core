@@ -5,7 +5,6 @@ import '@nomicfoundation/hardhat-verify';
 import 'hardhat-contract-sizer';
 import 'dotenv/config';
 import 'hardhat-ignore-warnings';
-import 'hardhat-tracer';
 import 'hardhat-abi-exporter';
 import './tasks';
 
@@ -70,52 +69,12 @@ const config: HardhatUserConfig = {
     enabled: false,
   },
   etherscan: {
-    apiKey: {
-      blast: `${process.env.API_KEY}`,
-      blastSepolia: `${process.env.API_KEY}`,
-    },
-    customChains: [
-      {
-        network: 'blastSepolia',
-        chainId: 168587773,
-        urls: {
-          apiURL: 'https://api-sepolia.blastscan.io/api',
-          browserURL: 'https://sepolia.blastscan.io/',
-        },
-      },
-      {
-        network: 'blast',
-        chainId: 81457,
-        urls: {
-          apiURL: 'https://api.blastscan.io/api',
-          browserURL: 'https://blastscan.io/',
-        },
-      },
-    ],
+    apiKey: {},
+    customChains: [],
   },
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true,
-    },
-    blastSepolia: {
-      url: `${process.env.RPC_BLAST_SEPOLIA || 'https://sepolia.blast.io'}`,
-      accounts: {
-        mnemonic: `${process.env.BLAST_SEPOLIA_MNEMONIC}`,
-        path: "m/44'/60'/0'/0",
-        initialIndex: 0,
-        count: 20,
-        passphrase: '',
-      },
-    },
-    blast: {
-      url: `${process.env.RPC_BLAST || 'https://rpc.blast.io'}`,
-      accounts: {
-        mnemonic: `${process.env.BLAST_MNEMONIC}`,
-        path: "m/44'/60'/0'/0",
-        initialIndex: 0,
-        count: 20,
-        passphrase: '',
-      },
     },
   },
   solidity: {

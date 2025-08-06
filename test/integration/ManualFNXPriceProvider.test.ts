@@ -4,7 +4,7 @@ import { ethers } from 'hardhat';
 import { ERRORS } from '../utils/constants';
 
 import { ManualFNXPriceProvider } from '../../typechain-types';
-import { getSigners, mockBlast } from '../utils/coreFixture';
+import { getSigners } from '../utils/coreFixture';
 
 describe('ManualFNXPriceProvider', function () {
   let instance: ManualFNXPriceProvider;
@@ -13,10 +13,9 @@ describe('ManualFNXPriceProvider', function () {
   let user: HardhatEthersSigner;
 
   before(async function () {
-    await mockBlast();
     let signers = await getSigners();
     [owner, user] = [signers.deployer, signers.otherUser1];
-    instance = await ethers.deployContract('ManualFNXPriceProvider', [owner.address, initialPrice]);
+    instance = await ethers.deployContract('ManualFNXPriceProvider', [initialPrice]);
   });
 
   describe('Deployment', function () {

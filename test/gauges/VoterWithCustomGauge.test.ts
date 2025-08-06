@@ -21,7 +21,7 @@ describe('VoterWithCustomGauge', function () {
     Fenix = deployed.fenix;
     voter = deployed.voter;
 
-    let implementation = (await ethers.deployContract('PerpetualsTradersRewarderUpgradeable', [signers.blastGovernor.address])) as any;
+    let implementation = (await ethers.deployContract('PerpetualsTradersRewarderUpgradeable', [])) as any;
     PerpetualsTradersRewarderUpgradeable = (await ethers.getContractAt(
       'PerpetualsTradersRewarderUpgradeable',
       (
@@ -29,7 +29,7 @@ describe('VoterWithCustomGauge', function () {
       ).target,
     )) as any as PerpetualsTradersRewarderUpgradeable;
 
-    implementation = await ethers.deployContract('PerpetualsGaugeUpgradeable', [signers.blastGovernor.address]);
+    implementation = await ethers.deployContract('PerpetualsGaugeUpgradeable', []);
     PerpetualsGaugeUpgradeable = (await ethers.getContractAt(
       'PerpetualsGaugeUpgradeable',
       (
@@ -37,20 +37,9 @@ describe('VoterWithCustomGauge', function () {
       ).target,
     )) as any as PerpetualsGaugeUpgradeable;
 
-    await PerpetualsTradersRewarderUpgradeable.initialize(
-      signers.blastGovernor.address,
-      PerpetualsGaugeUpgradeable.target,
-      Fenix.target,
-      ZERO_ADDRESS,
-    );
+    await PerpetualsTradersRewarderUpgradeable.initialize(PerpetualsGaugeUpgradeable.target, Fenix.target, ZERO_ADDRESS);
 
-    await PerpetualsGaugeUpgradeable.initialize(
-      signers.blastGovernor.address,
-      Fenix.target,
-      voter.target,
-      PerpetualsTradersRewarderUpgradeable.target,
-      'EON',
-    );
+    await PerpetualsGaugeUpgradeable.initialize(Fenix.target, voter.target, PerpetualsTradersRewarderUpgradeable.target, 'EON');
 
     await voter.createCustomGauge(
       PerpetualsGaugeUpgradeable.target,

@@ -42,7 +42,7 @@ describe('PerpetualsTradersRewarderUpgradeable', function () {
     Fenix = deployed.fenix;
     gauge = signers.otherUser5;
 
-    let implementation = await ethers.deployContract('PerpetualsTradersRewarderUpgradeable', [signers.blastGovernor.address]);
+    let implementation = await ethers.deployContract('PerpetualsTradersRewarderUpgradeable', []);
     PerpetualsTradersRewarderUpgradeable = (await ethers.getContractAt(
       'PerpetualsTradersRewarderUpgradeable',
       (
@@ -53,32 +53,28 @@ describe('PerpetualsTradersRewarderUpgradeable', function () {
 
   describe('Deployment', async () => {
     it('fail if try initialize on implementation', async () => {
-      let implementation = await ethers.deployContract('PerpetualsTradersRewarderUpgradeable', [signers.blastGovernor.address]);
+      let implementation = await ethers.deployContract('PerpetualsTradersRewarderUpgradeable', []);
       await implementation.waitForDeployment();
-      await expect(implementation.initialize(signers.blastGovernor.address, gauge.address, Fenix.target, ZERO_ADDRESS)).to.be.revertedWith(
+      await expect(implementation.initialize(gauge.address, Fenix.target, ZERO_ADDRESS)).to.be.revertedWith(
         ERRORS.Initializable.Initialized,
       );
     });
     it('fail if try initialize second time', async () => {
-      await PerpetualsTradersRewarderUpgradeable.initialize(signers.blastGovernor.address, gauge.address, Fenix.target, ZERO_ADDRESS);
-      await expect(
-        PerpetualsTradersRewarderUpgradeable.initialize(signers.blastGovernor.address, gauge.address, Fenix.target, ZERO_ADDRESS),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
-    });
-    it('fail if try provide zero blast governor address', async () => {
-      await expect(
-        PerpetualsTradersRewarderUpgradeable.initialize(ZERO_ADDRESS, gauge.address, Fenix.target, ZERO_ADDRESS),
-      ).to.be.revertedWithCustomError(PerpetualsTradersRewarderUpgradeable, 'AddressZero');
+      await PerpetualsTradersRewarderUpgradeable.initialize(gauge.address, Fenix.target, ZERO_ADDRESS);
+      await expect(PerpetualsTradersRewarderUpgradeable.initialize(gauge.address, Fenix.target, ZERO_ADDRESS)).to.be.revertedWith(
+        ERRORS.Initializable.Initialized,
+      );
     });
 
     it('fail if try provide zero gauge address', async () => {
-      await expect(
-        PerpetualsTradersRewarderUpgradeable.initialize(signers.blastGovernor.address, ZERO_ADDRESS, Fenix.target, ZERO_ADDRESS),
-      ).to.be.revertedWithCustomError(PerpetualsTradersRewarderUpgradeable, 'AddressZero');
+      await expect(PerpetualsTradersRewarderUpgradeable.initialize(ZERO_ADDRESS, Fenix.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(
+        PerpetualsTradersRewarderUpgradeable,
+        'AddressZero',
+      );
     });
     it('fail if try provide zero token address', async () => {
       await expect(
-        PerpetualsTradersRewarderUpgradeable.initialize(signers.blastGovernor.address, gauge.address, ZERO_ADDRESS, ZERO_ADDRESS),
+        PerpetualsTradersRewarderUpgradeable.initialize(gauge.address, ZERO_ADDRESS, ZERO_ADDRESS),
       ).to.be.revertedWithCustomError(PerpetualsTradersRewarderUpgradeable, 'AddressZero');
     });
     it('success setup state after initializion proccess', async () => {
@@ -86,8 +82,8 @@ describe('PerpetualsTradersRewarderUpgradeable', function () {
       expect(await PerpetualsTradersRewarderUpgradeable.gauge()).to.be.eq(ZERO_ADDRESS);
       expect(await PerpetualsTradersRewarderUpgradeable.signer()).to.be.eq(ZERO_ADDRESS);
       expect(await PerpetualsTradersRewarderUpgradeable.token()).to.be.eq(ZERO_ADDRESS);
-      await PerpetualsTradersRewarderUpgradeable.initialize(signers.blastGovernor.address, gauge.address, Fenix.target, ZERO_ADDRESS);
-      expect(await PerpetualsTradersRewarderUpgradeable.owner()).to.be.eq(signers.deployer.address);
+      await PerpetualsTradersRewarderUpgradeable.initialize(gauge.address, Fenix.target, ZERO_ADDRESS);
+      expect(await PerpetualsTradersRewarderUpgradeable.owner()).to.be.eq(signers.deployer);
       expect(await PerpetualsTradersRewarderUpgradeable.gauge()).to.be.eq(gauge.address);
       expect(await PerpetualsTradersRewarderUpgradeable.signer()).to.be.eq(ZERO_ADDRESS);
       expect(await PerpetualsTradersRewarderUpgradeable.token()).to.be.eq(Fenix.target);
@@ -95,24 +91,14 @@ describe('PerpetualsTradersRewarderUpgradeable', function () {
     it('success setup state with not zero signer', async () => {
       expect(await PerpetualsTradersRewarderUpgradeable.signer()).to.be.eq(ZERO_ADDRESS);
 
-      await PerpetualsTradersRewarderUpgradeable.initialize(
-        signers.blastGovernor.address,
-        gauge.address,
-        Fenix.target,
-        signers.fenixTeam.address,
-      );
+      await PerpetualsTradersRewarderUpgradeable.initialize(gauge.address, Fenix.target, signers.fenixTeam.address);
       expect(await PerpetualsTradersRewarderUpgradeable.signer()).to.be.eq(signers.fenixTeam.address);
     });
   });
 
   describe('initialized()', async () => {
     beforeEach(async () => {
-      await PerpetualsTradersRewarderUpgradeable.initialize(
-        signers.blastGovernor.address,
-        gauge.address,
-        Fenix.target,
-        signers.fenixTeam.address,
-      );
+      await PerpetualsTradersRewarderUpgradeable.initialize(gauge.address, Fenix.target, signers.fenixTeam.address);
     });
     describe('#setSigner()', async () => {
       it('fail if try call from not owner', async () => {

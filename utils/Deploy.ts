@@ -43,10 +43,6 @@ export const getProxyAdminAddress = async () => {
   return await getDeployedContractAddress(AliasDeployedContracts.ProxyAdmin);
 };
 
-export const getBlastGovernorAddress = async () => {
-  return await getDeployedContractAddress(AliasDeployedContracts.BlastGovernorUpgradeable_Proxy);
-};
-
 export const getDeployedContractAddress = async (name: AliasDeployedContracts | string) => {
   return (await getDeployedContractsAddressList())[name];
 };

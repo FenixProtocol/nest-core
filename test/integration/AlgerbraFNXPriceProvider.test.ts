@@ -19,7 +19,6 @@ import {
   deployFenixToken,
   deployTransaperntUpgradeableProxy,
   getSigners,
-  mockBlast,
 } from '../utils/coreFixture';
 
 describe('AlgebraFNXPriceProvider', function () {
@@ -40,22 +39,20 @@ describe('AlgebraFNXPriceProvider', function () {
   beforeEach(async function () {
     signers = await getSigners();
 
-    let blastPointsMock = await mockBlast();
-
-    fenix = await deployFenixToken(signers.deployer, signers.blastGovernor.address, signers.deployer.address);
+    fenix = await deployFenixToken(signers.deployer, signers.deployer.address);
     tokenTR6 = await deployERC20MockToken(signers.deployer, 'TR6', 'TR6', 6);
     tokenTR18 = await deployERC20MockToken(signers.deployer, 'TR18', 'TR18', 18);
     poolMock = await ethers.deployContract('PoolMock');
 
     factory = await ethers.getContractFactory('AlgebraFNXPriceProviderUpgradeable');
-    implementation = await factory.deploy(signers.deployer.address);
+    implementation = await factory.deploy();
     priceProvider = factory.attach(
       await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
     ) as AlgebraFNXPriceProviderUpgradeable;
 
-    await priceProvider.initialize(signers.blastGovernor.address, poolMock.target, fenix.target, tokenTR6.target);
+    await priceProvider.initialize(poolMock.target, fenix.target, tokenTR6.target);
 
-    algebraCore = await deployAlgebraCore(await blastPointsMock.getAddress());
+    algebraCore = await deployAlgebraCore();
 
     await algebraCore.factory.grantRole(await algebraCore.factory.POOLS_CREATOR_ROLE(), signers.deployer.address);
 
@@ -66,35 +63,23 @@ describe('AlgebraFNXPriceProvider', function () {
 
   describe('Deployment', function () {
     it('Should fail if try initialize on implementation', async function () {
-      await expect(implementation.initialize(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS)).to.be.revertedWith(
+      await expect(implementation.initialize(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS)).to.be.revertedWith(
         ERRORS.Initializable.Initialized,
       );
     });
     it('Should fail if try second time to initialize', async function () {
-      await expect(
-        priceProvider.initialize(signers.blastGovernor.address, poolMock.target, fenix.target, tokenTR6.target),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(priceProvider.initialize(poolMock.target, fenix.target, tokenTR6.target)).to.be.revertedWith(
+        ERRORS.Initializable.Initialized,
+      );
     });
     it('Should fail if try set zero address', async function () {
       let pp = factory.attach(
         await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
       ) as AlgebraFNXPriceProviderUpgradeable;
 
-      await expect(pp.initialize(ZERO_ADDRESS, poolMock.target, fenix.target, tokenTR6.target)).to.be.revertedWithCustomError(
-        pp,
-        'AddressZero',
-      );
-      await expect(pp.initialize(signers.blastGovernor.address, ZERO_ADDRESS, fenix.target, tokenTR6.target)).to.be.revertedWithCustomError(
-        pp,
-        'AddressZero',
-      );
-      await expect(
-        pp.initialize(signers.blastGovernor.address, poolMock.target, ZERO_ADDRESS, tokenTR6.target),
-      ).to.be.revertedWithCustomError(pp, 'AddressZero');
-      await expect(pp.initialize(signers.blastGovernor.address, poolMock.target, fenix.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(
-        pp,
-        'AddressZero',
-      );
+      await expect(pp.initialize(ZERO_ADDRESS, fenix.target, tokenTR6.target)).to.be.revertedWithCustomError(pp, 'AddressZero');
+      await expect(pp.initialize(poolMock.target, ZERO_ADDRESS, tokenTR6.target)).to.be.revertedWithCustomError(pp, 'AddressZero');
+      await expect(pp.initialize(poolMock.target, fenix.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(pp, 'AddressZero');
     });
 
     describe('Should corect setup and calculate initial parameters', async () => {
@@ -113,7 +98,7 @@ describe('AlgebraFNXPriceProvider', function () {
           await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
         ) as AlgebraFNXPriceProviderUpgradeable;
 
-        await pp.initialize(signers.blastGovernor.address, poolMock.target, fenix.target, tokenTR18.target);
+        await pp.initialize(poolMock.target, fenix.target, tokenTR18.target);
         expect(await pp.ONE_USD()).to.be.eq(ethers.parseEther('1'));
       });
     });
@@ -286,7 +271,7 @@ describe('AlgebraFNXPriceProvider', function () {
             await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
           ) as AlgebraFNXPriceProviderUpgradeable;
 
-          await pp.initialize(signers.blastGovernor.address, pool.target, fenix.target, token.target);
+          await pp.initialize(pool.target, fenix.target, token.target);
 
           console.log(ethers.formatEther(await pp.getUsdToFNXPrice()));
           expect(await pp.getUsdToFNXPrice()).to.be.closeTo(iterator.fnxPer1USD, iterator.fnxPer1USD / BigInt(1000));

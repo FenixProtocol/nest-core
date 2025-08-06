@@ -32,7 +32,7 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
     proxyAdmin: string,
   ): Promise<CompoundVeFNXManagedNFTStrategyFactoryUpgradeable> {
     const factory = await ethers.getContractFactory('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable');
-    const implementation = await factory.connect(deployer).deploy(deployer.address);
+    const implementation = await factory.connect(deployer).deploy();
     const proxy = await deployTransaperntUpgradeableProxy(deployer, proxyAdmin, await implementation.getAddress());
     const attached = factory.attach(proxy.target) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
     return attached;
@@ -43,7 +43,7 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
     signers = deployed.signers;
     managedNFTManager = deployed.managedNFTManager;
 
-    let routerV2Impl = await ethers.deployContract('RouterV2PathProviderUpgradeable', [signers.blastGovernor.address]);
+    let routerV2Impl = await ethers.deployContract('RouterV2PathProviderUpgradeable', []);
     const proxy = await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await routerV2Impl.getAddress());
     routerV2PathProvider = (await ethers.getContractFactory('RouterV2PathProviderUpgradeable')).attach(
       proxy.target,
@@ -54,11 +54,10 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
     )) as any as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable__factory;
     strategyFactory = await deployStrategy(signers.deployer, signers.proxyAdmin.address);
 
-    strategyImplementation = await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [signers.blastGovernor.address]);
-    virtualRewarderImplementation = await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [signers.blastGovernor.address]);
+    strategyImplementation = await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', []);
+    virtualRewarderImplementation = await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', []);
 
     await strategyFactory.initialize(
-      signers.blastGovernor.address,
       strategyImplementation.target,
       virtualRewarderImplementation.target,
       managedNFTManager.target,
@@ -68,10 +67,9 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
 
   describe('Deployment', async function () {
     it('Should fail if try call initialize on implementation', async function () {
-      let impl = await factory.deploy(signers.blastGovernor.address);
+      let impl = await factory.deploy();
       await expect(
         impl.initialize(
-          signers.blastGovernor.address,
           strategyImplementation.target,
           virtualRewarderImplementation.target,
           managedNFTManager.target,
@@ -83,7 +81,6 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
     it('Should fail if try second time to initialize', async function () {
       await expect(
         strategyFactory.initialize(
-          signers.blastGovernor.address,
           strategyImplementation.target,
           virtualRewarderImplementation.target,
           managedNFTManager.target,
@@ -96,7 +93,6 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
     });
 
     it('Should correct set initial settings', async function () {
-      expect(await strategyFactory.defaultBlastGovernor()).to.be.equal(signers.blastGovernor.address);
       expect(await strategyFactory.virtualRewarderImplementation()).to.be.equal(virtualRewarderImplementation.target);
       expect(await strategyFactory.strategyImplementation()).to.be.equal(strategyImplementation.target);
       expect(await strategyFactory.managedNFTManager()).to.be.equal(managedNFTManager.target);
@@ -106,50 +102,16 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
       let proxy = await deployStrategy(signers.deployer, signers.proxyAdmin.address);
 
       await expect(
-        proxy.initialize(
-          ZERO_ADDRESS,
-          strategyImplementation.target,
-          virtualRewarderImplementation.target,
-          managedNFTManager.target,
-          routerV2PathProvider.target,
-        ),
-      ).to.be.revertedWithCustomError(proxy, 'AddressZero');
-
-      await expect(
-        proxy.initialize(
-          signers.blastGovernor.address,
-          ZERO_ADDRESS,
-          virtualRewarderImplementation.target,
-          managedNFTManager.target,
-          routerV2PathProvider.target,
-        ),
+        proxy.initialize(ZERO_ADDRESS, virtualRewarderImplementation.target, managedNFTManager.target, routerV2PathProvider.target),
       ).to.be.revertedWithCustomError(proxy, 'AddressZero');
       await expect(
-        proxy.initialize(
-          signers.blastGovernor.address,
-          strategyImplementation.target,
-          ZERO_ADDRESS,
-          managedNFTManager.target,
-          routerV2PathProvider.target,
-        ),
+        proxy.initialize(strategyImplementation.target, ZERO_ADDRESS, managedNFTManager.target, routerV2PathProvider.target),
       ).to.be.revertedWithCustomError(proxy, 'AddressZero');
       await expect(
-        proxy.initialize(
-          signers.blastGovernor.address,
-          strategyImplementation.target,
-          virtualRewarderImplementation.target,
-          ZERO_ADDRESS,
-          routerV2PathProvider.target,
-        ),
+        proxy.initialize(strategyImplementation.target, virtualRewarderImplementation.target, ZERO_ADDRESS, routerV2PathProvider.target),
       ).to.be.revertedWithCustomError(proxy, 'AddressZero');
       await expect(
-        proxy.initialize(
-          signers.blastGovernor.address,
-          strategyImplementation.target,
-          virtualRewarderImplementation.target,
-          managedNFTManager.target,
-          ZERO_ADDRESS,
-        ),
+        proxy.initialize(strategyImplementation.target, virtualRewarderImplementation.target, managedNFTManager.target, ZERO_ADDRESS),
       ).to.be.revertedWithCustomError(proxy, 'AddressZero');
     });
   });
@@ -198,14 +160,14 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
           'ICompoundVeFNXManagedNFTStrategy',
           expectedStrategyAddress,
         )) as ICompoundVeFNXManagedNFTStrategy;
-        await expect(strategy.initialize(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, '123')).to.be.revertedWith(
+        await expect(strategy.initialize(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, '123')).to.be.revertedWith(
           ERRORS.Initializable.Initialized,
         );
         let virtualRewarder = (await ethers.getContractAt(
           'ISingelTokenVirtualRewarder',
           expectedVirtualRewarder,
         )) as ISingelTokenVirtualRewarder;
-        await expect(virtualRewarder.initialize(ZERO_ADDRESS, ZERO_ADDRESS)).to.be.revertedWith(ERRORS.Initializable.Initialized);
+        await expect(virtualRewarder.initialize(ZERO_ADDRESS)).to.be.revertedWith(ERRORS.Initializable.Initialized);
       });
 
       it('Should corect initialize deployed strategy', async function () {
@@ -252,28 +214,6 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
       });
     });
   });
-  describe('#setDefaultBlastGovernor', async () => {
-    it('fails if caller not DEFAULT_ADMIN_ROLE', async () => {
-      await expect(strategyFactory.connect(signers.otherUser1).setDefaultBlastGovernor(signers.otherUser1.address)).to.be.revertedWith(
-        getAccessControlError(await strategyFactory.DEFAULT_ADMIN_ROLE(), signers.otherUser1.address),
-      );
-    });
-    it('fails if try set ZERO_ADDRESS', async () => {
-      await strategyFactory.grantRole(await strategyFactory.DEFAULT_ADMIN_ROLE(), signers.deployer.address);
-      await expect(strategyFactory.setDefaultBlastGovernor(ZERO_ADDRESS)).to.be.revertedWithCustomError(strategyFactory, 'AddressZero');
-    });
-    it('success set new default blast governor address and emit event', async () => {
-      await strategyFactory.grantRole(await strategyFactory.DEFAULT_ADMIN_ROLE(), signers.deployer.address);
-
-      expect(await strategyFactory.defaultBlastGovernor()).to.be.eq(signers.blastGovernor.address);
-
-      await expect(strategyFactory.connect(signers.deployer).setDefaultBlastGovernor(signers.otherUser1.address))
-        .to.be.emit(strategyFactory, 'SetDefaultBlastGovernor')
-        .withArgs(signers.blastGovernor.address, signers.otherUser1.address);
-
-      expect(await strategyFactory.defaultBlastGovernor()).to.be.eq(signers.otherUser1.address);
-    });
-  });
   describe('#setRouterV2PathProvider', async () => {
     it('fails if caller not DEFAULT_ADMIN_ROLE', async () => {
       await expect(strategyFactory.connect(signers.otherUser1).setRouterV2PathProvider(signers.otherUser1.address)).to.be.revertedWith(
@@ -284,7 +224,7 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
       await strategyFactory.grantRole(await strategyFactory.DEFAULT_ADMIN_ROLE(), signers.deployer.address);
       await expect(strategyFactory.setRouterV2PathProvider(ZERO_ADDRESS)).to.be.revertedWithCustomError(strategyFactory, 'AddressZero');
     });
-    it('success set new default blast governor address and emit event', async () => {
+    it('success set new default router path provider address and emit event', async () => {
       await strategyFactory.grantRole(await strategyFactory.DEFAULT_ADMIN_ROLE(), signers.deployer.address);
 
       expect(await strategyFactory.routerV2PathProvider()).to.be.eq(routerV2PathProvider.target);

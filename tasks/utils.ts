@@ -4,7 +4,6 @@ import {
   FeesVaultFactoryUpgradeable,
   Fenix,
   GaugeFactoryUpgradeable,
-  IBlastFull,
   MinimalLinearVestingUpgradeable,
   MinterUpgradeable,
   Pair,
@@ -17,8 +16,6 @@ import {
 import { formatEther } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { InstanceName } from '../utils/Names';
-import { GaugeType } from '../utils/Constants';
-import { bigint } from 'hardhat/internal/core/params/argumentTypes';
 
 export type PairFactoryState = {
   address: string;
@@ -30,10 +27,6 @@ export type PairFactoryState = {
   volatilityFeePercent: string;
   implementation: string;
   communityVaultFactory: string;
-  rebasingTokensGovernor: string;
-  defaultBlastGovernor: string;
-  defaultBlastPoints: string;
-  defaultBlastPointsOperator: string;
   isPaused: boolean;
   isPublicPoolCreationMode: boolean;
   pairs: string[];
@@ -130,28 +123,20 @@ export async function getPairFactoryState(pairFactory: PairFactoryUpgradeable): 
     volatilityFee,
     implementation,
     communityVaultFactory,
-    rebasingTokensGovernor,
     isPaused,
     isPublicPoolCreationMode,
     allPairsLength,
     pairs,
-    defaultBlastGovernor,
-    defaultBlastPoints,
-    defaultBlastPointsOperator,
   ] = await Promise.all([
     pairFactory.protocolFee(),
     pairFactory.stableFee(),
     pairFactory.volatileFee(),
     pairFactory.implementation(),
     pairFactory.communityVaultFactory(),
-    pairFactory.rebasingTokensGovernor(),
     pairFactory.isPaused(),
     pairFactory.isPublicPoolCreationMode(),
     pairFactory.allPairsLength(),
     pairFactory.pairs(),
-    pairFactory.defaultBlastGovernor(),
-    pairFactory.defaultBlastPoints(),
-    pairFactory.defaultBlastPointsOperator(),
   ]);
 
   return {
@@ -164,14 +149,10 @@ export async function getPairFactoryState(pairFactory: PairFactoryUpgradeable): 
     volatilityFeePercent: Number(volatilityFee) / 100 + '%',
     implementation,
     communityVaultFactory,
-    rebasingTokensGovernor,
     isPaused,
     isPublicPoolCreationMode,
     pairs,
     allPairsLength,
-    defaultBlastGovernor,
-    defaultBlastPoints,
-    defaultBlastPointsOperator,
   };
 }
 export type BribeFactoryState = {
@@ -180,7 +161,6 @@ export type BribeFactoryState = {
   bribeOwner: string;
   voter: string;
   bribeImplementation: string;
-  defaultBlastGovernor: string;
   defaultRewardTokens: string[];
   defaultRewardTokensSymbols: string[];
 };
@@ -189,12 +169,11 @@ export async function getBribeFactoryState(
   hre: HardhatRuntimeEnvironment,
   bribeFactory: BribeFactoryUpgradeable,
 ): Promise<BribeFactoryState> {
-  const [owner, bribeOwner, voter, bribeImplementation, defaultBlastGovernor, defaultRewardTokens] = await Promise.all([
+  const [owner, bribeOwner, voter, bribeImplementation, defaultRewardTokens] = await Promise.all([
     bribeFactory.owner(),
     bribeFactory.bribeOwner(),
     bribeFactory.voter(),
     bribeFactory.bribeImplementation(),
-    bribeFactory.defaultBlastGovernor(),
     bribeFactory.getDefaultRewardTokens(),
   ]);
 
@@ -211,7 +190,6 @@ export async function getBribeFactoryState(
     bribeOwner,
     voter,
     bribeImplementation,
-    defaultBlastGovernor,
     defaultRewardTokens,
     defaultRewardTokensSymbols,
   };
@@ -382,10 +360,6 @@ export async function getMinterState(minter: MinterUpgradeable): Promise<MinterS
 export type AlgebraFactoryState = {
   address: string;
   poolDeployer: string;
-  defaultBlastGovernor: string;
-  rebasingTokensGovernor: string;
-  defaultBlastPoints: string;
-  defaultBlastPointsOperator: string;
   isPublicPoolCreationMode: boolean;
   defaultCommunityFee: bigint;
   defaultCommunityFeeFormmated: string;
@@ -436,10 +410,6 @@ export async function getPools(graphUrl: string) {
 export async function getAlgebraFactoryState(algebraFactory: AlgebraFactoryUpgradeable): Promise<AlgebraFactoryState> {
   const [
     poolDeployer,
-    defaultBlastGovernor,
-    rebasingTokensGovernor,
-    defaultBlastPoints,
-    defaultBlastPointsOperator,
     isPublicPoolCreationMode,
     defaultCommunityFee,
     defaultFee,
@@ -450,10 +420,6 @@ export async function getAlgebraFactoryState(algebraFactory: AlgebraFactoryUpgra
     owner,
   ] = await Promise.all([
     algebraFactory.poolDeployer(),
-    algebraFactory.defaultBlastGovernor(),
-    'not setup', //algebraFactory.rebasingTokensGovernor(),
-    algebraFactory.defaultBlastPoints(),
-    algebraFactory.defaultBlastPointsOperator(),
     algebraFactory.isPublicPoolCreationMode(),
     algebraFactory.defaultCommunityFee(),
     algebraFactory.defaultFee(),
@@ -467,10 +433,6 @@ export async function getAlgebraFactoryState(algebraFactory: AlgebraFactoryUpgra
   return {
     address: algebraFactory.target.toString(),
     poolDeployer,
-    defaultBlastGovernor,
-    rebasingTokensGovernor,
-    defaultBlastPoints,
-    defaultBlastPointsOperator,
     isPublicPoolCreationMode,
     defaultCommunityFee,
     defaultCommunityFeeFormmated: (Number(defaultCommunityFee) / 1e3) * 100 + '%',
@@ -585,23 +547,6 @@ export async function getPoolState(
       distributionConfig: { toGaugeRate, recipients, rates },
     },
   };
-}
-
-export async function getBlastGovernor(blast: IBlastFull, list: string[]): Promise<{ [key: string]: any }> {
-  const uniqueList = Array.from(new Set(list));
-  const result: { [key: string]: any } = {};
-
-  for (let i = 0; i < uniqueList.length; i++) {
-    const address = uniqueList[i];
-    try {
-      const governor = await blast.governorMap(address);
-      result[address] = governor;
-    } catch (error) {
-      console.error(`Failed to get governor for address ${address}:`, error);
-    }
-  }
-
-  return result;
 }
 
 export type MinimalLinearVestingState = {
@@ -821,7 +766,6 @@ export async function getVotingEscrowState(votingEscrow: VotingEscrowUpgradeable
 export type GaugeFactoryState = {
   address: string;
   owner: string;
-  defaultBlastGovernor: string;
   gaugeImplementation: string;
   gaugeOwner: string;
   merklGaugeMiddleman: string;
@@ -834,9 +778,8 @@ export async function getGaugeFactoryState(
   hre: HardhatRuntimeEnvironment,
   gaugeFactory: GaugeFactoryUpgradeable,
 ): Promise<GaugeFactoryState> {
-  const [owner, defaultBlastGovernor, gaugeImplementation, gaugeOwner, merklGaugeMiddleman, voter, last_gauge] = await Promise.all([
+  const [owner, gaugeImplementation, gaugeOwner, merklGaugeMiddleman, voter, last_gauge] = await Promise.all([
     gaugeFactory.owner(),
-    gaugeFactory.defaultBlastGovernor(),
     gaugeFactory.gaugeImplementation(),
     gaugeFactory.gaugeOwner(),
     gaugeFactory.merklGaugeMiddleman(),
@@ -854,7 +797,6 @@ export async function getGaugeFactoryState(
   return {
     address: gaugeFactory.target.toString(),
     owner,
-    defaultBlastGovernor,
     gaugeImplementation,
     gaugeOwner,
     merklGaugeMiddleman,

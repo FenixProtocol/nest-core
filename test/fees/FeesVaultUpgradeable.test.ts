@@ -56,7 +56,7 @@ describe('FeesVault Contract', function () {
     deployed = await loadFixture(completeFixture);
     signers = deployed.signers;
     creator = signers.fenixTeam;
-    gauge = signers.blastGovernor;
+    gauge = signers.otherUser5;
 
     feesVaultFactory = deployed.feesVaultFactory;
 
@@ -89,64 +89,10 @@ describe('FeesVault Contract', function () {
     it('should correct set pool address', async () => {
       expect(await feesVault.pool()).to.be.eq(poolMock.target);
     });
-    it('fails if try initialzie with zero blast points address', async () => {
-      let vault = factory.attach(
-        await deployTransaperntUpgradeableProxy(
-          signers.deployer,
-          signers.proxyAdmin.address,
-          await deployed.feesVaultImplementation.getAddress(),
-        ),
-      ) as FeesVaultUpgradeable;
-
-      await expect(
-        vault.initialize(
-          signers.blastGovernor.address,
-          ZERO_ADDRESS,
-          signers.blastGovernor.address,
-          feesVaultFactory.target,
-          poolMock.target,
-        ),
-      ).to.be.revertedWithCustomError(vault, 'AddressZero');
-      await expect(
-        vault.initialize(
-          signers.blastGovernor.address,
-          deployed.blastPoints.target,
-          ZERO_ADDRESS,
-          feesVaultFactory.target,
-          poolMock.target,
-        ),
-      ).to.be.revertedWithCustomError(vault, 'AddressZero');
-    });
     it('fails if try initialzie contract twice', async () => {
-      await expect(
-        feesVault.initialize(
-          signers.blastGovernor.address,
-          deployed.blastPoints.target,
-          signers.blastGovernor.address,
-          feesVaultFactory.target,
-          poolMock.target,
-        ),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(feesVault.initialize(feesVaultFactory.target, poolMock.target)).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
-    it('fails if provide zero governor address', async () => {
-      let vault = factory.attach(
-        await deployTransaperntUpgradeableProxy(
-          signers.deployer,
-          signers.proxyAdmin.address,
-          await deployed.feesVaultImplementation.getAddress(),
-        ),
-      ) as FeesVaultUpgradeable;
 
-      await expect(
-        vault.initialize(
-          ZERO_ADDRESS,
-          deployed.blastPoints.target,
-          signers.blastGovernor.address,
-          feesVaultFactory.target,
-          poolMock.target,
-        ),
-      ).to.be.revertedWithCustomError(vault, 'AddressZero');
-    });
     it('fails if try initialize with zero factory address', async () => {
       let vault = factory.attach(
         await deployTransaperntUpgradeableProxy(
@@ -156,15 +102,7 @@ describe('FeesVault Contract', function () {
         ),
       ) as FeesVaultUpgradeable;
 
-      await expect(
-        vault.initialize(
-          signers.blastGovernor.address,
-          deployed.blastPoints.target,
-          signers.blastGovernor.address,
-          ZERO_ADDRESS,
-          poolMock.target,
-        ),
-      ).to.be.revertedWithCustomError(vault, 'AddressZero');
+      await expect(vault.initialize(ZERO_ADDRESS, poolMock.target)).to.be.revertedWithCustomError(vault, 'AddressZero');
     });
     it('fails if try initialize with zero pool address', async () => {
       let vault = factory.attach(
@@ -175,44 +113,14 @@ describe('FeesVault Contract', function () {
         ),
       ) as FeesVaultUpgradeable;
 
-      await expect(
-        vault.initialize(
-          signers.blastGovernor.address,
-          deployed.blastPoints.target,
-          signers.blastGovernor.address,
-          feesVaultFactory.target,
-          ZERO_ADDRESS,
-        ),
-      ).to.be.revertedWithCustomError(vault, 'AddressZero');
+      await expect(vault.initialize(feesVaultFactory.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(vault, 'AddressZero');
     });
     it('initialize disabled on implementation', async () => {
-      let vault = await (await ethers.getContractFactory('FeesVaultUpgradeable')).deploy(signers.deployer.address);
-      await expect(
-        vault.initialize(
-          signers.blastGovernor.address,
-          deployed.blastPoints.target,
-          signers.blastGovernor.address,
-          feesVaultFactory.target,
-          poolMock.target,
-        ),
-      ).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      let vault = await (await ethers.getContractFactory('FeesVaultUpgradeable')).deploy();
+      await expect(vault.initialize(feesVaultFactory.target, poolMock.target)).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
   });
 
-  describe('_checkAccessForManageBlastERC20Rebasing', async () => {
-    it('fail if try call from not FEES_VAULT_ADMINISTRATOR_ROLE', async () => {
-      await expect(feesVault.connect(signers.otherUser1).configure(token0.target, 1)).to.be.revertedWithCustomError(
-        feesVault,
-        'AccessDenied',
-      );
-    });
-    it('fail if try call from not FEES_VAULT_ADMINISTRATOR_ROLE', async () => {
-      await expect(feesVault.connect(signers.otherUser1).configure(token0.target, 1)).to.be.revertedWithCustomError(
-        feesVault,
-        'AccessDenied',
-      );
-    });
-  });
   describe('#emergencyRecoverERC20', async () => {
     it('fails if caller is not FEES_VAULT_ADMINISTRATOR_ROLE role', async () => {
       await expect(feesVault.connect(signers.otherUser1).emergencyRecoverERC20(token0.target, 1)).to.be.revertedWithCustomError(
@@ -229,11 +137,11 @@ describe('FeesVault Contract', function () {
 
       await token0.mint(feesVault.target, ONE_ETHER);
       expect(await token0.balanceOf(feesVault)).to.be.eq(ONE_ETHER);
-      expect(await token0.balanceOf(signers.deployer.address)).to.be.eq(ZERO);
+      expect(await token0.balanceOf(signers.deployer)).to.be.eq(ZERO);
 
       await feesVault.emergencyRecoverERC20(token0.target, ONE_ETHER);
 
-      expect(await token0.balanceOf(signers.deployer.address)).to.be.eq(ONE_ETHER);
+      expect(await token0.balanceOf(signers.deployer)).to.be.eq(ONE_ETHER);
       expect(await token0.balanceOf(feesVault)).to.be.eq(ZERO);
     });
     it('should corect recover 60% tokens from contract', async () => {
@@ -241,11 +149,11 @@ describe('FeesVault Contract', function () {
 
       await token1.mint(feesVault.target, ONE_ETHER);
       expect(await token1.balanceOf(feesVault)).to.be.eq(ONE_ETHER);
-      expect(await token1.balanceOf(signers.deployer.address)).to.be.eq(ZERO);
+      expect(await token1.balanceOf(signers.deployer)).to.be.eq(ZERO);
 
       await feesVault.emergencyRecoverERC20(token1.target, (ONE_ETHER * BigInt(6)) / BigInt(10));
 
-      expect(await token1.balanceOf(signers.deployer.address)).to.be.eq((ONE_ETHER * BigInt(6)) / BigInt(10));
+      expect(await token1.balanceOf(signers.deployer)).to.be.eq((ONE_ETHER * BigInt(6)) / BigInt(10));
       expect(await token1.balanceOf(feesVault)).to.be.eq((ONE_ETHER * BigInt(4)) / BigInt(10));
     });
   });
@@ -264,16 +172,17 @@ describe('FeesVault Contract', function () {
     it('fails if toGaugeRate = 0, and caller not CLAIM_FEES_CALLER_ROLE', async () => {
       await feesVaultFactory.setCustomDistributionConfig(feesVault.target, {
         toGaugeRate: 0,
-        recipients: [signers.blastGovernor.address],
+        recipients: [signers.otherUser5.address],
         rates: [10000],
       });
 
-      expect(await feesVaultFactory.getDistributionConfig(feesVault.target)).to.be.deep.eq([0, [signers.blastGovernor.address], [10000]]);
+      expect(await feesVaultFactory.getDistributionConfig(feesVault.target)).to.be.deep.eq([0, [signers.otherUser5.address], [10000]]);
       await expect(feesVault.connect(signers.otherUser1).claimFees()).to.be.revertedWithCustomError(feesVault, 'AccessDenied');
 
       await feesVaultFactory.grantRole(await feesVaultFactory.CLAIM_FEES_CALLER_ROLE(), signers.otherUser1.address);
       await expect(feesVault.connect(signers.otherUser1).claimFees()).to.be.not.reverted;
     });
+
     it('always should take actual Voter address from factory', async () => {
       let newVoter = await voterMockFactory.deploy();
 
