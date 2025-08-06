@@ -1,5 +1,5 @@
 {
-  "name": "fenix",
+  "name": "nest",
   "version": "0.1.0",
   "description": "",
   "main": "hardhat.config.ts",
@@ -28,16 +28,16 @@
     "DEX",
     "Centralized liquidity"
   ],
-  "author": "Fenix",
+  "author": "Nest",
   "license": "MIT",
   "devDependencies": {
     "@openzeppelin/contracts": "4.9.5",
     "@openzeppelin/contracts-upgradeable": "^4.9.5"
   },
   "dependencies": {
-    "@cryptoalgebra/integral-core": "file:./lib/fenix-algebra/src/core",
-    "@cryptoalgebra/integral-periphery": "file:./lib/fenix-algebra/src/periphery",
-    "@cryptoalgebra/integral-plugin": "file:./lib/fenix-algebra/src/plugin",
+    "@cryptoalgebra/integral-core": "file:./lib/nest-algebra/src/core",
+    "@cryptoalgebra/integral-periphery": "file:./lib/nest-algebra/src/periphery",
+    "@cryptoalgebra/integral-plugin": "file:./lib/nest-algebra/src/plugin",
     "@ethersproject/bignumber": "^5.7.0",
     "@nomicfoundation/hardhat-foundry": "^1.1.2",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

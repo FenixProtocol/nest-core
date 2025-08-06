@@ -1,3 +1,3 @@
-[submodule "lib/fenix-algebra"]
-	path = lib/fenix-algebra
-	url = https://github.com/FenixProtocol/fenix-algebra
+[submodule "lib/nest-algebra"]
+	path = lib/nest-algebra
+	url = https://github.com/FenixProtocol/nest-algebra
