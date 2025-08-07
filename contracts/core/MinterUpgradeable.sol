@@ -50,27 +50,14 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
         teamRate = MAX_TEAM_RATE;
         decayRate = 100; // 1%
         inflationRate = 150; // 1.5%
-        inflationPeriodCount = 8;
+        inflationPeriodCount = 12;
 
         active_period = ((block.timestamp + (2 * WEEK)) / WEEK) * WEEK;
-        weekly = 225_000 * 1e18; // represents a starting weekly emission of 225,000 Nest (Nest has 18 decimals)
+        weekly = 30_000_000 * 1e18; // represents a starting weekly emission of 30_000_000 Nest (3% from 1_000_000_000) (Nest has 18 decimals)
 
         nest = INest(IVotingEscrow(ve_).token());
         voter = IVoter(voter_);
         ve = IVotingEscrow(ve_);
-    }
-
-    function patchInitialSupply() external onlyOwner reinitializer(2) {
-        assert(weekly == 225_000e18);
-        assert(nest.totalSupply() == 7_500_000e18);
-        nest.mint(msg.sender, 67_500_000e18);
-        weekly = 2_250_000e18;
-    }
-
-    function shiftStartByOneWeek() external onlyOwner reinitializer(3) {
-        require(isStarted && weekly == 2_250_000e18 && nest.totalSupply() == 75_000_000e18, "Invalid contract state for call");
-        startEmissionDistributionTimestamp = active_period + 2 * WEEK;
-        lastInflationPeriod = lastInflationPeriod + WEEK;
     }
 
     function start() external onlyOwner {

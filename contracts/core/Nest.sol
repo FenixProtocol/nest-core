@@ -22,7 +22,7 @@ contract Nest is INest, ERC20Burnable, Ownable {
      * @param minter_ Address that will be granted ownership and minting rights
      */
     constructor(address minter_) ERC20("Nest", "NEST") Ownable() {
-        _mint(msg.sender, 7_500_000e18);
+        _mint(msg.sender, 1_000_000_000e18);
         _transferOwnership(minter_);
     }
 
