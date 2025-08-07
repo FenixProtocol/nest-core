@@ -47,12 +47,12 @@ contract MerklGaugeMiddleman is IMerklGaugeMiddleman, Ownable {
     // ============================= EXTERNAL FUNCTIONS ============================
 
     /// @notice Restores the allowance for the token to the `DistributionCreator` contract
-    /// Depending on the token implementation, not needed for Fenix implementations
-    function setFenixAllowance() external {
-        IERC20 fenixCache = token;
+    /// Depending on the token implementation, not needed for Nest implementations
+    function setNestAllowance() external {
+        IERC20 nestCache = token;
         address creator = address(merklDistributionCreator);
-        uint256 currentAllowance = fenixCache.allowance(address(this), creator);
-        if (currentAllowance < type(uint256).max) fenixCache.safeIncreaseAllowance(creator, type(uint256).max - currentAllowance);
+        uint256 currentAllowance = nestCache.allowance(address(this), creator);
+        if (currentAllowance < type(uint256).max) nestCache.safeIncreaseAllowance(creator, type(uint256).max - currentAllowance);
     }
 
     /**

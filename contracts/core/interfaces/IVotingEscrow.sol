@@ -151,10 +151,10 @@ interface IVotingEscrow is IERC721Upgradeable {
     event UnlockPermanent(address indexed sender, uint256 indexed tokenId);
 
     /**
-     * @notice Emitted when a veFNX NFT lock is burned and the underlying FNX is released for use in bribes.
+     * @notice Emitted when a veNEST NFT lock is burned and the underlying NEST is released for use in bribes.
      * @param sender The address which initiated the burn-to-bribes operation.
-     * @param tokenId The identifier of the veFNX NFT that was burned.
-     * @param value The amount of FNX tokens released from the burned lock.
+     * @param tokenId The identifier of the veNEST NFT that was burned.
+     * @param value The amount of NEST tokens released from the burned lock.
      */
     event BurnToBribes(address indexed sender, uint256 indexed tokenId, uint256 value);
 
@@ -370,12 +370,12 @@ interface IVotingEscrow is IERC721Upgradeable {
     function onDettachFromManagedNFT(uint256 tokenId_, uint256 managedTokenId_, uint256 newBalance_) external;
 
     /**
-     * @notice Burns a veFNX NFT to reclaim the underlying FNX tokens for use in bribes.
+     * @notice Burns a veNEST NFT to reclaim the underlying NEST tokens for use in bribes.
      * @dev Must be called by `customBribeRewardRouter`.
      *      The token must not be permanently locked or attached.
      *      Also resets any votes before burning.
      * Emits a {BurnToBribes} event on successful burn.
-     * @param tokenId_ The ID of the veFNX NFT to burn.
+     * @param tokenId_ The ID of the veNEST NFT to burn.
      */
     function burnToBribes(uint256 tokenId_) external;
 }

@@ -10,7 +10,7 @@ import {IPriceProvider} from "../integration/interfaces/IPriceProvider.sol";
 
 /**
  * @title VeBoostUpgradeable
- * @dev Implements boosting functionality within the Fenix ecosystem, allowing users to receive boosts based on locked FNX tokens.
+ * @dev Implements boosting functionality within the Nest ecosystem, allowing users to receive boosts based on locked NEST tokens.
  */
 contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
@@ -24,7 +24,7 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     /**
      * @dev Return precision for token calcualtions
      */
-    uint256 internal constant _FNX_PREICSION = 1e18;
+    uint256 internal constant _NEST_PREICSION = 1e18;
 
     /**
      * @dev Return maximum locking time in seconds (about 6 months)
@@ -32,17 +32,17 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     uint256 internal constant _MAXTIME = 182 * 86400;
 
     /**
-     * @dev Return address of FNX token
+     * @dev Return address of NEST token
      */
-    address public fenix;
+    address public nest;
 
     /**
-     * @dev Return address of the Voting Escrow contract for Fenix
+     * @dev Return address of the Voting Escrow contract for Nest
      */
     address public votingEscrow;
 
     /**
-     * @dev Return address of the price provider contract for USD/FNX conversion
+     * @dev Return address of the price provider contract for USD/NEST conversion
      */
     address public priceProvider;
 
@@ -57,9 +57,9 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     uint256 internal _minLockedTime;
 
     /**
-     * @dev Return percentage of FNX boost
+     * @dev Return percentage of NEST boost
      */
-    uint256 internal _boostFNXPercentage;
+    uint256 internal _boostNESTPercentage;
 
     /**
      * @dev Stora set of addresses for reward tokens
@@ -77,31 +77,31 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
 
     /**
      * @notice Initializes the VeBoost contract with necessary addresses and settings.
-     * @param fenix_ Address of the Fenix token.
+     * @param nest_ Address of the Nest token.
      * @param votingEscrow_ Address of the Voting Escrow contract.
      * @param priceProvider_ Address of the price provider contract.
      * Initializes contract state and sets up necessary approvals.
      */
-    function initialize(address fenix_, address votingEscrow_, address priceProvider_) external initializer {
-        _checkAddressZero(fenix_);
+    function initialize(address nest_, address votingEscrow_, address priceProvider_) external initializer {
+        _checkAddressZero(nest_);
         _checkAddressZero(votingEscrow_);
         _checkAddressZero(priceProvider_);
 
         __Ownable2Step_init();
 
-        fenix = fenix_;
+        nest = nest_;
         votingEscrow = votingEscrow_;
         priceProvider = priceProvider_;
 
         minUSDAmount = 10e18; // Initialize minimum USD amount for boost eligibility to $10
         _minLockedTime = 182 * 86400; // Initialize minimum locked time to approximately 6 months
-        _boostFNXPercentage = 1_000; // Initialize FNX boost percentage to 10%
+        _boostNESTPercentage = 1_000; // Initialize NEST boost percentage to 10%
 
-        IERC20Upgradeable(fenix).safeApprove(votingEscrow_, type(uint256).max);
+        IERC20Upgradeable(nest).safeApprove(votingEscrow_, type(uint256).max);
     }
 
     /**
-     * @notice Sets a new address for the FNX to USD price provider.
+     * @notice Sets a new address for the NEST to USD price provider.
      * @param priceProvider_ The address of the new price provider.
      * Only the contract owner can call this function.
      */
@@ -113,13 +113,13 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     }
 
     /**
-     * @notice Sets a new boost percentage for FNX tokens.
-     * @param boostFNXPercentage_ The new boost percentage in basis points.
+     * @notice Sets a new boost percentage for NEST tokens.
+     * @param boostNESTPercentage_ The new boost percentage in basis points.
      * Only the contract owner can call this function.
      */
-    function setFNXBoostPercentage(uint256 boostFNXPercentage_) external onlyOwner {
-        _boostFNXPercentage = boostFNXPercentage_;
-        emit FNXBoostPercentage(boostFNXPercentage_);
+    function setNESTBoostPercentage(uint256 boostNESTPercentage_) external onlyOwner {
+        _boostNESTPercentage = boostNESTPercentage_;
+        emit NESTBoostPercentage(boostNESTPercentage_);
     }
 
     /**
@@ -163,7 +163,7 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     function addRewardToken(address newRewardToken_) external onlyOwner {
         _checkAddressZero(newRewardToken_);
 
-        if (newRewardToken_ == fenix) {
+        if (newRewardToken_ == nest) {
             revert RewardTokenExist();
         }
 
@@ -187,41 +187,41 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     }
 
     /**
-     * @notice Distributes boost rewards to the token owner before executing the FNX boost payment.
+     * @notice Distributes boost rewards to the token owner before executing the NEST boost payment.
      * Requires the caller to be the Voting Escrow contract.
-     * @dev This function calculates and distributes reward tokens proportionally based on the paid FNX boost amount.
+     * @dev This function calculates and distributes reward tokens proportionally based on the paid NEST boost amount.
      * It verifies that the call is made by the Voting Escrow contract, checks if the paid boost amount is within allowed limits,
-     * and then proceeds to distribute reward tokens to the boost recipient. The distribution is proportional to the amount of FNX paid
-     * for the boost relative to the total FNX balance of this contract, ensuring fairness in reward distribution.
+     * and then proceeds to distribute reward tokens to the boost recipient. The distribution is proportional to the amount of NEST paid
+     * for the boost relative to the total NEST balance of this contract, ensuring fairness in reward distribution.
      *
-     * @param tokenOwner_ The address of the owner receiving the boost rewards. This is typically the holder of locked FNX tokens.
+     * @param tokenOwner_ The address of the owner receiving the boost rewards. This is typically the holder of locked NEST tokens.
      * @param tokenId_ The ID of the token receiving the boost. This parameter is not used in the current implementation but is required for interface compliance.
-     * @param depositedFNXAmount_ The total amount of FNX tokens deposited by the token owner for the boost. This is used to calculate the eligibility and amount of the boost.
-     * @param paidBoostFNXAmount_ The amount of FNX tokens paid by the token owner to achieve the boost. Rewards are distributed based on this amount.
+     * @param depositedNESTAmount_ The total amount of NEST tokens deposited by the token owner for the boost. This is used to calculate the eligibility and amount of the boost.
+     * @param paidBoostNESTAmount_ The amount of NEST tokens paid by the token owner to achieve the boost. Rewards are distributed based on this amount.
      *
      * Reverts with `AccessDenied` if called by any address other than the Voting Escrow contract.
-     * Reverts with `InvalidBoostAmount` if the paid boost amount exceeds the calculated boost amount or the available boost FNX amount.
+     * Reverts with `InvalidBoostAmount` if the paid boost amount exceeds the calculated boost amount or the available boost NEST amount.
      */
-    function beforeFNXBoostPaid(
+    function beforeNESTBoostPaid(
         address tokenOwner_,
         uint256 tokenId_,
-        uint256 depositedFNXAmount_,
-        uint256 paidBoostFNXAmount_
+        uint256 depositedNESTAmount_,
+        uint256 paidBoostNESTAmount_
     ) external override {
         if (msg.sender != votingEscrow) {
             revert AccessDenied();
         }
 
-        if (paidBoostFNXAmount_ > calculateBoostFNXAmount(depositedFNXAmount_) || paidBoostFNXAmount_ > getAvailableBoostFNXAmount()) {
+        if (paidBoostNESTAmount_ > calculateBoostNESTAmount(depositedNESTAmount_) || paidBoostNESTAmount_ > getAvailableBoostNESTAmount()) {
             revert InvalidBoostAmount();
         }
 
-        if (paidBoostFNXAmount_ > 0) {
-            uint256 fnxBoostToBalanceRation = (paidBoostFNXAmount_ * _FNX_PREICSION) / IERC20Upgradeable(fenix).balanceOf(address(this));
+        if (paidBoostNESTAmount_ > 0) {
+            uint256 nestBoostToBalanceRation = (paidBoostNESTAmount_ * _NEST_PREICSION) / IERC20Upgradeable(nest).balanceOf(address(this));
 
             for (uint256 i; i < _rewardTokens.length(); ) {
                 IERC20Upgradeable rewardToken = IERC20Upgradeable(_rewardTokens.at(i));
-                uint256 rewardTokenBoostAmount = (fnxBoostToBalanceRation * rewardToken.balanceOf(address(this))) / _FNX_PREICSION;
+                uint256 rewardTokenBoostAmount = (nestBoostToBalanceRation * rewardToken.balanceOf(address(this))) / _NEST_PREICSION;
 
                 if (rewardTokenBoostAmount > 0) {
                     rewardToken.safeTransfer(tokenOwner_, rewardTokenBoostAmount);
@@ -244,11 +244,11 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     }
 
     /**
-     * @dev Returns the minimum FNX amount required for receiving a boost.
-     * @return The minimum amount of FNX required for a boost.
+     * @dev Returns the minimum NEST amount required for receiving a boost.
+     * @return The minimum amount of NEST required for a boost.
      */
-    function getMinFNXAmountForBoost() external view override returns (uint256) {
-        return _getMinFNXAmountForBoost();
+    function getMinNESTAmountForBoost() external view override returns (uint256) {
+        return _getMinNESTAmountForBoost();
     }
 
     /**
@@ -260,42 +260,42 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     }
 
     /**
-     * @dev Returns the current FNX boost percentage.
+     * @dev Returns the current NEST boost percentage.
      * @return The boost percentage.
      */
-    function getBoostFNXPercentage() external view returns (uint256) {
-        return _boostFNXPercentage;
+    function getBoostNESTPercentage() external view returns (uint256) {
+        return _boostNESTPercentage;
     }
 
     /**
-     * @dev Returns the available amount of FNX for boosts, considering both balance and allowance.
-     * @return The available FNX amount for boosts.
+     * @dev Returns the available amount of NEST for boosts, considering both balance and allowance.
+     * @return The available NEST amount for boosts.
      */
-    function getAvailableBoostFNXAmount() public view override returns (uint256) {
-        uint256 availableBalance = IERC20Upgradeable(fenix).balanceOf(address(this));
-        uint256 availableAllowance = IERC20Upgradeable(fenix).allowance(address(this), votingEscrow);
+    function getAvailableBoostNESTAmount() public view override returns (uint256) {
+        uint256 availableBalance = IERC20Upgradeable(nest).balanceOf(address(this));
+        uint256 availableAllowance = IERC20Upgradeable(nest).allowance(address(this), votingEscrow);
 
         return availableAllowance > availableBalance ? availableBalance : availableAllowance;
     }
 
     /**
-     * @dev Calculates the amount of FNX that can be boosted based on the deposited amount.
-     * @param depositedFNXAmount_ The amount of FNX deposited.
-     * @return The amount of FNX that will be boosted.
+     * @dev Calculates the amount of NEST that can be boosted based on the deposited amount.
+     * @param depositedNESTAmount_ The amount of NEST deposited.
+     * @return The amount of NEST that will be boosted.
      */
-    function calculateBoostFNXAmount(uint256 depositedFNXAmount_) public view override returns (uint256) {
-        return depositedFNXAmount_ >= _getMinFNXAmountForBoost() ? (depositedFNXAmount_ * _boostFNXPercentage) / _PRECISION : 0;
+    function calculateBoostNESTAmount(uint256 depositedNESTAmount_) public view override returns (uint256) {
+        return depositedNESTAmount_ >= _getMinNESTAmountForBoost() ? (depositedNESTAmount_ * _boostNESTPercentage) / _PRECISION : 0;
     }
 
     /**
-     * @dev Calculates the minimum amount of FNX tokens required for receiving a boost, based on the USD threshold.
-     * Utilizes the current FNX to USD price from the specified price provider to convert the minimum USD amount
-     * into its equivalent FNX amount. This ensures that the boost mechanism adapts to changes in the FNX token's value,
+     * @dev Calculates the minimum amount of NEST tokens required for receiving a boost, based on the USD threshold.
+     * Utilizes the current NEST to USD price from the specified price provider to convert the minimum USD amount
+     * into its equivalent NEST amount. This ensures that the boost mechanism adapts to changes in the NEST token's value,
      * maintaining the intended economic threshold for participation.
-     * @return The calculated minimum amount of FNX tokens required for a boost, based on the current FNX to USD price.
+     * @return The calculated minimum amount of NEST tokens required for a boost, based on the current NEST to USD price.
      */
-    function _getMinFNXAmountForBoost() internal view returns (uint256) {
-        return (IPriceProvider(priceProvider).getUsdToFNXPrice() * minUSDAmount) / _FNX_PREICSION;
+    function _getMinNESTAmountForBoost() internal view returns (uint256) {
+        return (IPriceProvider(priceProvider).getUsdToNESTPrice() * minUSDAmount) / _NEST_PREICSION;
     }
 
     /**

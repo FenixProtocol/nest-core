@@ -9,20 +9,20 @@ import {OracleLibrary} from "@cryptoalgebra/integral-plugin/contracts/libraries/
 import {IPriceProvider} from "./interfaces/IPriceProvider.sol";
 
 /**
- * @title AlgebraFNXPriceProviderUpgradeable-UNSAFE
- * @notice This contract provides the price of the FNX token in USD by querying an Algebra-based pool.
+ * @title AlgebraNESTPriceProviderUpgradeable-UNSAFE
+ * @notice This contract provides the price of the NEST token in USD by querying an Algebra-based pool.
  *
  * It is marked as UNSAFE because it allows price manipulation through the referenced pool. Users should
- * be aware that the price returned by `getUsdToFNXPrice` can be influenced by actions within the Algebra pool,
+ * be aware that the price returned by `getUsdToNESTPrice` can be influenced by actions within the Algebra pool,
  * potentially leading to inaccurate or manipulated price data.
  *
  * IMPORTANT: The contract is intended for use in places where manipulating the price in the pool is more expensive
  *  than the profit generated. And also where price manipulation is not profitable
  *
- * @dev Provides price data for FNX token in USD, utilizing an Algebra-based pool for price calculation.
+ * @dev Provides price data for NEST token in USD, utilizing an Algebra-based pool for price calculation.
  * Designed to be upgradeable using OpenZeppelin's upgradeable contracts framework.
  */
-contract AlgebraFNXPriceProviderUpgradeable is IPriceProvider, Initializable {
+contract AlgebraNESTPriceProviderUpgradeable is IPriceProvider, Initializable {
     // errors
     error PoolIsLocked();
     error UnsafeCast();
@@ -34,9 +34,9 @@ contract AlgebraFNXPriceProviderUpgradeable is IPriceProvider, Initializable {
     uint256 public ONE_USD;
 
     /**
-     * @dev Return address of the FNX token
+     * @dev Return address of the NEST token
      */
-    address public FNX;
+    address public NEST;
 
     /**
      * @dev Return address of the USD token
@@ -56,31 +56,31 @@ contract AlgebraFNXPriceProviderUpgradeable is IPriceProvider, Initializable {
     }
 
     /**
-     * @notice Initializes the price provider with the addresses of the Algebra pool, FNX token, and USD token.
+     * @notice Initializes the price provider with the addresses of the Algebra pool, NEST token, and USD token.
      * @dev Stores the necessary addresses for later use and sets ONE_USD based on the USD token's decimals.
      * @param pool_ Address of the Algebra pool used for price calculations.
-     * @param FNX_ Address of the FNX token.
+     * @param NEST_ Address of the NEST token.
      * @param USD_ Address of the USD token.
      */
-    function initialize(address pool_, address FNX_, address USD_) external initializer {
+    function initialize(address pool_, address NEST_, address USD_) external initializer {
         _checkAddressZero(pool_);
-        _checkAddressZero(FNX_);
+        _checkAddressZero(NEST_);
         _checkAddressZero(USD_);
 
         pool = pool_;
-        FNX = FNX_;
+        NEST = NEST_;
         USD = USD_;
 
         ONE_USD = 10 ** IERC20Metadata(USD_).decimals();
     }
 
     /**
-     * @notice Retrieves the current price of 1 USD in FNX tokens, according to the specified Algebra pool.
+     * @notice Retrieves the current price of 1 USD in NEST tokens, according to the specified Algebra pool.
      * @dev Queries the current tick from the Algebra pool to calculate the price. The price can be manipulated through actions within the pool, so it should be used with caution.
-     * @return Price of 1 USD in FNX tokens.
+     * @return Price of 1 USD in NEST tokens.
      */
-    function getUsdToFNXPrice() external view override returns (uint256) {
-        return OracleLibrary.getQuoteAtTick(currentTick(), _toUint128(ONE_USD), USD, FNX);
+    function getUsdToNESTPrice() external view override returns (uint256) {
+        return OracleLibrary.getQuoteAtTick(currentTick(), _toUint128(ONE_USD), USD, NEST);
     }
 
     /**

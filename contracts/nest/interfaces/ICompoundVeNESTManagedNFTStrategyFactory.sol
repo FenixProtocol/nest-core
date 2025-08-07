@@ -2,10 +2,10 @@
 pragma solidity >=0.8.0;
 
 /**
- * @title Interface for the Compound VeFNX Managed NFT Strategy Factory
- * @notice This interface outlines the functions and events for a factory responsible for creating and managing strategies and virtual rewarders for Compound VeFNX-managed NFTs.
+ * @title Interface for the Compound VeNEST Managed NFT Strategy Factory
+ * @notice This interface outlines the functions and events for a factory responsible for creating and managing strategies and virtual rewarders for Compound VeNEST-managed NFTs.
  */
-interface ICompoundVeFNXManagedNFTStrategyFactory {
+interface ICompoundVeNESTManagedNFTStrategyFactory {
     /**
      * @dev Emitted when the address of the Router V2 Path Provider is updated.
      *

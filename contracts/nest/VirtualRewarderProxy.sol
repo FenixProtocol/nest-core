@@ -3,7 +3,7 @@ pragma solidity =0.8.19;
 
 import {StorageSlot} from "@openzeppelin/contracts/utils/StorageSlot.sol";
 
-import {ICompoundVeFNXManagedNFTStrategyFactory} from "./interfaces/ICompoundVeFNXManagedNFTStrategyFactory.sol";
+import {ICompoundVeNESTManagedNFTStrategyFactory} from "./interfaces/ICompoundVeNESTManagedNFTStrategyFactory.sol";
 
 contract VirtualRewarderProxy {
     address private immutable factory;
@@ -22,7 +22,7 @@ contract VirtualRewarderProxy {
     }
 
     fallback() external payable {
-        address impl = ICompoundVeFNXManagedNFTStrategyFactory(factory).virtualRewarderImplementation();
+        address impl = ICompoundVeNESTManagedNFTStrategyFactory(factory).virtualRewarderImplementation();
         require(impl != address(0));
 
         //Just for etherscan compatibility

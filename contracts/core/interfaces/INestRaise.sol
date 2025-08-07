@@ -2,11 +2,11 @@
 pragma solidity >=0.8.0;
 
 /**
- * @title IFenixRaise
+ * @title INestRaise
  * @dev This interfaces for contract manages a token raise with both whitelist and public phases.
  *  It utilizes Merkle proof verification for whitelist management and ensures various caps and limits are adhered to during the raise.
  */
-interface IFenixRaise {
+interface INestRaise {
     /**
      * @notice Emitted when a deposit is made
      * @param user The address of the user making the deposit

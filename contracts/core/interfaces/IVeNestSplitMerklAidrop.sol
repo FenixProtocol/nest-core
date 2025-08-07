@@ -2,10 +2,10 @@
 pragma solidity =0.8.19;
 
 /**
- * @title IVeFnxSplitMerklAidrop
- * @dev Interface for the VeFnxSplitMerklAidropUpgradeable contract.
+ * @title IVeNestSplitMerklAidrop
+ * @dev Interface for the VeNestSplitMerklAidropUpgradeable contract.
  */
-interface IVeFnxSplitMerklAidrop {
+interface IVeNestSplitMerklAidrop {
     /**
      * @dev Emitted when a user claims their tokens.
      * @param user The address of the user.

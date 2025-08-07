@@ -12,7 +12,7 @@ import {IPairFactory} from "../dexV2/interfaces/IPairFactory.sol";
 import {IGaugeFactory} from "../gauges/interfaces/IGaugeFactory.sol";
 import {IBribeFactory} from "../bribes/interfaces/IBribeFactory.sol";
 import {IMinter} from "./interfaces/IMinter.sol";
-import {IVeFnxSplitMerklAidrop} from "./interfaces/IVeFnxSplitMerklAidrop.sol";
+import {IVeNestSplitMerklAidrop} from "./interfaces/IVeNestSplitMerklAidrop.sol";
 import {IMerklDistributor} from "../integration/interfaces/IMerklDistributor.sol";
 import {IManagedNFTManager} from "../nest/interfaces/IManagedNFTManager.sol";
 import {IBribe} from "../bribes/interfaces/IBribe.sol";
@@ -70,8 +70,8 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     /// @notice Address of the Merkl Distributor contract.
     address public merklDistributor;
 
-    /// @notice Address of the veFNX Merkl Airdrop contract.
-    address public veFnxMerklAidrop;
+    /// @notice Address of the veNEST Merkl Airdrop contract.
+    address public veNestMerklAidrop;
 
     /// @notice Address of the Managed NFT Manager contract.
     address public managedNFTManager;
@@ -192,7 +192,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         } else if (key == 0x18c95c463f9590b3f298aef56c7cfb639672452cd99ac8d92a9fc0e2ef46ab55) {
             merklDistributor = value_;
         } else if (key == 0xbbbfaae454470f56db24caaffaae3a4d3d0ed7a761421871150faa442416ea83) {
-            veFnxMerklAidrop = value_;
+            veNestMerklAidrop = value_;
         } else if (key == 0x8ba8cbf9a47db7b5e8ae6c0bff072ed6faefec4a0722891b09f22b7ac343fd4f) {
             managedNFTManager = value_;
         } else if (key == 0xa0238e972eab1b5ee9c4988c955a7165a662b3206031ac6ac27a3066d669a28d) {
@@ -294,8 +294,8 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         }
         string memory symbol = IERC20MetadataUpgradeable(pool_).symbol();
         IBribeFactory bribeFactoryCache = IBribeFactory(bribeFactory);
-        internalBribe = IBribeFactory(bribeFactoryCache).createBribe(token0, token1, string.concat("Fenix LP Fees: ", symbol));
-        externalBribe = IBribeFactory(bribeFactoryCache).createBribe(token0, token1, string.concat("Fenix Bribes: ", symbol));
+        internalBribe = IBribeFactory(bribeFactoryCache).createBribe(token0, token1, string.concat("Nest LP Fees: ", symbol));
+        externalBribe = IBribeFactory(bribeFactoryCache).createBribe(token0, token1, string.concat("Nest Bribes: ", symbol));
         gauge = IGaugeFactory(v2GaugeFactory).createGauge(
             token,
             votingEscrow,
@@ -339,8 +339,8 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         }
         string memory symbol = string.concat(IERC20MetadataUpgradeable(token0).symbol(), "/", IERC20MetadataUpgradeable(token1).symbol());
         IBribeFactory bribeFactoryCache = IBribeFactory(bribeFactory);
-        internalBribe = IBribeFactory(bribeFactoryCache).createBribe(token0, token1, string.concat("Fenix LP Fees: ", symbol));
-        externalBribe = IBribeFactory(bribeFactoryCache).createBribe(token0, token1, string.concat("Fenix Bribes: ", symbol));
+        internalBribe = IBribeFactory(bribeFactoryCache).createBribe(token0, token1, string.concat("Nest LP Fees: ", symbol));
+        externalBribe = IBribeFactory(bribeFactoryCache).createBribe(token0, token1, string.concat("Nest Bribes: ", symbol));
 
         gauge = IGaugeFactory(v3GaugeFactory).createGauge(
             token,
@@ -700,14 +700,14 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
      * @param bribes_ The parameters for claiming bribes without specifying a token ID.
      * @param bribesByTokenId_ The parameters for claiming bribes associated with a specific token ID.
      * @param merkl_ The parameters for claiming rewards using Merkl distributor.
-     * @param splitMerklAidrop_ The parameters for claiming VeFnx Merkl airdrop data.
+     * @param splitMerklAidrop_ The parameters for claiming VeNest Merkl airdrop data.
      * @param aggregateCreateLock_ The parameters for locking a percentage of the claimed rewards into a veNFT.
      *
      * Functionality:
      * - Claims rewards from gauges.
      * - Claims bribes, both with and without token IDs.
      * - Claims Merkl-based airdrops.
-     * - Claims VeFnx-based Merkl airdrops.
+     * - Claims VeNest-based Merkl airdrops.
      * - Converts a specified percentage of claimed reward tokens into a veNFT lock.
      */
     function aggregateClaim(
@@ -715,7 +715,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         AggregateClaimBribesParams calldata bribes_,
         AggregateClaimBribesByTokenIdParams calldata bribesByTokenId_,
         AggregateClaimMerklDataParams calldata merkl_,
-        AggregateClaimVeFnxMerklAirdrop calldata splitMerklAidrop_,
+        AggregateClaimVeNestMerklAirdrop calldata splitMerklAidrop_,
         AggregateCreateLockParams calldata aggregateCreateLock_
     ) external {
         IERC20Upgradeable tokenCache = IERC20Upgradeable(token);
@@ -733,7 +733,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             _claimMerklRewardsFor(_msgSender(), merkl_);
 
             if (splitMerklAidrop_.amount > 0) {
-                IVeFnxSplitMerklAidrop(veFnxMerklAidrop).claimFor(
+                IVeNestSplitMerklAidrop(veNestMerklAidrop).claimFor(
                     _msgSender(),
                     splitMerklAidrop_.inPureTokens,
                     splitMerklAidrop_.amount,

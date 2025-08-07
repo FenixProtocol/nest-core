@@ -2,19 +2,19 @@
 pragma solidity =0.8.19;
 
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import {ICompoundVeFNXManagedNFTStrategyFactory} from "./interfaces/ICompoundVeFNXManagedNFTStrategyFactory.sol";
+import {ICompoundVeNESTManagedNFTStrategyFactory} from "./interfaces/ICompoundVeNESTManagedNFTStrategyFactory.sol";
 import {ISingelTokenVirtualRewarder} from "./interfaces/ISingelTokenVirtualRewarder.sol";
-import {ICompoundVeFNXManagedNFTStrategy} from "./interfaces/ICompoundVeFNXManagedNFTStrategy.sol";
+import {ICompoundVeNESTManagedNFTStrategy} from "./interfaces/ICompoundVeNESTManagedNFTStrategy.sol";
 import {StrategyProxy} from "./StrategyProxy.sol";
 import {VirtualRewarderProxy} from "./VirtualRewarderProxy.sol";
 
 /**
- * @title Factory for Compound VeFNX Managed NFT Strategies and Virtual Rewarders
- * @notice This contract serves as a factory for creating and initializing managed NFT strategies and their corresponding virtual rewarders in the Compound VeFNX ecosystem.
+ * @title Factory for Compound VeNEST Managed NFT Strategies and Virtual Rewarders
+ * @notice This contract serves as a factory for creating and initializing managed NFT strategies and their corresponding virtual rewarders in the Compound VeNEST ecosystem.
  * It uses proxy contracts for strategy and rewarder creation to ensure upgradability.
  */
-contract CompoundVeFNXManagedNFTStrategyFactoryUpgradeable is
-    ICompoundVeFNXManagedNFTStrategyFactory,
+contract CompoundVeNESTManagedNFTStrategyFactoryUpgradeable is
+    ICompoundVeNESTManagedNFTStrategyFactory,
     AccessControlUpgradeable
 {
     /**
@@ -88,7 +88,7 @@ contract CompoundVeFNXManagedNFTStrategyFactoryUpgradeable is
      * @return The address of the newly created strategy instance
      */
     function createStrategy(string calldata name_) external override onlyRole(STRATEGY_CREATOR_ROLE) returns (address) {
-        ICompoundVeFNXManagedNFTStrategy strategy = ICompoundVeFNXManagedNFTStrategy(address(new StrategyProxy()));
+        ICompoundVeNESTManagedNFTStrategy strategy = ICompoundVeNESTManagedNFTStrategy(address(new StrategyProxy()));
         ISingelTokenVirtualRewarder virtualRewarder = ISingelTokenVirtualRewarder(address(new VirtualRewarderProxy()));
 
         strategy.initialize(managedNFTManager, address(virtualRewarder), routerV2PathProvider, name_);

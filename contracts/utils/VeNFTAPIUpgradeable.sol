@@ -11,7 +11,7 @@ import "../dexV2/interfaces/IPair.sol";
 import "../gauges/interfaces/IGauge.sol";
 import "../bribes/interfaces/IBribe.sol";
 import "../nest/interfaces/ISingelTokenVirtualRewarder.sol";
-import "../nest/interfaces/ICompoundVeFNXManagedNFTStrategy.sol";
+import "../nest/interfaces/ICompoundVeNESTManagedNFTStrategy.sol";
 
 import "../nest/interfaces/IManagedNFTManager.sol";
 
@@ -231,7 +231,7 @@ contract VeNFTAPIUpgradeable is OwnableUpgradeable {
                 array[i].strategy = IERC721EnumerableUpgradeable(address(votingEscrowCache)).ownerOf(mTokenId);
 
                 if (array[i].strategy.code.length > 0) {
-                    ICompoundVeFNXManagedNFTStrategy strategy = ICompoundVeFNXManagedNFTStrategy(array[i].strategy);
+                    ICompoundVeNESTManagedNFTStrategy strategy = ICompoundVeNESTManagedNFTStrategy(array[i].strategy);
 
                     array[i].currentTokenBalanceInStrategy = strategy.balanceOf(tokenId);
                     array[i].currentTokenLockedRewardsBalance = strategy.getLockedRewardsBalance(tokenId);

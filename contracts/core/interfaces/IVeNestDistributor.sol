@@ -2,18 +2,18 @@
 pragma solidity >=0.8.0;
 
 /**
- * @title Interface for the VeFnxDistributor Contract
- * @notice This interface outlines the methods and events for distributing veFnx tokens via an airdrop mechanism.
- * @dev The contract locks FNX tokens in the Voting Escrow to create veFnx on behalf of recipients.
+ * @title Interface for the VeNestDistributor Contract
+ * @notice This interface outlines the methods and events for distributing veNest tokens via an airdrop mechanism.
+ * @dev The contract locks NEST tokens in the Voting Escrow to create veNest on behalf of recipients.
  */
-interface IVeFnxDistributor {
+interface IVeNestDistributor {
     /**
-     * @notice Struct containing the details required to airdrop FNX and create veFnx.
-     * @param recipient The address that will receive the newly created veFnx tokens.
-     * @param withPermanentLock Specifies if the created veFnx position should be permanently locked.
-     * @param lockDuration The duration (in seconds) for which the FNX tokens will be locked for veFnx.
-     * @param amount The amount of FNX tokens to be locked, which in turn mints veFnx.
-     * @param managedTokenIdForAttach The managed token ID to which veFnx is attached, if applicable.
+     * @notice Struct containing the details required to airdrop NEST and create veNest.
+     * @param recipient The address that will receive the newly created veNest tokens.
+     * @param withPermanentLock Specifies if the created veNest position should be permanently locked.
+     * @param lockDuration The duration (in seconds) for which the NEST tokens will be locked for veNest.
+     * @param amount The amount of NEST tokens to be locked, which in turn mints veNest.
+     * @param managedTokenIdForAttach The managed token ID to which veNest is attached, if applicable.
      */
     struct AidropRow {
         address recipient;
@@ -34,18 +34,18 @@ interface IVeFnxDistributor {
      * @notice Emitted after a successful airdrop operation to multiple recipients.
      * @param caller The address that initiated the airdrop distribution.
      * @param reason A whitelisted reason describing the purpose of this airdrop.
-     * @param totalDistributionSum The total amount of FNX tokens distributed (locked) across all recipients in this batch.
+     * @param totalDistributionSum The total amount of NEST tokens distributed (locked) across all recipients in this batch.
      */
-    event AidropVeFnxTotal(address indexed caller, string reason, uint256 totalDistributionSum);
+    event AidropVeNestTotal(address indexed caller, string reason, uint256 totalDistributionSum);
 
     /**
-     * @notice Emitted after a single recipient successfully receives veFnx.
-     * @param recipient The address receiving the newly created veFnx tokens.
+     * @notice Emitted after a single recipient successfully receives veNest.
+     * @param recipient The address receiving the newly created veNest tokens.
      * @param reason A whitelisted reason describing the purpose of this airdrop.
-     * @param tokenId The ID of the veFnx token created for the recipient.
-     * @param amount The amount of FNX tokens locked on behalf of the recipient.
+     * @param tokenId The ID of the veNest token created for the recipient.
+     * @param amount The amount of NEST tokens locked on behalf of the recipient.
      */
-    event AirdropVeFnx(address indexed recipient, string reason, uint256 tokenId, uint256 amount);
+    event AirdropVeNest(address indexed recipient, string reason, uint256 tokenId, uint256 amount);
 
     /**
      * @notice Emitted when tokens are recovered by an authorized role (e.g., owner).
@@ -80,16 +80,16 @@ interface IVeFnxDistributor {
     function recoverTokens(address token_, uint256 recoverAmount_) external;
 
     /**
-     * @notice Distributes veFnx tokens to specified recipients by locking FNX tokens in the Voting Escrow contract.
+     * @notice Distributes veNest tokens to specified recipients by locking NEST tokens in the Voting Escrow contract.
      * @dev
      *  - Requires the caller to have the `_DISTRIBUTOR_ROLE`.
      *  - Verifies that `reason_` is whitelisted. If not, reverts with {NotWhitelistedReason}.
-     *  - Calculates the total sum of FNX tokens needed. If the contract does not have enough, reverts with {InsufficientBalance}.
-     *  - Locks FNX in the Voting Escrow for each recipient, creating veFnx positions.
-     *  - Emits {AirdropVeFnxTotal} after distributing to all recipients in this batch.
-     *  - Emits {AirdropVeFnx} for each individual recipient.
+     *  - Calculates the total sum of NEST tokens needed. If the contract does not have enough, reverts with {InsufficientBalance}.
+     *  - Locks NEST in the Voting Escrow for each recipient, creating veNest positions.
+     *  - Emits {AirdropVeNestTotal} after distributing to all recipients in this batch.
+     *  - Emits {AirdropVeNest} for each individual recipient.
      * @param reason_ A whitelisted string describing the airdrop reason.
      * @param rows_ An array of AirdropRow structs that specify each recipient, lock duration, amount, etc.
      */
-    function distributeVeFnx(string memory reason_, AidropRow[] calldata rows_) external;
+    function distributeVeNest(string memory reason_, AidropRow[] calldata rows_) external;
 }

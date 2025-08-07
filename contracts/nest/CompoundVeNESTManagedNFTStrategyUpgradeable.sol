@@ -8,19 +8,19 @@ import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/to
 import {IERC721EnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721EnumerableUpgradeable.sol";
 import {IVotingEscrow} from "../core/interfaces/IVotingEscrow.sol";
 import {ISingelTokenVirtualRewarder} from "./interfaces/ISingelTokenVirtualRewarder.sol";
-import {ICompoundVeFNXManagedNFTStrategy} from "./interfaces/ICompoundVeFNXManagedNFTStrategy.sol";
+import {ICompoundVeNESTManagedNFTStrategy} from "./interfaces/ICompoundVeNESTManagedNFTStrategy.sol";
 import {IRouterV2PathProvider, SingelTokenBuybackUpgradeable} from "./SingelTokenBuybackUpgradeable.sol";
 import {LibStrategyFlags} from "./libraries/LibStrategyFlags.sol";
 import {LibStrategyFlags} from "./libraries/LibStrategyFlags.sol";
 
 /**
- * @title Compound VeFNX Managed NFT Strategy Upgradeable
- * @dev Strategy for managing VeFNX-related actions including compounding rewards and managing stakes.
- *      Extends the functionality of a base managed NFT strategy to interact with FENIX tokens.
- * @notice This strategy handles the automated compounding of VeFNX tokens by reinvesting harvested rewards back into VeFNX.
+ * @title Compound VeNEST Managed NFT Strategy Upgradeable
+ * @dev Strategy for managing VeNEST-related actions including compounding rewards and managing stakes.
+ *      Extends the functionality of a base managed NFT strategy to interact with nest tokens.
+ * @notice This strategy handles the automated compounding of VeNEST tokens by reinvesting harvested rewards back into VeNEST.
  */
-contract CompoundVeFNXManagedNFTStrategyUpgradeable is
-    ICompoundVeFNXManagedNFTStrategy,
+contract CompoundVeNESTManagedNFTStrategyUpgradeable is
+    ICompoundVeNESTManagedNFTStrategy,
     IERC721ReceiverUpgradeable,
     BaseManagedNFTStrategyUpgradeable,
     SingelTokenBuybackUpgradeable
@@ -29,7 +29,7 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
 
     /**
      * @dev Reverts when attempting to recover tokens that are critical for the strategy and must not be removed
-     *      (e.g., main FENIX tokens or locked veNFT).
+     *      (e.g., main nest tokens or locked veNFT).
      */
     error IncorrectRecoverToken();
 
@@ -54,8 +54,8 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
      */
     error NotAllowedActionWithManagedTokenId();
 
-    /// @notice The address of the FENIX ERC20 token contract. Used for depositing to Voting Escrow.
-    address public override fenix;
+    /// @notice The address of the nest ERC20 token contract. Used for depositing to Voting Escrow.
+    address public override nest;
 
     /// @notice The address of the virtual rewarder contract for distributing additional rewards.
     address public override virtualRewarder;
@@ -72,7 +72,7 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
     /**
      * @notice Initializes the strategy with the given parameters.
      * @dev Ensures addresses are non-zero and sets up references to the `managedNFTManager`,
-     *      the `virtualRewarder`, and the `routerV2PathProvider`. Also fetches the FENIX token
+     *      the `virtualRewarder`, and the `routerV2PathProvider`. Also fetches the nest token
      *      from the Voting Escrow.
      *
      * @param managedNFTManager_    The address of the managed NFT manager contract.
@@ -89,7 +89,7 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
         _checkAddressZero(virtualRewarder_);
         __BaseManagedNFTStrategy__init(managedNFTManager_, name_);
         __SingelTokenBuyback__init(routerV2PathProvider_);
-        fenix = IVotingEscrow(votingEscrow).token();
+        nest = IVotingEscrow(votingEscrow).token();
         virtualRewarder = virtualRewarder_;
     }
 
@@ -206,19 +206,19 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
     }
 
     /**
-     * @notice Compounds FENIX tokens by depositing the current FENIX balance into the managed veNFT.
-     * @dev This operation locks more FENIX into `managedTokenId` in the Voting Escrow,
+     * @notice Compounds nest tokens by depositing the current nest balance into the managed veNFT.
+     * @dev This operation locks more nest into `managedTokenId` in the Voting Escrow,
      *      and then notifies the `virtualRewarder` about the updated reward amount.
      *      Restricted by strategy flags/permissions.
      */
     function compound() external {
         _requirePermisisonIfNotSetupFlag(LibStrategyFlags.IGNORE_RESTRICTIONS_ON_PUBLIC_ERC20_COMPOUND);
 
-        IERC20Upgradeable fenixCache = IERC20Upgradeable(fenix);
-        uint256 currentBalance = fenixCache.balanceOf(address(this));
+        IERC20Upgradeable nestCache = IERC20Upgradeable(nest);
+        uint256 currentBalance = nestCache.balanceOf(address(this));
         if (currentBalance > 0) {
             address votingEscrowCache = votingEscrow;
-            fenixCache.safeApprove(votingEscrowCache, currentBalance);
+            nestCache.safeApprove(votingEscrowCache, currentBalance);
             IVotingEscrow(votingEscrowCache).depositFor(managedTokenId, currentBalance, false, false);
             ISingelTokenVirtualRewarder(virtualRewarder).notifyRewardAmount(currentBalance);
             emit Compound(msg.sender, currentBalance);
@@ -299,7 +299,7 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
     }
 
     /**
-     * @notice Recovers ERC20 tokens accidentally sent to this contract, excluding the managed token (FENIX).
+     * @notice Recovers ERC20 tokens accidentally sent to this contract, excluding the managed token (nest).
      * @dev Allows the admin to recover non-strategic ERC20 tokens sent to the contract.
      * @param token_ The address of the token to recover.
      * @param recipient_ The address where the recovered tokens should be sent.
@@ -366,7 +366,7 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
 
     /**
      * @dev Recovers the full balance of a specified ERC20 token held by this contract and
-     *      sends it to `recipient_`. Prevents recovery of `fenix` or tokens used in buyback routes
+     *      sends it to `recipient_`. Prevents recovery of `nest` or tokens used in buyback routes
      *      unless the relevant flags are set.
      * @param token_     The ERC20 token address to recover.
      * @param recipient_ The address receiving the tokens.
@@ -376,7 +376,7 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
      */
     function _erc20Recover(address token_, address recipient_) internal {
         if (!_hasFlag(LibStrategyFlags.IGNORE_RESTRICTIONS_ON_RECOVER_TOKENS)) {
-            if (token_ == address(fenix) || IRouterV2PathProvider(routerV2PathProvider).isAllowedTokenInInputRoutes(token_)) {
+            if (token_ == address(nest) || IRouterV2PathProvider(routerV2PathProvider).isAllowedTokenInInputRoutes(token_)) {
                 revert IncorrectRecoverToken();
             }
         }
@@ -446,7 +446,7 @@ contract CompoundVeFNXManagedNFTStrategyUpgradeable is
      * @return The address of the buyback target token.
      */
     function _getBuybackTargetToken() internal view virtual override returns (address) {
-        return fenix;
+        return nest;
     }
 
     /**

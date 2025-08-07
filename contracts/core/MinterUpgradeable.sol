@@ -5,7 +5,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 
 import {IMinter} from "./interfaces/IMinter.sol";
-import {IFenix} from "./interfaces/IFenix.sol";
+import {INest} from "./interfaces/INest.sol";
 import {IVoter} from "./interfaces/IVoter.sol";
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
 
@@ -29,7 +29,7 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
     uint256 public active_period;
     uint256 public lastInflationPeriod;
 
-    IFenix public fenix;
+    INest public nest;
     IVoter public voter;
     IVotingEscrow public ve;
 
@@ -53,22 +53,22 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
         inflationPeriodCount = 8;
 
         active_period = ((block.timestamp + (2 * WEEK)) / WEEK) * WEEK;
-        weekly = 225_000 * 1e18; // represents a starting weekly emission of 225,000 Fenix (Fenix has 18 decimals)
+        weekly = 225_000 * 1e18; // represents a starting weekly emission of 225,000 Nest (Nest has 18 decimals)
 
-        fenix = IFenix(IVotingEscrow(ve_).token());
+        nest = INest(IVotingEscrow(ve_).token());
         voter = IVoter(voter_);
         ve = IVotingEscrow(ve_);
     }
 
     function patchInitialSupply() external onlyOwner reinitializer(2) {
         assert(weekly == 225_000e18);
-        assert(fenix.totalSupply() == 7_500_000e18);
-        fenix.mint(msg.sender, 67_500_000e18);
+        assert(nest.totalSupply() == 7_500_000e18);
+        nest.mint(msg.sender, 67_500_000e18);
         weekly = 2_250_000e18;
     }
 
     function shiftStartByOneWeek() external onlyOwner reinitializer(3) {
-        require(isStarted && weekly == 2_250_000e18 && fenix.totalSupply() == 75_000_000e18, "Invalid contract state for call");
+        require(isStarted && weekly == 2_250_000e18 && nest.totalSupply() == 75_000_000e18, "Invalid contract state for call");
         startEmissionDistributionTimestamp = active_period + 2 * WEEK;
         lastInflationPeriod = lastInflationPeriod + WEEK;
     }
@@ -107,7 +107,7 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
 
     // calculate circulating supply as total token supply - locked supply
     function circulating_supply() public view returns (uint256) {
-        return fenix.totalSupply() - fenix.balanceOf(address(ve));
+        return nest.totalSupply() - nest.balanceOf(address(ve));
     }
 
     function circulating_emission() public view returns (uint) {
@@ -153,14 +153,14 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
 
                 uint256 gauge = weeklyCache - teamEmissions;
 
-                uint256 currentBalance = fenix.balanceOf(address(this));
+                uint256 currentBalance = nest.balanceOf(address(this));
                 if (currentBalance < weeklyCache) {
-                    fenix.mint(address(this), weeklyCache - currentBalance);
+                    nest.mint(address(this), weeklyCache - currentBalance);
                 }
 
-                require(fenix.transfer(owner(), teamEmissions));
+                require(nest.transfer(owner(), teamEmissions));
 
-                fenix.approve(address(voter), gauge);
+                nest.approve(address(voter), gauge);
                 voter.notifyRewardAmount(gauge);
 
                 emit Mint(msg.sender, weeklyCache, circulating_supply());

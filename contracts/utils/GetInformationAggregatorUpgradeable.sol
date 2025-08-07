@@ -8,7 +8,6 @@ import "../dexV2/interfaces/IPair.sol";
 import "../gauges/interfaces/IGauge.sol";
 import "../bribes/interfaces/IBribe.sol";
 import "../nest/interfaces/ISingelTokenVirtualRewarder.sol";
-import "../nest/interfaces/ICompoundVeFNXManagedNFTStrategy.sol";
 import "../nest/interfaces/IManagedNFTManager.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 

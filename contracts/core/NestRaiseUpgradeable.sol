@@ -5,16 +5,16 @@ import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/acces
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import {MerkleProofUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/MerkleProofUpgradeable.sol";
-import {IFenixRaise} from "./interfaces/IFenixRaise.sol";
+import {INestRaise} from "./interfaces/INestRaise.sol";
 import {IVotingEscrow} from "../core/interfaces/IVotingEscrow.sol";
 
 /**
- * @title FenixRaiseUpgradeable
+ * @title NestRaiseUpgradeable
  * @dev This contract manages a token raise with both whitelist and public phases.
  *  It utilizes Merkle proof verification for whitelist management and ensures various caps
  *  and limits are adhered to during the raise.
  */
-contract FenixRaiseUpgradeable is IFenixRaise, Ownable2StepUpgradeable {
+contract NestRaiseUpgradeable is INestRaise, Ownable2StepUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**

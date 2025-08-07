@@ -5,15 +5,15 @@ import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/acces
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
-import {IVeFnxSplitMerklAidrop} from "./interfaces/IVeFnxSplitMerklAidrop.sol";
+import {IVeNestSplitMerklAidrop} from "./interfaces/IVeNestSplitMerklAidrop.sol";
 import {MerkleProofUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/MerkleProofUpgradeable.sol";
 
 /**
- * @title VeFnxSplitMerklAidropUpgradeable
+ * @title VeNestSplitMerklAidropUpgradeable
  * @dev A contract for handling token and veNft token claims based on a Merkle tree proof.
  */
-contract VeFnxSplitMerklAidropUpgradeable is
-    IVeFnxSplitMerklAidrop,
+contract VeNestSplitMerklAidropUpgradeable is
+    IVeNestSplitMerklAidrop,
     Ownable2StepUpgradeable,
     PausableUpgradeable
 {

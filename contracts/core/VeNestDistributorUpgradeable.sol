@@ -5,24 +5,23 @@ import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-u
 import {AccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
-import {IVeFnxDistributor} from "./interfaces/IVeFnxDistributor.sol";
-
+import {IVeNestDistributor} from "./interfaces/IVeNestDistributor.sol";
 
 /**
- * @title VeFnxDistributorUpgradeable
- * @notice A contract to distribute veFnx tokens to specified recipients by locking FNX tokens in the Voting Escrow contract.
+ * @title VeNestDistributorUpgradeable
+ * @notice A contract to distribute veNest tokens to specified recipients by locking NEST tokens in the Voting Escrow contract.
  * @dev
  *  - Inherits from:
- *      1) IVeFnxDistributor (interface with function signatures for distribution and recovery).
+ *      1) IVeNestDistributor (interface with function signatures for distribution and recovery).
  *      2) AccessControlEnumerableUpgradeable (for role-based access control).
- *  - The contract allows authorized roles to set whitelisted "reasons" for airdrops, distribute locked FNX (veFnx),
+ *  - The contract allows authorized roles to set whitelisted "reasons" for airdrops, distribute locked NEST (veNest),
  *    and recover tokens if needed.
  */
-contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerableUpgradeable {
+contract VeNestDistributorUpgradeable is IVeNestDistributor, AccessControlEnumerableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**
-     * @notice Role identifier for accounts allowed to initiate veFnx distributions.
+     * @notice Role identifier for accounts allowed to initiate veNest distributions.
      */
     bytes32 internal constant _DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
 
@@ -32,12 +31,12 @@ contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerab
     bytes32 internal constant _WITHDRAWER_ROLE = keccak256("WITHDRAWER_ROLE");
 
     /**
-     * @notice The address of the FNX token contract (to be locked for veFnx).
+     * @notice The address of the NEST token contract (to be locked for veNest).
      */
-    address public fenix;
+    address public nest;
 
     /**
-     * @notice The address of the Voting Escrow contract used to create veFnx.
+     * @notice The address of the Voting Escrow contract used to create veNest.
      */
     address public votingEscrow;
 
@@ -46,7 +45,7 @@ contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerab
      */
     mapping(bytes32 => bool) internal _isWhitelistedReasons;
 
-    /// @notice Thrown when the contract's balance of FNX is insufficient for distribution.
+    /// @notice Thrown when the contract's balance of NEST is insufficient for distribution.
     error InsufficientBalance();
 
     /// @notice Thrown if the recipient address is the zero address.
@@ -68,18 +67,18 @@ contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerab
     }
 
     /**
-     * @notice Initializes the contract, setting up the FNX and Voting Escrow addresses and granting admin roles.
-     * @param fenix_ The address of the FNX token contract (non-zero).
+     * @notice Initializes the contract, setting up the NEST and Voting Escrow addresses and granting admin roles.
+     * @param nest_ The address of the NEST token contract (non-zero).
      * @param votingEscrow_ The address of the Voting Escrow contract (non-zero).
      * @dev Grants the DEFAULT_ADMIN_ROLE to the deployer (caller of `initialize`).
      */
-    function initialize(address fenix_, address votingEscrow_) external initializer {
-        _checkAddressZero(fenix_);
+    function initialize(address nest_, address votingEscrow_) external initializer {
+        _checkAddressZero(nest_);
         _checkAddressZero(votingEscrow_);
         __AccessControlEnumerable_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
-        fenix = fenix_;
+        nest = nest_;
         votingEscrow = votingEscrow_;
     }
 
@@ -112,23 +111,23 @@ contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerab
     }
 
     /**
-     * @notice Distributes veFnx tokens to specified recipients by locking FNX tokens in the Voting Escrow contract.
+     * @notice Distributes veNest tokens to specified recipients by locking NEST tokens in the Voting Escrow contract.
      * @dev
      *  - Requires the caller to have the `_DISTRIBUTOR_ROLE`.
      *  - Verifies that `reason_` is whitelisted. If not, reverts with {NotWhitelistedReason}.
-     *  - Calculates the total sum of FNX tokens needed. If the contract does not have enough, reverts with {InsufficientBalance}.
-     *  - Locks FNX in the Voting Escrow for each recipient, creating veFnx positions.
-     *  - Emits {AirdropVeFnxTotal} after distributing to all recipients in this batch.
-     *  - Emits {AirdropVeFnx} for each individual recipient.
+     *  - Calculates the total sum of NEST tokens needed. If the contract does not have enough, reverts with {InsufficientBalance}.
+     *  - Locks NEST in the Voting Escrow for each recipient, creating veNest positions.
+     *  - Emits {AirdropVeNestTotal} after distributing to all recipients in this batch.
+     *  - Emits {AirdropVeNest} for each individual recipient.
      * @param reason_ A whitelisted string describing the airdrop reason.
      * @param rows_ An array of AirdropRow structs that specify each recipient, lock duration, amount, etc.
      */
-    function distributeVeFnx(string memory reason_, AidropRow[] calldata rows_) external override onlyRole(_DISTRIBUTOR_ROLE) {
+    function distributeVeNest(string memory reason_, AidropRow[] calldata rows_) external override onlyRole(_DISTRIBUTOR_ROLE) {
         if (!isWhitelistedReason(reason_)) {
             revert NotWhitelistedReason();
         }
 
-        IERC20Upgradeable fenixCache = IERC20Upgradeable(fenix);
+        IERC20Upgradeable nestCache = IERC20Upgradeable(nest);
         IVotingEscrow veCache = IVotingEscrow(votingEscrow);
 
         uint256 totalDistributionSum;
@@ -142,9 +141,9 @@ contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerab
             }
         }
 
-        if (totalDistributionSum > fenixCache.balanceOf(address(this))) revert InsufficientBalance();
+        if (totalDistributionSum > nestCache.balanceOf(address(this))) revert InsufficientBalance();
 
-        fenixCache.safeApprove(address(veCache), totalDistributionSum);
+        nestCache.safeApprove(address(veCache), totalDistributionSum);
         for (uint256 i; i < rows_.length; ) {
             AidropRow memory row = rows_[i];
             uint256 tokenId = veCache.createLockFor(
@@ -155,13 +154,13 @@ contract VeFnxDistributorUpgradeable is IVeFnxDistributor, AccessControlEnumerab
                 row.withPermanentLock,
                 row.managedTokenIdForAttach
             );
-            emit AirdropVeFnx(row.recipient, reason_, tokenId, row.amount);
+            emit AirdropVeNest(row.recipient, reason_, tokenId, row.amount);
             unchecked {
                 i++;
             }
         }
 
-        emit AidropVeFnxTotal(_msgSender(), reason_, totalDistributionSum);
+        emit AidropVeNestTotal(_msgSender(), reason_, totalDistributionSum);
     }
 
     /**

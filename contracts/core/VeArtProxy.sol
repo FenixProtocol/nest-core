@@ -12,12 +12,12 @@ import {NumberFormatter, Strings} from "./libraries/NumberFormatter.sol";
 import {IVeArtProxy} from "./interfaces/IVeArtProxy.sol";
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
 import {IManagedNFTManager} from "../nest/interfaces/IManagedNFTManager.sol";
-import {ICompoundVeFNXManagedNFTStrategy} from "../nest/interfaces/ICompoundVeFNXManagedNFTStrategy.sol";
+import {ICompoundVeNESTManagedNFTStrategy} from "../nest/interfaces/ICompoundVeNESTManagedNFTStrategy.sol";
 import "./interfaces/IVeArtProxyStatic.sol";
 
 /**
  * @title VeArtProxy Contract
- * @author The Fenix Protocol team
+ * @author The Nest Protocol team
  * @notice This contract provides a `tokenURI` function for generating on-chain art for tokens.
  * @dev The art is generated as SVG images and encoded in base64 format, making each token have a unique representation.
  */
@@ -67,7 +67,7 @@ contract VeArtProxy is IVeArtProxy {
             address strategy = IERC721Upgradeable(address(votingEscrowCache)).ownerOf(
                 IManagedNFTManager(managedNftManager).getAttachedManagedTokenId(tokenId_)
             );
-            ICompoundVeFNXManagedNFTStrategy strategyTyped = ICompoundVeFNXManagedNFTStrategy(strategy);
+            ICompoundVeNESTManagedNFTStrategy strategyTyped = ICompoundVeNESTManagedNFTStrategy(strategy);
             balance = strategyTyped.balanceOf(tokenId_);
             votingPower = balance;
             strategyName = strategyTyped.name();
@@ -83,7 +83,7 @@ contract VeArtProxy is IVeArtProxy {
                         string.concat(
                             '{"name": "lock #',
                             tokenId_.toString(),
-                            '", "description": "Fenix locks, can be used to boost gauge yields, vote on token emission, and receive bribes", "image": "data:image/svg+xml;base64,',
+                            '", "description": "Nest locks, can be used to boost gauge yields, vote on token emission, and receive bribes", "image": "data:image/svg+xml;base64,',
                             Base64Upgradeable.encode(
                                 bytes(
                                     generateSVG(

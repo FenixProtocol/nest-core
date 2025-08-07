@@ -5,16 +5,16 @@ import {IManagedNFTStrategy} from "./IManagedNFTStrategy.sol";
 import {ISingelTokenBuyback} from "./ISingelTokenBuyback.sol";
 
 /**
- * @title ICompoundVeFNXManagedNFTStrategy
- * @dev Interface for a compound strategy specific to VeFNX tokens, extending the basic managed NFT strategy functionality.
- * @notice This interface provides functionalities to handle compounding of VeFNX token rewards and interactions with a virtual rewarder contract.
+ * @title ICompoundVeNESTManagedNFTStrategy
+ * @dev Interface for a compound strategy specific to VeNEST tokens, extending the basic managed NFT strategy functionality.
+ * @notice This interface provides functionalities to handle compounding of VeNEST token rewards and interactions with a virtual rewarder contract.
  */
-interface ICompoundVeFNXManagedNFTStrategy is IManagedNFTStrategy, ISingelTokenBuyback {
+interface ICompoundVeNESTManagedNFTStrategy is IManagedNFTStrategy, ISingelTokenBuyback {
     /**
      * @dev Emitted when rewards are compounded by the caller.
      *
      * @param caller The address of the account that called the compound function.
-     * @param amount The amount of VeFNX tokens that were compounded.
+     * @param amount The amount of VeNEST tokens that were compounded.
      */
     event Compound(address indexed caller, uint256 indexed amount);
 
@@ -91,10 +91,10 @@ interface ICompoundVeFNXManagedNFTStrategy is IManagedNFTStrategy, ISingelTokenB
     function virtualRewarder() external view returns (address);
 
     /**
-     * @notice Returns the address of the FENIX token used in this strategy.
-     * @return address The contract address of the FENIX token.
+     * @notice Returns the address of the nest token used in this strategy.
+     * @return address The contract address of the nest token.
      */
-    function fenix() external view returns (address);
+    function nest() external view returns (address);
 
     /**
      * @notice Retrieves the total amount of locked rewards available for a specific NFT based on its tokenId.

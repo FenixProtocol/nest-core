@@ -9,18 +9,18 @@ import {ERC721HolderUpgradeable} from "@openzeppelin/contracts-upgradeable/token
 import {IVotingEscrow} from "../../core/interfaces/IVotingEscrow.sol";
 import {IVoter} from "../../core/interfaces/IVoter.sol";
 import {IBribe} from "../interfaces/IBribe.sol";
-import {IBribeVeFNXRewardToken} from "./interfaces/IBribeVeFNXRewardToken.sol";
+import {IBribeVeNESTRewardToken} from "./interfaces/IBribeVeNESTRewardToken.sol";
 import {ICustomBribeRewardRouter} from "./interfaces/ICustomBribeRewardRouter.sol";
 
 /**
  * @title CustomBribeRewardRouter
- * @notice This contract facilitates the distribution of FNX-based rewards into external bribe contracts
- *         as veFNX-based intermediary tokens. It converts either direct FNX deposits or veFNX NFTs
- *         (burned to reclaim underlying FNX) into brVeFNX tokens, and then notifies external bribe contracts
+ * @notice This contract facilitates the distribution of NEST-based rewards into external bribe contracts
+ *         as veNEST-based intermediary tokens. It converts either direct NEST deposits or veNEST NFTs
+ *         (burned to reclaim underlying NEST) into brVeNEST tokens, and then notifies external bribe contracts
  *         of these new rewards.
  *
  * @dev This contract:
- *      - Inherits from ICustomBribeRewardRouter and provides implementations for FNX to brVeFNX reward distribution.
+ *      - Inherits from ICustomBribeRewardRouter and provides implementations for NEST to brVeNEST reward distribution.
  *      - Allows enabling/disabling certain functions via `funcEnabled` mapping controlled by an admin role.
  *      - Uses a voter contract to derive the correct external bribe contract for a given pool.
  *      - Requires the caller to have appropriate roles and the function to be enabled before executing certain operations.
@@ -32,8 +32,8 @@ contract CustomBribeRewardRouter is
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    /// @notice The address of the intermediate bribe-veFNX reward token.
-    address public bribeVeFnxRewardToken;
+    /// @notice The address of the intermediate bribe-veNEST reward token.
+    address public bribeVeNestRewardToken;
 
     /// @notice The address of the voter contract used to map pools to gauges and thus to external bribe contracts.
     address public voter;
@@ -71,18 +71,18 @@ contract CustomBribeRewardRouter is
 
     /**
      * @notice Initializes the contract.
-     * @dev Grants DEFAULT_ADMIN_ROLE to the caller. Sets the voter and bribeVeFnxRewardToken addresses.
+     * @dev Grants DEFAULT_ADMIN_ROLE to the caller. Sets the voter and bribeVeNestRewardToken addresses.
      * @param voter_ The address of the voter contract used to map pools to gauges and external bribes.
-     * @param bribeVeFnxRewardToken_ The address of the brVeFNX token contract.
+     * @param bribeVeNestRewardToken_ The address of the brVeNEST token contract.
      */
-    function initialize(address voter_, address bribeVeFnxRewardToken_) external initializer {
+    function initialize(address voter_, address bribeVeNestRewardToken_) external initializer {
         __AccessControl_init();
         __ERC721Holder_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
         voter = voter_;
-        bribeVeFnxRewardToken = bribeVeFnxRewardToken_;
+        bribeVeNestRewardToken = bribeVeNestRewardToken_;
     }
 
     /**
@@ -99,51 +99,51 @@ contract CustomBribeRewardRouter is
     }
 
     /**
-     * @notice Notifies an external bribe contract of FNX-based rewards by converting FNX into brVeFNX tokens.
-     * @dev FNX tokens are transferred from the caller to this contract, then converted into brVeFNX tokens,
+     * @notice Notifies an external bribe contract of NEST-based rewards by converting NEST into brVeNEST tokens.
+     * @dev NEST tokens are transferred from the caller to this contract, then converted into brVeNEST tokens,
      *      and finally notified to the external bribe contract associated with the given pool.
      * @param pool_ The address of the pool for which the reward is being distributed.
-     * @param amount_ The amount of FNX to convert and distribute as brVeFNX rewards.
+     * @param amount_ The amount of NEST to convert and distribute as brVeNEST rewards.
      *
-     * Emits a {NotifyRewardFNXInVeFnx} event.
+     * Emits a {NotifyRewardNESTInVeNest} event.
      * Reverts if the function is disabled or the pool is invalid.
      */
-    function notifyRewardFNXInVeFNX(
+    function notifyRewardNESTInVeNEST(
         address pool_,
         uint256 amount_
-    ) external whenEnabled(ICustomBribeRewardRouter.notifyRewardFNXInVeFNX.selector) {
-        IBribeVeFNXRewardToken bribeVeFnxRewardTokenCache = IBribeVeFNXRewardToken(bribeVeFnxRewardToken);
-        IERC20Upgradeable token = IERC20Upgradeable(bribeVeFnxRewardTokenCache.underlyingToken());
+    ) external whenEnabled(ICustomBribeRewardRouter.notifyRewardNESTInVeNEST.selector) {
+        IBribeVeNESTRewardToken bribeVeNestRewardTokenCache = IBribeVeNESTRewardToken(bribeVeNestRewardToken);
+        IERC20Upgradeable token = IERC20Upgradeable(bribeVeNestRewardTokenCache.underlyingToken());
 
         token.safeTransferFrom(_msgSender(), address(this), amount_);
 
-        token.safeApprove(address(bribeVeFnxRewardTokenCache), amount_);
-        bribeVeFnxRewardTokenCache.mint(address(this), amount_);
+        token.safeApprove(address(bribeVeNestRewardTokenCache), amount_);
+        bribeVeNestRewardTokenCache.mint(address(this), amount_);
 
         address externalBribe = _getExternalBribe(pool_);
 
-        IERC20Upgradeable(bribeVeFnxRewardTokenCache).safeApprove(externalBribe, amount_);
-        IBribe(externalBribe).notifyRewardAmount(address(bribeVeFnxRewardTokenCache), amount_);
-        emit NotifyRewardFNXInVeFnx(_msgSender(), pool_, externalBribe, amount_);
+        IERC20Upgradeable(bribeVeNestRewardTokenCache).safeApprove(externalBribe, amount_);
+        IBribe(externalBribe).notifyRewardAmount(address(bribeVeNestRewardTokenCache), amount_);
+        emit NotifyRewardNESTInVeNest(_msgSender(), pool_, externalBribe, amount_);
     }
 
     /**
-     * @notice Notifies an external bribe contract using FNX reclaimed from burning a veFNX NFT.
-     * @dev A veFNX NFT is transferred from the caller to this contract, burned to reclaim FNX,
-     *      then converted into brVeFNX, and finally notified to the external bribe contract.
+     * @notice Notifies an external bribe contract using NEST reclaimed from burning a veNEST NFT.
+     * @dev A veNEST NFT is transferred from the caller to this contract, burned to reclaim NEST,
+     *      then converted into brVeNEST, and finally notified to the external bribe contract.
      * @param pool_ The address of the pool for which the reward is being distributed.
-     * @param tokenId_ The ID of the veFNX NFT to be burned to reclaim FNX.
+     * @param tokenId_ The ID of the veNEST NFT to be burned to reclaim NEST.
      *
-     * Emits a {NotifyRewardVeFNXInVeFnx} event.
+     * Emits a {NotifyRewardVeNESTInVeNest} event.
      * Reverts if the function is disabled, the pool is invalid, or the NFT is not eligible to be burned.
      */
-    function notifyRewardVeFNXInVeFnx(
+    function notifyRewardVeNESTInVeNest(
         address pool_,
         uint256 tokenId_
-    ) external whenEnabled(ICustomBribeRewardRouter.notifyRewardVeFNXInVeFnx.selector) {
-        IBribeVeFNXRewardToken bribeVeFnxRewardTokenCache = IBribeVeFNXRewardToken(bribeVeFnxRewardToken);
-        IERC20Upgradeable token = IERC20Upgradeable(bribeVeFnxRewardTokenCache.underlyingToken());
-        IVotingEscrow votingEscrow = IVotingEscrow(bribeVeFnxRewardTokenCache.votingEscrow());
+    ) external whenEnabled(ICustomBribeRewardRouter.notifyRewardVeNESTInVeNest.selector) {
+        IBribeVeNESTRewardToken bribeVeNestRewardTokenCache = IBribeVeNESTRewardToken(bribeVeNestRewardToken);
+        IERC20Upgradeable token = IERC20Upgradeable(bribeVeNestRewardTokenCache.underlyingToken());
+        IVotingEscrow votingEscrow = IVotingEscrow(bribeVeNestRewardTokenCache.votingEscrow());
 
         votingEscrow.safeTransferFrom(_msgSender(), address(this), tokenId_, "");
 
@@ -156,15 +156,15 @@ contract CustomBribeRewardRouter is
         votingEscrow.burnToBribes(tokenId_);
         uint256 amount = token.balanceOf(address(this)) - balanceBefore;
 
-        token.safeApprove(address(bribeVeFnxRewardTokenCache), amount);
-        bribeVeFnxRewardTokenCache.mint(address(this), amount);
+        token.safeApprove(address(bribeVeNestRewardTokenCache), amount);
+        bribeVeNestRewardTokenCache.mint(address(this), amount);
 
         address externalBribe = _getExternalBribe(pool_);
 
-        IERC20Upgradeable(bribeVeFnxRewardTokenCache).safeApprove(externalBribe, amount);
-        IBribe(externalBribe).notifyRewardAmount(address(bribeVeFnxRewardTokenCache), amount);
+        IERC20Upgradeable(bribeVeNestRewardTokenCache).safeApprove(externalBribe, amount);
+        IBribe(externalBribe).notifyRewardAmount(address(bribeVeNestRewardTokenCache), amount);
 
-        emit NotifyRewardVeFNXInVeFnx(_msgSender(), pool_, externalBribe, tokenId_, amount);
+        emit NotifyRewardVeNESTInVeNest(_msgSender(), pool_, externalBribe, tokenId_, amount);
     }
 
     /**

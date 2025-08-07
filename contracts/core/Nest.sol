@@ -4,24 +4,24 @@ pragma solidity =0.8.19;
 import {ERC20, ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-import {IFenix} from "./interfaces/IFenix.sol";
+import {INest} from "./interfaces/INest.sol";
 
 /**
- * @title Fenix ERC20 Token, Which is the main protocol token
- * @author The Fenix Protocol team
+ * @title Nest ERC20 Token, Which is the main protocol token
+ * @author The Nest Protocol team
  * @dev This contract extends the ERC20Burnable, and Ownable contracts from OpenZeppelin,
  * providing a comprehensive implementation of a standard ERC20 token with burnable and minting features.
- * The Fenix token allows for minting of new tokens, which can only be initiated by the {EmmisionManager}
+ * The Nest token allows for minting of new tokens, which can only be initiated by the {EmmisionManager}
  * contract in standard use.
  */
-contract Fenix is IFenix, ERC20Burnable, Ownable {
+contract Nest is INest, ERC20Burnable, Ownable {
     /**
      * @dev Initializes the contract, giving the transferred address the right to mint
      * and also mints the initial supply
      *
      * @param minter_ Address that will be granted ownership and minting rights
      */
-    constructor(address minter_) ERC20("Fenix", "FNX") Ownable() {
+    constructor(address minter_) ERC20("Nest", "NEST") Ownable() {
         _mint(msg.sender, 7_500_000e18);
         _transferOwnership(minter_);
     }

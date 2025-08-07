@@ -3,12 +3,12 @@ pragma solidity >=0.8.0;
 
 /**
  * @title IPriceProvider Interface
- * @dev Interface for the price provider that defines a function to retrieve the USD to FNX price.
+ * @dev Interface for the price provider that defines a function to retrieve the USD to NEST price.
  */
 interface IPriceProvider {
     /**
-     * @notice Retrieves the current price of 1 USD in FNX tokens
-     * @return Price of 1 USD in FNX tokens.
+     * @notice Retrieves the current price of 1 USD in NEST tokens
+     * @return Price of 1 USD in NEST tokens.
      */
-    function getUsdToFNXPrice() external view returns (uint256);
+    function getUsdToNESTPrice() external view returns (uint256);
 }

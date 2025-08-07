@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 /**
  * @title Interface for VeBoost
- * @dev Interface for boosting functionality within the Fenix ecosystem.
+ * @dev Interface for boosting functionality within the Nest ecosystem.
  */
 interface IVeBoost {
     /**
@@ -15,10 +15,10 @@ interface IVeBoost {
     event RewardSent(address indexed token, address indexed recipient, uint256 indexed rewardTokenBoostAmount);
 
     /**
-     * @dev Emitted when the FNX boost percentage is updated.
-     * @param fnxBoostPercentage New boost percentage.
+     * @dev Emitted when the NEST boost percentage is updated.
+     * @param nestBoostPercentage New boost percentage.
      */
-    event FNXBoostPercentage(uint256 indexed fnxBoostPercentage);
+    event NESTBoostPercentage(uint256 indexed nestBoostPercentage);
 
     /**
      * @dev Emitted when the minimum USD amount required for a boost is updated.
@@ -65,20 +65,20 @@ interface IVeBoost {
     error InvalidBoostAmount();
 
     /**
-     * @dev Before paying FNX boost, checks if the boost amount is valid and then distributes reward tokens proportionally.
+     * @dev Before paying NEST boost, checks if the boost amount is valid and then distributes reward tokens proportionally.
      * Can only be called by the voting escrow contract. Emits `InvalidBoostAmount` error if conditions are not met.
      * @param tokenOwner_ The owner of the tokens to receive the boost.
      * @param tokenId_ The ID of the token to be boosted.
-     * @param depositedFNXAmount_ The amount of FNX that was deposited.
-     * @param paidBoostFNXAmount_ The amount of FNX used for the boost.
+     * @param depositedNESTAmount_ The amount of NEST that was deposited.
+     * @param paidBoostNESTAmount_ The amount of NEST used for the boost.
      */
-    function beforeFNXBoostPaid(address tokenOwner_, uint256 tokenId_, uint256 depositedFNXAmount_, uint256 paidBoostFNXAmount_) external;
+    function beforeNESTBoostPaid(address tokenOwner_, uint256 tokenId_, uint256 depositedNESTAmount_, uint256 paidBoostNESTAmount_) external;
 
     /**
-     * @dev Returns the minimum FNX amount required for receiving a boost.
-     * @return The minimum amount of FNX required for a boost.
+     * @dev Returns the minimum NEST amount required for receiving a boost.
+     * @return The minimum amount of NEST required for a boost.
      */
-    function getMinFNXAmountForBoost() external view returns (uint256);
+    function getMinNESTAmountForBoost() external view returns (uint256);
 
     /**
      * @dev Returns the minimum locked time required to qualify for a boost.
@@ -87,15 +87,15 @@ interface IVeBoost {
     function getMinLockedTimeForBoost() external view returns (uint256);
 
     /**
-     * @dev Calculates the amount of FNX that can be boosted based on the deposited amount.
-     * @param depositedFNXAmount_ The amount of FNX deposited.
-     * @return The amount of FNX that will be boosted.
+     * @dev Calculates the amount of NEST that can be boosted based on the deposited amount.
+     * @param depositedNESTAmount_ The amount of NEST deposited.
+     * @return The amount of NEST that will be boosted.
      */
-    function calculateBoostFNXAmount(uint256 depositedFNXAmount_) external view returns (uint256);
+    function calculateBoostNESTAmount(uint256 depositedNESTAmount_) external view returns (uint256);
 
     /**
-     * @dev Returns the available amount of FNX for boosts, considering both balance and allowance.
-     * @return The available FNX amount for boosts.
+     * @dev Returns the available amount of NEST for boosts, considering both balance and allowance.
+     * @return The available NEST amount for boosts.
      */
-    function getAvailableBoostFNXAmount() external view returns (uint256);
+    function getAvailableBoostNESTAmount() external view returns (uint256);
 }

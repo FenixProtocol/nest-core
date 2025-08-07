@@ -107,7 +107,7 @@ contract VotingEscrowUpgradeableV2 is
         __ReentrancyGuard_init();
         __Ownable2Step_init();
         __ERC721Enumerable_init();
-        __ERC721_init("veFenix", "veFNX");
+        __ERC721_init("veNest", "veNEST");
         token = token_;
         supplyPointsHistory[0].blk = block.number;
         supplyPointsHistory[0].ts = block.timestamp;
@@ -515,11 +515,11 @@ contract VotingEscrowUpgradeableV2 is
             if (depositType_ == DepositType.CREATE_LOCK_TYPE || depositType_ == DepositType.DEPOSIT_FOR_TYPE) {
                 if (
                     (LibVotingEscrowUtils.roundToWeek(block.timestamp + veBoostCached.getMinLockedTimeForBoost()) <= newLocked.end ||
-                        newLocked.isPermanentLocked) && amount_ >= veBoostCached.getMinFNXAmountForBoost()
+                        newLocked.isPermanentLocked) && amount_ >= veBoostCached.getMinNESTAmountForBoost()
                 ) {
-                    uint256 calculatedBoostValue = veBoostCached.calculateBoostFNXAmount(amount_);
-                    uint256 availableFNXBoostAmount = veBoostCached.getAvailableBoostFNXAmount();
-                    boostedValue = calculatedBoostValue < availableFNXBoostAmount ? calculatedBoostValue : availableFNXBoostAmount;
+                    uint256 calculatedBoostValue = veBoostCached.calculateBoostNESTAmount(amount_);
+                    uint256 availableNESTBoostAmount = veBoostCached.getAvailableBoostNESTAmount();
+                    boostedValue = calculatedBoostValue < availableNESTBoostAmount ? calculatedBoostValue : availableNESTBoostAmount;
                 }
             }
         }
@@ -536,7 +536,7 @@ contract VotingEscrowUpgradeableV2 is
         if (amount_ > 0 && depositType_ != DepositType.MERGE_TYPE) {
             IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
             if (boostedValue > 0) {
-                veBoostCached.beforeFNXBoostPaid(ownerOf(tokenId_), tokenId_, amount_, boostedValue);
+                veBoostCached.beforeNESTBoostPaid(ownerOf(tokenId_), tokenId_, amount_, boostedValue);
                 IERC20Upgradeable(token).safeTransferFrom(address(veBoostCached), address(this), boostedValue);
                 emit Boost(tokenId_, boostedValue);
             }
