@@ -5,10 +5,10 @@ import { ERRORS, ZERO_ADDRESS, getAccessControlError } from '../utils/constants'
 
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import {
-  CompoundVeFNXManagedNFTStrategyFactoryUpgradeable,
-  CompoundVeFNXManagedNFTStrategyFactoryUpgradeable__factory,
-  CompoundVeFNXManagedNFTStrategyUpgradeable,
-  ICompoundVeFNXManagedNFTStrategy,
+  CompoundVeNESTManagedNFTStrategyFactoryUpgradeable,
+  CompoundVeNESTManagedNFTStrategyFactoryUpgradeable__factory,
+  CompoundVeNESTManagedNFTStrategyUpgradeable,
+  ICompoundVeNESTManagedNFTStrategy,
   ISingelTokenVirtualRewarder,
   ManagedNFTManagerUpgradeable,
   RouterV2PathProviderUpgradeable,
@@ -20,9 +20,9 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
   let signers: SignersList;
   let deployed: CoreFixtureDeployed;
 
-  let factory: CompoundVeFNXManagedNFTStrategyFactoryUpgradeable__factory;
-  let strategyFactory: CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
-  let strategyImplementation: CompoundVeFNXManagedNFTStrategyUpgradeable;
+  let factory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable__factory;
+  let strategyFactory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
+  let strategyImplementation: CompoundVeNESTManagedNFTStrategyUpgradeable;
   let virtualRewarderImplementation: SingelTokenVirtualRewarderUpgradeable;
   let managedNFTManager: ManagedNFTManagerUpgradeable;
   let routerV2PathProvider: RouterV2PathProviderUpgradeable;
@@ -30,11 +30,11 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
   async function deployStrategy(
     deployer: HardhatEthersSigner,
     proxyAdmin: string,
-  ): Promise<CompoundVeFNXManagedNFTStrategyFactoryUpgradeable> {
-    const factory = await ethers.getContractFactory('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable');
+  ): Promise<CompoundVeNESTManagedNFTStrategyFactoryUpgradeable> {
+    const factory = await ethers.getContractFactory('CompoundVeNESTManagedNFTStrategyFactoryUpgradeable');
     const implementation = await factory.connect(deployer).deploy();
     const proxy = await deployTransaperntUpgradeableProxy(deployer, proxyAdmin, await implementation.getAddress());
-    const attached = factory.attach(proxy.target) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+    const attached = factory.attach(proxy.target) as CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
     return attached;
   }
 
@@ -50,11 +50,11 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
     ) as RouterV2PathProviderUpgradeable;
 
     factory = (await ethers.getContractFactory(
-      'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable',
-    )) as any as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable__factory;
+      'CompoundVeNESTManagedNFTStrategyFactoryUpgradeable',
+    )) as any as CompoundVeNESTManagedNFTStrategyFactoryUpgradeable__factory;
     strategyFactory = await deployStrategy(signers.deployer, signers.proxyAdmin.address);
 
-    strategyImplementation = await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', []);
+    strategyImplementation = await ethers.deployContract('CompoundVeNESTManagedNFTStrategyUpgradeable', []);
     virtualRewarderImplementation = await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', []);
 
     await strategyFactory.initialize(
@@ -148,18 +148,18 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
 
       it('deployed addresses is expected', async () => {
         let strategy = (await ethers.getContractAt(
-          'ICompoundVeFNXManagedNFTStrategy',
+          'ICompoundVeNESTManagedNFTStrategy',
           expectedStrategyAddress,
-        )) as ICompoundVeFNXManagedNFTStrategy;
+        )) as ICompoundVeNESTManagedNFTStrategy;
         expect(deployStrategyAddress).to.be.eq(expectedStrategyAddress);
         expect(await strategy.virtualRewarder()).to.be.eq(expectedVirtualRewarder);
       });
 
       it('Fail if try initialize second time deployed contracts', async function () {
         let strategy = (await ethers.getContractAt(
-          'ICompoundVeFNXManagedNFTStrategy',
+          'ICompoundVeNESTManagedNFTStrategy',
           expectedStrategyAddress,
-        )) as ICompoundVeFNXManagedNFTStrategy;
+        )) as ICompoundVeNESTManagedNFTStrategy;
         await expect(strategy.initialize(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS, '123')).to.be.revertedWith(
           ERRORS.Initializable.Initialized,
         );
@@ -172,9 +172,9 @@ describe('CompoundVeFNXManagedStrategyFactory Contract', function () {
 
       it('Should corect initialize deployed strategy', async function () {
         let strategy = (await ethers.getContractAt(
-          'ICompoundVeFNXManagedNFTStrategy',
+          'ICompoundVeNESTManagedNFTStrategy',
           expectedStrategyAddress,
-        )) as ICompoundVeFNXManagedNFTStrategy;
+        )) as ICompoundVeNESTManagedNFTStrategy;
 
         expect(await strategy.voter()).to.be.equal(await managedNFTManager.voter());
         expect(await strategy.votingEscrow()).to.be.equal(await managedNFTManager.votingEscrow());

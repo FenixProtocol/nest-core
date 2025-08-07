@@ -23,7 +23,7 @@ import {
   PoolMock__factory,
   VeArtProxyUpgradeable,
   VeBoostUpgradeable,
-  VeFnxDistributorUpgradeable,
+  VeNestDistributorUpgradeable,
   VoterUpgradeableV2,
   VotingEscrowUpgradeableV2,
 } from '../../typechain-types';

@@ -3,8 +3,8 @@ import { ethers } from 'hardhat';
 
 import { loadFixture, mine, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import {
-  CompoundVeFNXManagedNFTStrategyFactoryUpgradeable,
-  CompoundVeFNXManagedNFTStrategyUpgradeable,
+  CompoundVeNESTManagedNFTStrategyFactoryUpgradeable,
+  CompoundVeNESTManagedNFTStrategyUpgradeable,
   ManagedNFTManagerUpgradeable,
   RouterV2,
   RouterV2PathProviderUpgradeable,
@@ -22,13 +22,13 @@ describe('VotingEscrowV2 Contract', function () {
   let voter: VoterUpgradeableV2;
   let routerV2: RouterV2;
   let routerV2PathProvider: RouterV2PathProviderUpgradeable;
-  let strategyFactory: CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+  let strategyFactory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
 
   const _WEEK = 86400 * 7;
 
   async function newStrategy() {
     let strategy = await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyUpgradeable',
       await strategyFactory.createStrategy.staticCall('VeMax'),
     );
     await strategyFactory.createStrategy('VeMax');
@@ -90,15 +90,15 @@ describe('VotingEscrowV2 Contract', function () {
     managedNFTManager = deployed.managedNFTManager;
     voter = deployed.voter;
     strategyFactory = (await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyFactoryUpgradeable',
       (
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
+          await (await ethers.deployContract('CompoundVeNESTManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
-    )) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+    )) as CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
 
     routerV2PathProvider = (await ethers.getContractFactory('RouterV2PathProviderUpgradeable')).attach(
       (
@@ -116,7 +116,7 @@ describe('VotingEscrowV2 Contract', function () {
 
     await strategyFactory.initialize(
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
+        await ethers.deployContract('CompoundVeNESTManagedNFTStrategyUpgradeable', [])
       ).target,
       (
         await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])
@@ -1379,7 +1379,7 @@ describe('VotingEscrowV2 Contract', function () {
       });
     });
     describe('setuped managed nft manager', async () => {
-      let strategy: CompoundVeFNXManagedNFTStrategyUpgradeable;
+      let strategy: CompoundVeNESTManagedNFTStrategyUpgradeable;
 
       beforeEach(async () => {
         strategy = await newStrategy();
@@ -1471,7 +1471,7 @@ describe('VotingEscrowV2 Contract', function () {
         let managedNftId = BigInt(3);
         let nftToken3 = BigInt(4);
         let managedNftId2 = BigInt(5);
-        let secondStrategy: CompoundVeFNXManagedNFTStrategyUpgradeable;
+        let secondStrategy: CompoundVeNESTManagedNFTStrategyUpgradeable;
 
         beforeEach(async () => {
           secondStrategy = await newStrategy();
@@ -1573,7 +1573,7 @@ describe('VotingEscrowV2 Contract', function () {
         let managedNftId = BigInt(3);
         let nftToken3 = BigInt(4);
         let managedNftId2 = BigInt(5);
-        let secondStrategy: CompoundVeFNXManagedNFTStrategyUpgradeable;
+        let secondStrategy: CompoundVeNESTManagedNFTStrategyUpgradeable;
 
         beforeEach(async () => {
           secondStrategy = await newStrategy();

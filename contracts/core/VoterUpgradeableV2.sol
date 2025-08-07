@@ -191,7 +191,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             bribeFactory = value_;
         } else if (key == 0x18c95c463f9590b3f298aef56c7cfb639672452cd99ac8d92a9fc0e2ef46ab55) {
             merklDistributor = value_;
-        } else if (key == 0xbbbfaae454470f56db24caaffaae3a4d3d0ed7a761421871150faa442416ea83) {
+        } else if (key == 0x38cc4214bb0493731337d7194d130d634a9ad58b75e5151622283c2784daed79) {
             veNestMerklAidrop = value_;
         } else if (key == 0x8ba8cbf9a47db7b5e8ae6c0bff072ed6faefec4a0722891b09f22b7ac343fd4f) {
             managedNFTManager = value_;

@@ -2,7 +2,7 @@ import { loadFixture, time } from '@nomicfoundation/hardhat-toolbox/network-help
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import {
-  CompoundVeFNXManagedNFTStrategyFactoryUpgradeable,
+  CompoundVeNESTManagedNFTStrategyFactoryUpgradeable,
   ERC20Mock,
   ManagedNFTManagerUpgradeable,
   RouterV2,
@@ -29,7 +29,7 @@ describe('VoterV2 Contract', function () {
 
   let managedNFTManager: ManagedNFTManagerUpgradeable;
   let deployed: CoreFixtureDeployed;
-  let strategyFactory: CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+  let strategyFactory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
   let routerV2: RouterV2;
   let routerV2PathProvider: RouterV2PathProviderUpgradeable;
 
@@ -49,7 +49,7 @@ describe('VoterV2 Contract', function () {
 
   async function newStrategy() {
     let strategy = await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyUpgradeable',
       await strategyFactory.createStrategy.staticCall('VeMax'),
     );
     await strategyFactory.createStrategy('VeMax');
@@ -66,15 +66,15 @@ describe('VoterV2 Contract', function () {
     WETH = await deployERC20MockToken(signers.deployer, 'WETH', 'WETH', 18);
 
     strategyFactory = (await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyFactoryUpgradeable',
       (
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
+          await (await ethers.deployContract('CompoundVeNESTManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
-    )) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+    )) as CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
     routerV2PathProvider = (await ethers.getContractFactory('RouterV2PathProviderUpgradeable')).attach(
       (
         await deployTransaperntUpgradeableProxy(
@@ -91,7 +91,7 @@ describe('VoterV2 Contract', function () {
 
     await strategyFactory.initialize(
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
+        await ethers.deployContract('CompoundVeNESTManagedNFTStrategyUpgradeable', [])
       ).target,
       (
         await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])

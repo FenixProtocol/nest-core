@@ -3,9 +3,9 @@ import { loadFixture, time } from '@nomicfoundation/hardhat-toolbox/network-help
 import { expect, use } from 'chai';
 import { ethers } from 'hardhat';
 import {
-  CompoundVeFNXManagedNFTStrategyFactoryUpgradeable,
-  CompoundVeFNXManagedNFTStrategyFactoryUpgradeable__factory,
-  CompoundVeFNXManagedNFTStrategyUpgradeable,
+  CompoundVeNESTManagedNFTStrategyFactoryUpgradeable,
+  CompoundVeNESTManagedNFTStrategyFactoryUpgradeable__factory,
+  CompoundVeNESTManagedNFTStrategyUpgradeable,
   ManagedNFTManagerMock__factory,
   ManagedNFTManagerUpgradeable,
   RouterV2,
@@ -36,14 +36,14 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
   let signers: SignersList;
   let deployed: CoreFixtureDeployed;
 
-  let factory: CompoundVeFNXManagedNFTStrategyFactoryUpgradeable__factory;
-  let strategyFactory: CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
-  let strategyImplementation: CompoundVeFNXManagedNFTStrategyUpgradeable;
+  let factory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable__factory;
+  let strategyFactory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
+  let strategyImplementation: CompoundVeNESTManagedNFTStrategyUpgradeable;
   let virtualRewarderImplementation: SingelTokenVirtualRewarderUpgradeable;
   let managedNFTManager: ManagedNFTManagerUpgradeable;
   let routerV2PathProvider: RouterV2PathProviderUpgradeable;
 
-  let firstStrategy: CompoundVeFNXManagedNFTStrategyUpgradeable;
+  let firstStrategy: CompoundVeNESTManagedNFTStrategyUpgradeable;
   let virtualRewarder: SingelTokenVirtualRewarderUpgradeable;
 
   let managedNftId: bigint;
@@ -53,11 +53,11 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
   async function deployStrategyFactory(
     deployer: HardhatEthersSigner,
     proxyAdmin: string,
-  ): Promise<CompoundVeFNXManagedNFTStrategyFactoryUpgradeable> {
-    const factory = await ethers.getContractFactory('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable');
+  ): Promise<CompoundVeNESTManagedNFTStrategyFactoryUpgradeable> {
+    const factory = await ethers.getContractFactory('CompoundVeNESTManagedNFTStrategyFactoryUpgradeable');
     const implementation = await factory.connect(deployer).deploy();
     const proxy = await deployTransaperntUpgradeableProxy(deployer, proxyAdmin, await implementation.getAddress());
-    const attached = factory.attach(proxy.target) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+    const attached = factory.attach(proxy.target) as CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
     return attached;
   }
 
@@ -73,11 +73,11 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
     ) as RouterV2PathProviderUpgradeable;
 
     factory = (await ethers.getContractFactory(
-      'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable',
-    )) as any as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable__factory;
+      'CompoundVeNESTManagedNFTStrategyFactoryUpgradeable',
+    )) as any as CompoundVeNESTManagedNFTStrategyFactoryUpgradeable__factory;
     strategyFactory = await deployStrategyFactory(signers.deployer, signers.proxyAdmin.address);
 
-    strategyImplementation = await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', []);
+    strategyImplementation = await ethers.deployContract('CompoundVeNESTManagedNFTStrategyUpgradeable', []);
     virtualRewarderImplementation = await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', []);
     routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
 
@@ -94,7 +94,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
     let strategyAddress = await strategyFactory.createStrategy.staticCall('VeMax');
     await strategyFactory.createStrategy('VeMax');
 
-    firstStrategy = await ethers.getContractAt('CompoundVeFNXManagedNFTStrategyUpgradeable', strategyAddress);
+    firstStrategy = await ethers.getContractAt('CompoundVeNESTManagedNFTStrategyUpgradeable', strategyAddress);
 
     virtualRewarder = await ethers.getContractAt('SingelTokenVirtualRewarderUpgradeable', await firstStrategy.virtualRewarder());
 
@@ -123,7 +123,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
     });
 
     it('Should correct set initial settings', async function () {
-      expect(await firstStrategy.fenix()).to.be.equal(deployed.fenix.target);
+      expect(await firstStrategy.nest()).to.be.equal(deployed.fenix.target);
       expect(await firstStrategy.routerV2PathProvider()).to.be.equal(routerV2PathProvider.target);
       expect(await firstStrategy.managedNFTManager()).to.be.equal(managedNFTManager.target);
       expect(await firstStrategy.virtualRewarder()).to.be.not.equal(ZERO_ADDRESS);

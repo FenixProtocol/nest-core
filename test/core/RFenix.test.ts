@@ -1,17 +1,17 @@
 import { loadFixture, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { Fenix, RFenix, RFenix__factory, VotingEscrowUpgradeableV2 } from '../../typechain-types';
+import { Nest, RNest, RNest__factory, VotingEscrowUpgradeableV2 } from '../../typechain-types';
 import { ERRORS, ONE, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, SignersList } from '../utils/coreFixture';
 
 describe('rFNX', function () {
   let deployed: CoreFixtureDeployed;
   let signers: SignersList;
-  let fenix: Fenix;
+  let fenix: Nest;
   let votingEscrow: VotingEscrowUpgradeableV2;
-  let factory: RFenix__factory;
-  let instance: RFenix;
+  let factory: RNest__factory;
+  let instance: RNest;
 
   beforeEach(async function () {
     deployed = await loadFixture(completeFixture);
@@ -19,7 +19,7 @@ describe('rFNX', function () {
     votingEscrow = deployed.votingEscrow;
     signers = deployed.signers;
 
-    factory = await ethers.getContractFactory('RFenix');
+    factory = await ethers.getContractFactory('RNest');
 
     instance = await factory.deploy(votingEscrow.target);
   });
@@ -29,8 +29,8 @@ describe('rFNX', function () {
       await expect(factory.deploy(ZERO_ADDRESS)).to.be.revertedWithCustomError(factory, 'AddressZero');
     });
     it('should correct set inital parameters', async () => {
-      expect(await instance.symbol()).to.be.eq('rFNX');
-      expect(await instance.name()).to.be.eq('rFNX');
+      expect(await instance.symbol()).to.be.eq('rNEST');
+      expect(await instance.name()).to.be.eq('rNEST');
       expect(await instance.totalSupply()).to.be.eq(ZERO);
       expect(await instance.owner()).to.be.eq(signers.deployer.address);
       expect(await instance.token()).to.be.eq(fenix.target);

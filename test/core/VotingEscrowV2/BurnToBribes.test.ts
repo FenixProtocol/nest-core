@@ -16,7 +16,7 @@ describe('VotingEscrow-BurnToBribes', function () {
   let veBoost: typechainTypes.VeBoostUpgradeable;
   let managedNFTManager: typechainTypes.ManagedNFTManagerUpgradeable;
 
-  let fenix: typechainTypes.Fenix;
+  let fenix: typechainTypes.Nest;
 
   beforeEach(async function () {
     deployed = await loadFixture(completeFixture);

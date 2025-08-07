@@ -1,20 +1,20 @@
 import { setCode, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { Fenix, MinterUpgradeable, VoterEscrowMock, VoterMock } from '../../typechain-types/index';
+import { Nest, MinterUpgradeable, VoterEscrowMock, VoterMock } from '../../typechain-types/index';
 import { ERRORS, ONE, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import { SignersList, deployFenixToken, deployMinter, getSigners } from '../utils/coreFixture';
 
 describe('MinterUpgradeable Contract', function () {
   let minter: MinterUpgradeable;
   let signers: SignersList;
-  let fenix: Fenix;
+  let fenix: Nest;
   let voterMock: VoterMock;
   let voterEscrow: VoterEscrowMock;
 
   const WEEK: bigint = BigInt(86400 * 7);
-  const INITIAL_TOKEN_SUPPLY = ethers.parseEther('7500000');
-  const WEEKLY = ethers.parseEther('225000');
+  const INITIAL_TOKEN_SUPPLY = ethers.parseEther('1000000000');
+  const WEEKLY = ethers.parseEther('30000000');
 
   async function currentPeriod(): Promise<bigint> {
     return (BigInt(await time.latest()) / WEEK) * WEEK;
@@ -44,7 +44,7 @@ describe('MinterUpgradeable Contract', function () {
     it('Should set the right initial parameters', async () => {
       expect(await minter.isStarted()).to.be.false;
       expect(await minter.isFirstMint()).to.be.true;
-      expect(await minter.fenix()).to.be.eq(fenix.target);
+      expect(await minter.nest()).to.be.eq(fenix.target);
       expect(await minter.ve()).to.be.eq(voterEscrow.target);
       expect(await minter.voter()).to.be.eq(voterMock.target);
       expect(await minter.inflationRate()).to.be.eq(150);
@@ -52,7 +52,7 @@ describe('MinterUpgradeable Contract', function () {
       expect(await minter.decayRate()).to.be.eq(100);
       expect(await minter.teamRate()).to.be.eq(500);
       expect(await minter.MAX_TEAM_RATE()).to.be.eq(500);
-      expect(await minter.weekly()).to.be.eq(ethers.parseEther('225000'));
+      expect(await minter.weekly()).to.be.eq(ethers.parseEther('30000000'));
       expect(await minter.lastInflationPeriod()).to.be.eq(ZERO);
       expect(await minter.TAIL_EMISSION()).to.be.eq(20);
     });
@@ -92,7 +92,7 @@ describe('MinterUpgradeable Contract', function () {
         let cp = await currentPeriod();
         expect(await minter.isStarted()).to.be.true;
         expect(await minter.active_period()).to.be.eq(cp);
-        expect(await minter.lastInflationPeriod()).to.be.eq(cp + WEEK * BigInt(8));
+        expect(await minter.lastInflationPeriod()).to.be.eq(cp + WEEK * BigInt(12));
       });
     });
     describe('#voter', async () => {
@@ -326,7 +326,7 @@ describe('MinterUpgradeable Contract', function () {
     it('Should corect work after change inflation rate beetwen epoch', async () => {
       await time.increase(WEEK);
       await minter.update_period();
-      expect(await minter.weekly()).to.be.eq(ethers.parseEther('225000'));
+      expect(await minter.weekly()).to.be.eq(ethers.parseEther('30000000'));
 
       await time.increase(WEEK);
       await minter.update_period();
@@ -419,86 +419,6 @@ describe('MinterUpgradeable Contract', function () {
         let minEmission = (circulation * BigInt(20)) / BigInt(10000);
         expect(await minter.weekly_emission()).to.be.greaterThanOrEqual(minEmission);
       }
-    });
-  });
-
-  describe('After patch initial supply', async () => {
-    describe('Should eq to spreedsheet * 10', async () => {
-      beforeEach(async () => {
-        await minter.patchInitialSupply();
-      });
-
-      it('fail if call second time', async () => {
-        await expect(minter.patchInitialSupply()).to.be.revertedWith(ERRORS.Initializable.Initialized);
-      });
-      it('fail if try call from not owner', async () => {
-        await expect(minter.connect(signers.otherUser1).patchInitialSupply()).to.be.revertedWith(ERRORS.Ownable.NotOwner);
-      });
-      it('mint additional supply and transfer to owner', async () => {
-        expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('75000000'));
-        expect(await fenix.balanceOf(signers.deployer)).to.be.eq(ethers.parseEther('75000000'));
-      });
-
-      it('change weekly state minter', async () => {
-        expect(await minter.weekly()).to.be.eq(ethers.parseEther('2250000'));
-      });
-
-      it(`check epoch from 0 to 52 basic on spreedsheet`, async () => {
-        expect(await fenix.totalSupply()).to.be.eq(INITIAL_TOKEN_SUPPLY * BigInt(10));
-
-        await minter.start();
-        let emissions = [
-          0, 225000, 228375, 231801, 235278, 238807, 242389, 246025, 249715, 247218, 244746, 242298, 239875, 237477, 235102, 232751, 230423,
-          228119, 225838, 223579, 221344, 219130, 216939, 214770, 212622, 210496, 208391, 206307, 204244, 202201, 200179, 198177, 196196,
-          194234, 192291, 190368, 188465, 186580, 184714, 182867, 181039, 179228, 177436, 175662, 173905, 172166, 170444, 168740, 167052,
-          165382, 163728, 162091, 160470,
-        ];
-        let lastTotalSupply: bigint = await fenix.totalSupply();
-
-        for (let index = 0; index < emissions.length; index++) {
-          lastTotalSupply = await fenix.totalSupply();
-          await minter.update_period();
-          await time.increase(WEEK);
-          let change = (await fenix.totalSupply()) - lastTotalSupply;
-          console.log(`${index} ${ethers.formatEther(await fenix.totalSupply())} ${ethers.formatEther(change)}`);
-          expect(change).to.be.closeTo(ethers.parseEther(emissions[index].toString()) * BigInt(10), ethers.parseEther('10'));
-        }
-        expect(await fenix.totalSupply()).to.be.closeTo(ethers.parseEther('18232672') * BigInt(10), ethers.parseEther('10'));
-      });
-    });
-  });
-  describe('After patch initilaSupply', async () => {
-    describe('shiftStartByOneWeek', async () => {
-      it('should revert if isStarted not called before', async () => {
-        expect(await minter.isStarted()).to.be.false;
-        await expect(minter.shiftStartByOneWeek()).to.be.revertedWith('Invalid contract state for call');
-      });
-      it('should revert if weekly & totalSupply is diff', async () => {
-        await minter.start();
-        expect(await minter.isStarted()).to.be.true;
-        await expect(minter.shiftStartByOneWeek()).to.be.revertedWith('Invalid contract state for call');
-      });
-
-      it('should reverted if already called', async () => {
-        await minter.start();
-        await minter.patchInitialSupply();
-        await minter.shiftStartByOneWeek();
-        await expect(minter.shiftStartByOneWeek()).to.be.revertedWith(ERRORS.Initializable.Initialized);
-      });
-
-      it('should reverted if call from not owner', async () => {
-        await minter.start();
-        await minter.patchInitialSupply();
-        await minter.shiftStartByOneWeek();
-        await expect(minter.connect(signers.otherUser1).shiftStartByOneWeek()).to.be.revertedWith(ERRORS.Ownable.NotOwner);
-      });
-
-      it('success call after patch initial supply and isStarted call', async () => {
-        await minter.start();
-        await minter.patchInitialSupply();
-        expect(await minter.isStarted()).to.be.true;
-        await expect(minter.shiftStartByOneWeek()).to.be.not.reverted;
-      });
     });
   });
 });

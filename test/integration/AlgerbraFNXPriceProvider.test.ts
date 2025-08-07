@@ -5,10 +5,10 @@ import { ERRORS, ONE_ETHER, ZERO_ADDRESS } from '../utils/constants';
 
 import { encodePriceSqrt } from '@cryptoalgebra/integral-core/test/shared/utilities';
 import {
-  AlgebraFNXPriceProviderUpgradeable,
-  AlgebraFNXPriceProviderUpgradeable__factory,
+  AlgebraNESTPriceProviderUpgradeable,
+  AlgebraNESTPriceProviderUpgradeable__factory,
   ERC20Mock,
-  Fenix,
+  Nest,
   PoolMock,
 } from '../../typechain-types';
 import {
@@ -24,11 +24,11 @@ import {
 describe('AlgebraFNXPriceProvider', function () {
   let signers: SignersList;
 
-  let factory: AlgebraFNXPriceProviderUpgradeable__factory;
-  let implementation: AlgebraFNXPriceProviderUpgradeable;
-  let priceProvider: AlgebraFNXPriceProviderUpgradeable;
+  let factory: AlgebraNESTPriceProviderUpgradeable__factory;
+  let implementation: AlgebraNESTPriceProviderUpgradeable;
+  let priceProvider: AlgebraNESTPriceProviderUpgradeable;
 
-  let fenix: Fenix;
+  let fenix: Nest;
   let tokenTR6: ERC20Mock;
   let tokenTR18: ERC20Mock;
 
@@ -44,11 +44,11 @@ describe('AlgebraFNXPriceProvider', function () {
     tokenTR18 = await deployERC20MockToken(signers.deployer, 'TR18', 'TR18', 18);
     poolMock = await ethers.deployContract('PoolMock');
 
-    factory = await ethers.getContractFactory('AlgebraFNXPriceProviderUpgradeable');
+    factory = await ethers.getContractFactory('AlgebraNESTPriceProviderUpgradeable');
     implementation = await factory.deploy();
     priceProvider = factory.attach(
       await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
-    ) as AlgebraFNXPriceProviderUpgradeable;
+    ) as AlgebraNESTPriceProviderUpgradeable;
 
     await priceProvider.initialize(poolMock.target, fenix.target, tokenTR6.target);
 
@@ -75,7 +75,7 @@ describe('AlgebraFNXPriceProvider', function () {
     it('Should fail if try set zero address', async function () {
       let pp = factory.attach(
         await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
-      ) as AlgebraFNXPriceProviderUpgradeable;
+      ) as AlgebraNESTPriceProviderUpgradeable;
 
       await expect(pp.initialize(ZERO_ADDRESS, fenix.target, tokenTR6.target)).to.be.revertedWithCustomError(pp, 'AddressZero');
       await expect(pp.initialize(poolMock.target, ZERO_ADDRESS, tokenTR6.target)).to.be.revertedWithCustomError(pp, 'AddressZero');
@@ -84,7 +84,7 @@ describe('AlgebraFNXPriceProvider', function () {
 
     describe('Should corect setup and calculate initial parameters', async () => {
       it('other parameters', async function () {
-        expect(await priceProvider.FNX()).to.be.eq(fenix.target);
+        expect(await priceProvider.NEST()).to.be.eq(fenix.target);
         expect(await priceProvider.pool()).to.be.eq(poolMock.target);
         expect(await priceProvider.USD()).to.be.eq(tokenTR6.target);
       });
@@ -96,7 +96,7 @@ describe('AlgebraFNXPriceProvider', function () {
       it('for usd with 18 decimals', async function () {
         let pp = factory.attach(
           await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
-        ) as AlgebraFNXPriceProviderUpgradeable;
+        ) as AlgebraNESTPriceProviderUpgradeable;
 
         await pp.initialize(poolMock.target, fenix.target, tokenTR18.target);
         expect(await pp.ONE_USD()).to.be.eq(ethers.parseEther('1'));
@@ -269,12 +269,12 @@ describe('AlgebraFNXPriceProvider', function () {
 
           let pp = factory.attach(
             await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
-          ) as AlgebraFNXPriceProviderUpgradeable;
+          ) as AlgebraNESTPriceProviderUpgradeable;
 
           await pp.initialize(pool.target, fenix.target, token.target);
 
-          console.log(ethers.formatEther(await pp.getUsdToFNXPrice()));
-          expect(await pp.getUsdToFNXPrice()).to.be.closeTo(iterator.fnxPer1USD, iterator.fnxPer1USD / BigInt(1000));
+          console.log(ethers.formatEther(await pp.getUsdToNESTPrice()));
+          expect(await pp.getUsdToNESTPrice()).to.be.closeTo(iterator.fnxPer1USD, iterator.fnxPer1USD / BigInt(1000));
         });
       }
     });

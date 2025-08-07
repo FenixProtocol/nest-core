@@ -6,7 +6,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { ERC20Mock, Fenix, GaugeFactoryUpgradeable, GaugeUpgradeable, ICHIMock, Pair } from '../../typechain-types';
+import { ERC20Mock, Nest, GaugeFactoryUpgradeable, GaugeUpgradeable, ICHIMock, Pair } from '../../typechain-types';
 import { GaugeType, getAccessControlError, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, {
   CoreFixtureDeployed,
@@ -31,7 +31,7 @@ describe('Main', function () {
   };
   let tokenTK18: ERC20Mock;
   let tokenTK6: ERC20Mock;
-  let fenix: Fenix;
+  let fenix: Nest;
   let algebraCore: FactoryFixture;
   let poolV2FenixTk18: Pair;
   let poolV3FenixTk18: AlgebraPool;
@@ -64,9 +64,9 @@ describe('Main', function () {
     await algebraCore.factory.grantRole(await algebraCore.factory.POOLS_CREATOR_ROLE(), signers.deployer.address);
   });
   it('Check state after deployed', async () => {
-    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('7500000'));
-    expect(await deployed.v2PairFactory.communityVaultFactory()).to.be.eq(await deployed.feesVaultFactory.target);
-    expect(await algebraCore.factory.vaultFactory()).to.be.eq(await deployed.feesVaultFactory.target);
+    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000'));
+    expect(await deployed.v2PairFactory.communityVaultFactory()).to.be.eq(deployed.feesVaultFactory.target);
+    expect(await algebraCore.factory.vaultFactory()).to.be.eq(deployed.feesVaultFactory.target);
   });
   it('Correct create new pairs in v2 factory before first epoch', async () => {
     await deployed.v2PairFactory.createPair(deployed.fenix.target, tokenTK18.target, true);
@@ -190,11 +190,11 @@ describe('Main', function () {
     expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO);
     expect(await fenix.balanceOf(deployed.merklDistributionCreator.target)).to.be.eq(ZERO);
 
-    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('7500000'));
+    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000'));
 
     await deployed.voter.distributeAll();
 
-    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('7500000'));
+    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000'));
     expect(await fenix.balanceOf(v2Gauge.target)).to.be.eq(ZERO);
     expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO);
     expect(await fenix.balanceOf(deployed.merklDistributionCreator.target)).to.be.eq(ZERO);
@@ -207,7 +207,7 @@ describe('Main', function () {
     expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO);
     expect(await fenix.balanceOf(deployed.merklDistributionCreator.target)).to.be.eq(ZERO);
 
-    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('7500000'));
+    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000'));
 
     await expect(deployed.voter.distributeAll()).to.be.revertedWithCustomError(deployed.merklGaugeMiddleman, 'InvalidParams');
   });
@@ -296,13 +296,13 @@ describe('Main', function () {
     expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO);
     expect(await fenix.balanceOf(deployed.merklDistributionCreator.target)).to.be.eq(ZERO);
 
-    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('7500000'));
+    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000'));
 
-    let emission = ethers.parseEther('225000') - (ethers.parseEther('225000') * BigInt(500)) / BigInt(10000); // emission without team amount
+    let emission = ethers.parseEther('30000000') - (ethers.parseEther('30000000') * BigInt(500)) / BigInt(10000); // emission without team amount
 
     await deployed.voter.distributeAll();
 
-    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('7500000') + ethers.parseEther('225000'));
+    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000') + ethers.parseEther('30000000'));
 
     expect(await fenix.balanceOf(v2Gauge.target)).to.be.closeTo((emission * BigInt(2)) / BigInt(3), ethers.parseEther('1')); // vote for this pool was 2/3
     expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO); // nothing got to gauge, because distribution to merkle

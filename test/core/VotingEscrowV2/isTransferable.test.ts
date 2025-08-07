@@ -24,24 +24,24 @@ describe('VotingEscrow-depositToAttachedNFT', function () {
   let veBoost: typechainTypes.VeBoostUpgradeable;
   let managedNFTManager: typechainTypes.ManagedNFTManagerUpgradeable;
 
-  let fenix: typechainTypes.Fenix;
+  let fenix: typechainTypes.Nest;
   let tokenTR6: typechainTypes.ERC20Mock;
-  let priceProvider: typechainTypes.AlgebraFNXPriceProviderUpgradeable;
-  let strategyFactory: typechainTypes.CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+  let priceProvider: typechainTypes.AlgebraNESTPriceProviderUpgradeable;
+  let strategyFactory: typechainTypes.CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
   let routerV2: typechainTypes.RouterV2;
   let routerV2PathProvider: typechainTypes.RouterV2PathProviderUpgradeable;
 
   async function deployStrategyFactory() {
     strategyFactory = (await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyFactoryUpgradeable',
       (
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
+          await (await ethers.deployContract('CompoundVeNESTManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
-    )) as typechainTypes.CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+    )) as typechainTypes.CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
 
     routerV2PathProvider = (await ethers.getContractFactory('RouterV2PathProviderUpgradeable')).attach(
       (
@@ -59,7 +59,7 @@ describe('VotingEscrow-depositToAttachedNFT', function () {
 
     await strategyFactory.initialize(
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
+        await ethers.deployContract('CompoundVeNESTManagedNFTStrategyUpgradeable', [])
       ).target,
       (
         await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])
@@ -73,12 +73,12 @@ describe('VotingEscrow-depositToAttachedNFT', function () {
     usdToken: typechainTypes.ERC20Mock,
     usdReserve: bigint,
     fnxReserve: bigint,
-  ): Promise<typechainTypes.AlgebraFNXPriceProviderUpgradeable> {
-    let factoryPriceProvider = await ethers.getContractFactory('AlgebraFNXPriceProviderUpgradeable');
+  ): Promise<typechainTypes.AlgebraNESTPriceProviderUpgradeable> {
+    let factoryPriceProvider = await ethers.getContractFactory('AlgebraNESTPriceProviderUpgradeable');
     let implementationPriceProvider = await factoryPriceProvider.deploy();
     priceProvider = factoryPriceProvider.attach(
       await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementationPriceProvider.getAddress()),
-    ) as typechainTypes.AlgebraFNXPriceProviderUpgradeable;
+    ) as typechainTypes.AlgebraNESTPriceProviderUpgradeable;
 
     let algebraCore = await deployAlgebraCore();
 
@@ -102,14 +102,14 @@ describe('VotingEscrow-depositToAttachedNFT', function () {
 
   async function newStrategy() {
     let strategy = await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyUpgradeable',
       await strategyFactory.createStrategy.staticCall('VeMax'),
     );
     await strategyFactory.createStrategy('VeMax');
     return strategy;
   }
   let mVeNftId: bigint;
-  let strategy: typechainTypes.CompoundVeFNXManagedNFTStrategyUpgradeable;
+  let strategy: typechainTypes.CompoundVeNESTManagedNFTStrategyUpgradeable;
   let virtualRewarder: typechainTypes.SingelTokenVirtualRewarderUpgradeable;
   let userNftId: bigint;
 

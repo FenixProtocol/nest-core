@@ -23,21 +23,21 @@ describe('VotingEscrowUpgradeableEarlyExit', function () {
   let votingEscrow: VotingEscrowUpgradeableV2;
   let veBoost: typechainTypes.VeBoostUpgradeable;
 
-  let fenix: typechainTypes.Fenix;
+  let fenix: typechainTypes.Nest;
   let tokenTR6: typechainTypes.ERC20Mock;
   let tokenTR18: typechainTypes.ERC20Mock;
-  let priceProvider: typechainTypes.AlgebraFNXPriceProviderUpgradeable;
+  let priceProvider: typechainTypes.AlgebraNESTPriceProviderUpgradeable;
 
   async function deployPriceProviderWith(
     usdToken: typechainTypes.ERC20Mock,
     usdReserve: bigint,
     fnxReserve: bigint,
-  ): Promise<typechainTypes.AlgebraFNXPriceProviderUpgradeable> {
-    let factoryPriceProvider = await ethers.getContractFactory('AlgebraFNXPriceProviderUpgradeable');
+  ): Promise<typechainTypes.AlgebraNESTPriceProviderUpgradeable> {
+    let factoryPriceProvider = await ethers.getContractFactory('AlgebraNESTPriceProviderUpgradeable');
     let implementationPriceProvider = await factoryPriceProvider.deploy();
     priceProvider = factoryPriceProvider.attach(
       await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementationPriceProvider.getAddress()),
-    ) as typechainTypes.AlgebraFNXPriceProviderUpgradeable;
+    ) as typechainTypes.AlgebraNESTPriceProviderUpgradeable;
 
     let algebraCore = await deployAlgebraCore();
 

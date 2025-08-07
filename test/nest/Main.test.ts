@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import {
   BribeUpgradeable,
-  CompoundVeFNXManagedNFTStrategyFactoryUpgradeable,
-  CompoundVeFNXManagedNFTStrategyUpgradeable,
+  CompoundVeNESTManagedNFTStrategyFactoryUpgradeable,
+  CompoundVeNESTManagedNFTStrategyUpgradeable,
   ERC20Mock,
   Fenix,
   ManagedNFTManagerUpgradeable,
@@ -30,7 +30,7 @@ describe('Nest Main Contract', function () {
 
   let managedNFTManager: ManagedNFTManagerUpgradeable;
   let deployed: CoreFixtureDeployed;
-  let strategyFactory: CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+  let strategyFactory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
   let routerV2: RouterV2;
   let routerV2PathProvider: RouterV2PathProviderUpgradeable;
   let USDT: ERC20Mock;
@@ -44,8 +44,8 @@ describe('Nest Main Contract', function () {
   let managedNftId = BigInt(3);
   let nftToken3 = BigInt(4);
   let managedNftId2 = BigInt(5);
-  let firstStrategy: CompoundVeFNXManagedNFTStrategyUpgradeable;
-  let secondStrategy: CompoundVeFNXManagedNFTStrategyUpgradeable;
+  let firstStrategy: CompoundVeNESTManagedNFTStrategyUpgradeable;
+  let secondStrategy: CompoundVeNESTManagedNFTStrategyUpgradeable;
   let gauge: string;
   let bribe: BribeUpgradeable;
 
@@ -65,7 +65,7 @@ describe('Nest Main Contract', function () {
 
   async function newStrategy() {
     let strategy = await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyUpgradeable',
       await strategyFactory.createStrategy.staticCall('VeMax'),
     );
     await strategyFactory.createStrategy('VeMax');
@@ -83,15 +83,15 @@ describe('Nest Main Contract', function () {
     FENIX = deployed.fenix;
 
     strategyFactory = (await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyFactoryUpgradeable',
       (
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
+          await (await ethers.deployContract('CompoundVeNESTManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
-    )) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+    )) as CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
     routerV2PathProvider = (await ethers.getContractFactory('RouterV2PathProviderUpgradeable')).attach(
       (
         await deployTransaperntUpgradeableProxy(
@@ -108,7 +108,7 @@ describe('Nest Main Contract', function () {
 
     await strategyFactory.initialize(
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
+        await ethers.deployContract('CompoundVeNESTManagedNFTStrategyUpgradeable', [])
       ).target,
       (
         await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])

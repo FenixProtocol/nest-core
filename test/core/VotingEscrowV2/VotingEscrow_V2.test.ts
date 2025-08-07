@@ -108,8 +108,8 @@ describe('VotingEscrow_V2', function () {
       });
 
       it('ERC721 state', async () => {
-        expect(await VotingEscrow.name()).to.be.eq('veFenix');
-        expect(await VotingEscrow.symbol()).to.be.eq('veFNX');
+        expect(await VotingEscrow.name()).to.be.eq('veNest');
+        expect(await VotingEscrow.symbol()).to.be.eq('veNEST');
       });
 
       it('others params', async () => {

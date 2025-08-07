@@ -2,8 +2,8 @@ import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import {
-  CompoundVeFNXManagedNFTStrategyFactoryUpgradeable,
-  CompoundVeFNXManagedNFTStrategyUpgradeable,
+  CompoundVeNESTManagedNFTStrategyFactoryUpgradeable,
+  CompoundVeNESTManagedNFTStrategyUpgradeable,
   Fenix,
   ManagedNFTManagerUpgradeable,
   RouterV2,
@@ -26,21 +26,21 @@ describe('Voting pause functionality', function () {
   let VotingEscrow: VotingEscrowUpgradeableV2;
   let ManagedNFTManager: ManagedNFTManagerUpgradeable;
   let Fenix: Fenix;
-  let StrategyFactory: CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+  let StrategyFactory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
   let routerV2: RouterV2;
   let routerV2PathProvider: RouterV2PathProviderUpgradeable;
 
   async function deployStrategyFactory() {
     StrategyFactory = (await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyFactoryUpgradeable',
       (
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
+          await (await ethers.deployContract('CompoundVeNESTManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
-    )) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+    )) as CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
 
     routerV2PathProvider = (await ethers.getContractFactory('RouterV2PathProviderUpgradeable')).attach(
       (
@@ -58,7 +58,7 @@ describe('Voting pause functionality', function () {
 
     await StrategyFactory.initialize(
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
+        await ethers.deployContract('CompoundVeNESTManagedNFTStrategyUpgradeable', [])
       ).target,
       (
         await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])
@@ -70,7 +70,7 @@ describe('Voting pause functionality', function () {
 
   async function newStrategy(name: string) {
     let strategy = await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyUpgradeable',
       await StrategyFactory.createStrategy.staticCall(name),
     );
     await StrategyFactory.createStrategy(name);
@@ -84,7 +84,7 @@ describe('Voting pause functionality', function () {
     return deployed.v2PairFactory.getPair(t0.target, t1.target, false);
   }
 
-  let strategies: CompoundVeFNXManagedNFTStrategyUpgradeable[] = [];
+  let strategies: CompoundVeNESTManagedNFTStrategyUpgradeable[] = [];
   let pools: string[] = [];
   let mVeNfts: bigint[] = [];
   let otherUser1VeNftTokenId: bigint;

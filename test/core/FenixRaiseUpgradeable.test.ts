@@ -2,7 +2,7 @@ import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 import { setCode, time, mine, loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { ERC20Mock, FenixRaiseUpgradeable, VotingEscrowUpgradeableV2 } from '../../typechain-types/index';
+import { ERC20Mock, NestRaiseUpgradeable, VotingEscrowUpgradeableV2 } from '../../typechain-types/index';
 import { ERRORS, ONE, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, deployERC20MockToken } from '../utils/coreFixture';
 import { deploy } from '@openzeppelin/hardhat-upgrades/dist/utils';
@@ -19,9 +19,9 @@ function getProof(address: string, tree: any): string[] {
   return proof!;
 }
 
-describe('FenixRaiseUpgradeable Contract', function () {
-  let implementation: FenixRaiseUpgradeable;
-  let proxy: FenixRaiseUpgradeable;
+describe('NestRaiseUpgradeable Contract', function () {
+  let implementation: NestRaiseUpgradeable;
+  let proxy: NestRaiseUpgradeable;
   let otherUser: HardhatEthersSigner;
   let otherUser2: HardhatEthersSigner;
   let otherUser3: HardhatEthersSigner;
@@ -43,7 +43,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
     let depositToken = await deployERC20MockToken(deployer, 'T', 'T', Number(depositTokenDecimals));
     let rewardToken = await deployERC20MockToken(deployer, 'R', 'R', Number(rewardTokenDecimals));
     let uninitializedProxy = await ethers.getContractAt(
-      'FenixRaiseUpgradeable',
+      'NestRaiseUpgradeable',
       (
         await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x'])
       ).target,
@@ -66,9 +66,9 @@ describe('FenixRaiseUpgradeable Contract', function () {
 
     [deployer, proxyAdmin, depositsReciever, otherUser, otherUser2, otherUser3] = await ethers.getSigners();
 
-    implementation = await ethers.deployContract('FenixRaiseUpgradeable', []);
+    implementation = await ethers.deployContract('NestRaiseUpgradeable', []);
     proxy = await ethers.getContractAt(
-      'FenixRaiseUpgradeable',
+      'NestRaiseUpgradeable',
       (
         await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x'])
       ).target,
@@ -94,7 +94,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
 
     it('fail if try set toVeNftPercentage more then max percentage', async () => {
       let uninitializedProxy = await ethers.getContractAt(
-        'FenixRaiseUpgradeable',
+        'NestRaiseUpgradeable',
         (
           await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x'])
         ).target,
@@ -113,7 +113,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
 
     it('fail if try set toVeNftPercentage more then zero  with votingEscrow zero address', async () => {
       let uninitializedProxy = await ethers.getContractAt(
-        'FenixRaiseUpgradeable',
+        'NestRaiseUpgradeable',
         (
           await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x'])
         ).target,
@@ -132,7 +132,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
 
     it('fail if try set zero address', async () => {
       let uninitializedProxy = await ethers.getContractAt(
-        'FenixRaiseUpgradeable',
+        'NestRaiseUpgradeable',
         (
           await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x'])
         ).target,
@@ -862,7 +862,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
     describe('success claim', async () => {
       it('success claim and emit event without veNFT tokens, 18, 18, 0.125', async () => {
         proxy = await ethers.getContractAt(
-          'FenixRaiseUpgradeable',
+          'NestRaiseUpgradeable',
           (
             await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x'])
           ).target,
@@ -936,7 +936,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
       });
       it('success claim and emit event without veNFT tokens, 6, 18, 1.25', async () => {
         proxy = await ethers.getContractAt(
-          'FenixRaiseUpgradeable',
+          'NestRaiseUpgradeable',
           (
             await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x'])
           ).target,
@@ -1011,7 +1011,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
       it('success claim and emit event with 40% to veNFT tokens, 18, 18, 0.01', async () => {
         Fenix = deployed.fenix;
         proxy = await ethers.getContractAt(
-          'FenixRaiseUpgradeable',
+          'NestRaiseUpgradeable',
           (
             await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x'])
           ).target,
@@ -1098,7 +1098,7 @@ describe('FenixRaiseUpgradeable Contract', function () {
         Fenix = deployed.fenix;
 
         proxy = await ethers.getContractAt(
-          'FenixRaiseUpgradeable',
+          'NestRaiseUpgradeable',
           (
             await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x'])
           ).target,

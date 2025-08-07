@@ -3,11 +3,11 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { ERRORS } from '../utils/constants';
 
-import { ManualFNXPriceProvider } from '../../typechain-types';
+import { ManualNESTPriceProvider } from '../../typechain-types';
 import { getSigners } from '../utils/coreFixture';
 
-describe('ManualFNXPriceProvider', function () {
-  let instance: ManualFNXPriceProvider;
+describe('ManualNESTPriceProvider', function () {
+  let instance: ManualNESTPriceProvider;
   let initialPrice = ethers.parseEther('1');
   let owner: HardhatEthersSigner;
   let user: HardhatEthersSigner;
@@ -15,7 +15,7 @@ describe('ManualFNXPriceProvider', function () {
   before(async function () {
     let signers = await getSigners();
     [owner, user] = [signers.deployer, signers.otherUser1];
-    instance = await ethers.deployContract('ManualFNXPriceProvider', [initialPrice]);
+    instance = await ethers.deployContract('ManualNESTPriceProvider', [initialPrice]);
   });
 
   describe('Deployment', function () {
@@ -24,52 +24,52 @@ describe('ManualFNXPriceProvider', function () {
     });
     it('success setup initial price', async () => {
       expect(await instance.price()).to.be.eq(initialPrice);
-      expect(await instance.getUsdToFNXPrice()).to.be.eq(initialPrice);
+      expect(await instance.getUsdToNESTPrice()).to.be.eq(initialPrice);
     });
   });
 
-  describe('#setFnxPrice', async () => {
+  describe('#setNestPrice', async () => {
     it('fail if call from not owner', async () => {
-      await expect(instance.connect(user).setFnxPrice(1)).to.be.revertedWith(ERRORS.Ownable.NotOwner);
+      await expect(instance.connect(user).setNestPrice(1)).to.be.revertedWith(ERRORS.Ownable.NotOwner);
     });
 
     it('success update price and emit events', async () => {
-      await expect(instance.setFnxPrice(initialPrice)).to.be.emit(instance, 'SetPrice').withArgs(initialPrice, initialPrice);
-      expect(await instance.getUsdToFNXPrice()).to.be.eq(initialPrice);
+      await expect(instance.setNestPrice(initialPrice)).to.be.emit(instance, 'SetPrice').withArgs(initialPrice, initialPrice);
+      expect(await instance.getUsdToNESTPrice()).to.be.eq(initialPrice);
       expect(await instance.price()).to.be.eq(initialPrice);
 
-      await expect(instance.setFnxPrice(1)).to.be.emit(instance, 'SetPrice').withArgs(initialPrice, 1);
-      expect(await instance.getUsdToFNXPrice()).to.be.eq(1);
+      await expect(instance.setNestPrice(1)).to.be.emit(instance, 'SetPrice').withArgs(initialPrice, 1);
+      expect(await instance.getUsdToNESTPrice()).to.be.eq(1);
       expect(await instance.price()).to.be.eq(1);
 
-      await expect(instance.setFnxPrice(0)).to.be.emit(instance, 'SetPrice').withArgs(1, 0);
-      await expect(instance.getUsdToFNXPrice()).to.be.revertedWithCustomError(instance, 'PriceNotSetup');
+      await expect(instance.setNestPrice(0)).to.be.emit(instance, 'SetPrice').withArgs(1, 0);
+      await expect(instance.getUsdToNESTPrice()).to.be.revertedWithCustomError(instance, 'PriceNotSetup');
       expect(await instance.price()).to.be.eq(0);
 
-      await expect(instance.setFnxPrice(ethers.parseEther('1.23456789')))
+      await expect(instance.setNestPrice(ethers.parseEther('1.23456789')))
         .to.be.emit(instance, 'SetPrice')
         .withArgs(0, ethers.parseEther('1.23456789'));
-      expect(await instance.getUsdToFNXPrice()).to.be.eq(ethers.parseEther('1.23456789'));
+      expect(await instance.getUsdToNESTPrice()).to.be.eq(ethers.parseEther('1.23456789'));
       expect(await instance.price()).to.be.eq(ethers.parseEther('1.23456789'));
     });
   });
 
-  describe('#getUsdToFNXPrice', async () => {
+  describe('#getUsdToNESTPrice', async () => {
     it('fail if price eq = 0', async () => {
-      await instance.setFnxPrice(0);
+      await instance.setNestPrice(0);
       expect(await instance.price()).to.be.eq(0);
-      await expect(instance.getUsdToFNXPrice()).to.be.revertedWithCustomError(instance, 'PriceNotSetup');
+      await expect(instance.getUsdToNESTPrice()).to.be.revertedWithCustomError(instance, 'PriceNotSetup');
     });
 
     it('return actual price', async () => {
-      await instance.setFnxPrice(initialPrice);
-      expect(await instance.getUsdToFNXPrice()).to.be.eq(initialPrice);
-      await instance.setFnxPrice(1);
-      expect(await instance.getUsdToFNXPrice()).to.be.eq(1);
-      await instance.setFnxPrice(11);
-      expect(await instance.getUsdToFNXPrice()).to.be.eq(11);
-      await instance.setFnxPrice(ethers.parseEther('1.23456789'));
-      expect(await instance.getUsdToFNXPrice()).to.be.eq(ethers.parseEther('1.23456789'));
+      await instance.setNestPrice(initialPrice);
+      expect(await instance.getUsdToNESTPrice()).to.be.eq(initialPrice);
+      await instance.setNestPrice(1);
+      expect(await instance.getUsdToNESTPrice()).to.be.eq(1);
+      await instance.setNestPrice(11);
+      expect(await instance.getUsdToNESTPrice()).to.be.eq(11);
+      await instance.setNestPrice(ethers.parseEther('1.23456789'));
+      expect(await instance.getUsdToNESTPrice()).to.be.eq(ethers.parseEther('1.23456789'));
     });
   });
 });

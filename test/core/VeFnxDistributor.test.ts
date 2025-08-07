@@ -3,27 +3,27 @@ import { loadFixture, time } from '@nomicfoundation/hardhat-toolbox/network-help
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import {
-  CompoundVeFNXManagedNFTStrategyFactoryUpgradeable,
-  Fenix,
+  CompoundVeNESTManagedNFTStrategyFactoryUpgradeable,
+  Nest,
   ManagedNFTManagerUpgradeable,
   RouterV2,
   RouterV2PathProviderUpgradeable,
-  VeFnxDistributorUpgradeable,
-  VeFnxDistributorUpgradeable__factory,
+  VeNestDistributorUpgradeable,
+  VeNestDistributorUpgradeable__factory,
   VotingEscrowUpgradeableV2,
 } from '../../typechain-types';
 import { ERRORS, getAccessControlError, ONE, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, SignersList, deployTransaperntUpgradeableProxy } from '../utils/coreFixture';
 
-describe('VeFnxDistributorUpgradeable', function () {
+describe('VeNestDistributorUpgradeable', function () {
   let deployed: CoreFixtureDeployed;
   let signers: SignersList;
 
-  let factory: VeFnxDistributorUpgradeable__factory;
-  let fenix: Fenix;
-  let veFnxDistributor: VeFnxDistributorUpgradeable;
+  let factory: VeNestDistributorUpgradeable__factory;
+  let fenix: Nest;
+  let veFnxDistributor: VeNestDistributorUpgradeable;
   let votingEscrow: VotingEscrowUpgradeableV2;
-  let strategyFactory: CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+  let strategyFactory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
   let routerV2: RouterV2;
   let routerV2PathProvider: RouterV2PathProviderUpgradeable;
   let managedNFTManager: ManagedNFTManagerUpgradeable;
@@ -32,7 +32,7 @@ describe('VeFnxDistributorUpgradeable', function () {
 
   async function newStrategy() {
     let strategy = await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyUpgradeable',
       await strategyFactory.createStrategy.staticCall('VeMax'),
     );
     await strategyFactory.createStrategy('VeMax');
@@ -41,15 +41,15 @@ describe('VeFnxDistributorUpgradeable', function () {
 
   async function deployStrategyFactory() {
     strategyFactory = (await ethers.getContractAt(
-      'CompoundVeFNXManagedNFTStrategyFactoryUpgradeable',
+      'CompoundVeNESTManagedNFTStrategyFactoryUpgradeable',
       (
         await deployTransaperntUpgradeableProxy(
           signers.deployer,
           signers.proxyAdmin.address,
-          await (await ethers.deployContract('CompoundVeFNXManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
+          await (await ethers.deployContract('CompoundVeNESTManagedNFTStrategyFactoryUpgradeable', [])).getAddress(),
         )
       ).target,
-    )) as CompoundVeFNXManagedNFTStrategyFactoryUpgradeable;
+    )) as CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
 
     routerV2PathProvider = (await ethers.getContractFactory('RouterV2PathProviderUpgradeable')).attach(
       (
@@ -67,7 +67,7 @@ describe('VeFnxDistributorUpgradeable', function () {
 
     await strategyFactory.initialize(
       (
-        await ethers.deployContract('CompoundVeFNXManagedNFTStrategyUpgradeable', [])
+        await ethers.deployContract('CompoundVeNESTManagedNFTStrategyUpgradeable', [])
       ).target,
       (
         await ethers.deployContract('SingelTokenVirtualRewarderUpgradeable', [])
@@ -82,7 +82,7 @@ describe('VeFnxDistributorUpgradeable', function () {
     signers = deployed.signers;
     fenix = deployed.fenix;
 
-    factory = await ethers.getContractFactory('VeFnxDistributorUpgradeable');
+    factory = await ethers.getContractFactory('VeNestDistributorUpgradeable');
     veFnxDistributor = deployed.veFnxDistributor;
     votingEscrow = deployed.votingEscrow;
 
@@ -108,13 +108,13 @@ describe('VeFnxDistributorUpgradeable', function () {
 
       const distributor = factory.attach(
         await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await implementation.getAddress()),
-      ) as VeFnxDistributorUpgradeable;
+      ) as VeNestDistributorUpgradeable;
       await expect(distributor.initialize(ZERO_ADDRESS, votingEscrow.target)).to.be.revertedWithCustomError(distributor, 'AddressZero');
       await expect(distributor.initialize(fenix.target, ZERO_ADDRESS)).to.be.revertedWithCustomError(distributor, 'AddressZero');
     });
 
     it('Should correct setup parameters and grant admin role for deployer', async function () {
-      expect(await veFnxDistributor.fenix()).to.be.eq(fenix.target);
+      expect(await veFnxDistributor.nest()).to.be.eq(fenix.target);
       expect(await veFnxDistributor.votingEscrow()).to.be.eq(votingEscrow.target);
       expect(await veFnxDistributor.hasRole(await veFnxDistributor.DEFAULT_ADMIN_ROLE(), signers.deployer)).to.be.true;
     });
@@ -194,10 +194,10 @@ describe('VeFnxDistributorUpgradeable', function () {
     });
   });
 
-  describe('#distributeVeFnx', async () => {
+  describe('#distributeVeNest', async () => {
     it('Should fail if try call from not DISTRIBUTOR_ROLE', async function () {
       await expect(
-        veFnxDistributor.connect(signers.otherUser1).distributeVeFnx(DEFAULT_DISTRIBUTON_REASON, [
+        veFnxDistributor.connect(signers.otherUser1).distributeVeNest(DEFAULT_DISTRIBUTON_REASON, [
           {
             recipient: signers.otherUser1.address,
             amount: ONE,
@@ -213,7 +213,7 @@ describe('VeFnxDistributorUpgradeable', function () {
       expect(await fenix.balanceOf(veFnxDistributor.target)).to.be.eq(ZERO);
 
       await expect(
-        veFnxDistributor.distributeVeFnx(DEFAULT_DISTRIBUTON_REASON, [
+        veFnxDistributor.distributeVeNest(DEFAULT_DISTRIBUTON_REASON, [
           {
             recipient: signers.otherUser1.address,
             amount: ONE,
@@ -227,7 +227,7 @@ describe('VeFnxDistributorUpgradeable', function () {
       await fenix.transfer(veFnxDistributor.target, 1);
 
       await expect(
-        veFnxDistributor.distributeVeFnx(DEFAULT_DISTRIBUTON_REASON, [
+        veFnxDistributor.distributeVeNest(DEFAULT_DISTRIBUTON_REASON, [
           {
             recipient: signers.otherUser1.address,
             lockDuration: MAX_LOCK_DURATION,
@@ -243,7 +243,7 @@ describe('VeFnxDistributorUpgradeable', function () {
       await fenix.transfer(veFnxDistributor.target, ONE_ETHER);
 
       await expect(
-        veFnxDistributor.distributeVeFnx(DEFAULT_DISTRIBUTON_REASON, [
+        veFnxDistributor.distributeVeNest(DEFAULT_DISTRIBUTON_REASON, [
           {
             recipient: signers.otherUser1.address,
             lockDuration: MAX_LOCK_DURATION,
@@ -275,7 +275,7 @@ describe('VeFnxDistributorUpgradeable', function () {
     });
 
     it('Should revert if reason not whitelisted', async () => {
-      await expect(veFnxDistributor.distributeVeFnx('Whitelisted', [])).to.be.revertedWithCustomError(
+      await expect(veFnxDistributor.distributeVeNest('Whitelisted', [])).to.be.revertedWithCustomError(
         veFnxDistributor,
         'NotWhitelistedReason',
       );
@@ -300,7 +300,7 @@ describe('VeFnxDistributorUpgradeable', function () {
         expect(await votingEscrow.balanceOf(signers.otherUser3.address)).to.be.eq(ZERO);
         expect(await votingEscrow.balanceOf(signers.otherUser4.address)).to.be.eq(ZERO);
         DEFAULT_DISTRIBUTON_REASON;
-        let tx = await veFnxDistributor.distributeVeFnx(DEFAULT_DISTRIBUTON_REASON, [
+        let tx = await veFnxDistributor.distributeVeNest(DEFAULT_DISTRIBUTON_REASON, [
           {
             recipient: signers.otherUser1.address,
             lockDuration: MAX_LOCK_DURATION,
@@ -412,7 +412,7 @@ describe('VeFnxDistributorUpgradeable', function () {
       });
 
       it('should corect emit events', async () => {
-        let tx = await veFnxDistributor.distributeVeFnx(DEFAULT_DISTRIBUTON_REASON, [
+        let tx = await veFnxDistributor.distributeVeNest(DEFAULT_DISTRIBUTON_REASON, [
           {
             recipient: signers.otherUser1.address,
             lockDuration: MAX_LOCK_DURATION,
@@ -429,20 +429,20 @@ describe('VeFnxDistributorUpgradeable', function () {
           },
         ]);
         await expect(tx)
-          .to.be.emit(veFnxDistributor, 'AirdropVeFnx')
+          .to.be.emit(veFnxDistributor, 'AirdropVeNest')
           .withArgs(signers.otherUser1.address, DEFAULT_DISTRIBUTON_REASON, 1, ONE_ETHER);
         await expect(tx)
-          .to.be.emit(veFnxDistributor, 'AirdropVeFnx')
+          .to.be.emit(veFnxDistributor, 'AirdropVeNest')
           .withArgs(signers.otherUser2.address, DEFAULT_DISTRIBUTON_REASON, 2, ONE_ETHER / BigInt(2));
         await expect(tx)
-          .to.be.emit(veFnxDistributor, 'AidropVeFnxTotal')
+          .to.be.emit(veFnxDistributor, 'AidropVeNestTotal')
           .withArgs(signers.deployer, DEFAULT_DISTRIBUTON_REASON, ONE_ETHER + ONE_ETHER / BigInt(2));
       });
 
       it('should corect change balacnes', async () => {
         let startVotingEscrowBalance = await fenix.balanceOf(votingEscrow.target);
 
-        await veFnxDistributor.distributeVeFnx(DEFAULT_DISTRIBUTON_REASON, [
+        await veFnxDistributor.distributeVeNest(DEFAULT_DISTRIBUTON_REASON, [
           {
             recipient: signers.otherUser1.address,
             lockDuration: MAX_LOCK_DURATION,
@@ -464,7 +464,7 @@ describe('VeFnxDistributorUpgradeable', function () {
       });
       it('should clear approve after distribution', async () => {
         expect(await fenix.allowance(veFnxDistributor.target, votingEscrow.target)).to.be.eq(ZERO);
-        await veFnxDistributor.distributeVeFnx(DEFAULT_DISTRIBUTON_REASON, [
+        await veFnxDistributor.distributeVeNest(DEFAULT_DISTRIBUTON_REASON, [
           {
             recipient: signers.otherUser1.address,
             lockDuration: MAX_LOCK_DURATION,
@@ -488,7 +488,7 @@ describe('VeFnxDistributorUpgradeable', function () {
         expect(await votingEscrow.balanceOf(signers.otherUser1.address)).to.be.eq(ZERO);
         expect(await votingEscrow.balanceOf(signers.otherUser2.address)).to.be.eq(ZERO);
 
-        let tx = await veFnxDistributor.distributeVeFnx(DEFAULT_DISTRIBUTON_REASON, [
+        let tx = await veFnxDistributor.distributeVeNest(DEFAULT_DISTRIBUTON_REASON, [
           {
             recipient: signers.otherUser1.address,
             lockDuration: MAX_LOCK_DURATION,
@@ -538,7 +538,7 @@ describe('VeFnxDistributorUpgradeable', function () {
 
       await veFnxDistributor.setWhitelistReasons(['Rise: Bribes', 'Rise: Incentives'], [true, true]);
 
-      let tx = await veFnxDistributor.distributeVeFnx('Rise: Bribes', [
+      let tx = await veFnxDistributor.distributeVeNest('Rise: Bribes', [
         {
           recipient: signers.otherUser1.address,
           lockDuration: MAX_LOCK_DURATION,
@@ -554,15 +554,15 @@ describe('VeFnxDistributorUpgradeable', function () {
           managedTokenIdForAttach: 0,
         },
       ]);
-      await expect(tx).to.be.emit(veFnxDistributor, 'AirdropVeFnx').withArgs(signers.otherUser1.address, 'Rise: Bribes', 1, ONE_ETHER);
+      await expect(tx).to.be.emit(veFnxDistributor, 'AirdropVeNest').withArgs(signers.otherUser1.address, 'Rise: Bribes', 1, ONE_ETHER);
       await expect(tx)
-        .to.be.emit(veFnxDistributor, 'AirdropVeFnx')
+        .to.be.emit(veFnxDistributor, 'AirdropVeNest')
         .withArgs(signers.otherUser2.address, 'Rise: Bribes', 2, ONE_ETHER / BigInt(2));
       await expect(tx)
-        .to.be.emit(veFnxDistributor, 'AidropVeFnxTotal')
+        .to.be.emit(veFnxDistributor, 'AidropVeNestTotal')
         .withArgs(signers.deployer, 'Rise: Bribes', ONE_ETHER + ONE_ETHER / BigInt(2));
 
-      tx = await veFnxDistributor.distributeVeFnx('Rise: Incentives', [
+      tx = await veFnxDistributor.distributeVeNest('Rise: Incentives', [
         {
           recipient: signers.otherUser1.address,
           lockDuration: MAX_LOCK_DURATION,
@@ -578,12 +578,12 @@ describe('VeFnxDistributorUpgradeable', function () {
           managedTokenIdForAttach: 0,
         },
       ]);
-      await expect(tx).to.be.emit(veFnxDistributor, 'AirdropVeFnx').withArgs(signers.otherUser1.address, 'Rise: Incentives', 3, ONE_ETHER);
+      await expect(tx).to.be.emit(veFnxDistributor, 'AirdropVeNest').withArgs(signers.otherUser1.address, 'Rise: Incentives', 3, ONE_ETHER);
       await expect(tx)
-        .to.be.emit(veFnxDistributor, 'AirdropVeFnx')
+        .to.be.emit(veFnxDistributor, 'AirdropVeNest')
         .withArgs(signers.otherUser2.address, 'Rise: Incentives', 4, ONE_ETHER / BigInt(2));
       await expect(tx)
-        .to.be.emit(veFnxDistributor, 'AidropVeFnxTotal')
+        .to.be.emit(veFnxDistributor, 'AidropVeNestTotal')
         .withArgs(signers.deployer, 'Rise: Incentives', ONE_ETHER + ONE_ETHER / BigInt(2));
     });
   });

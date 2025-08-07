@@ -89,7 +89,7 @@ describe('MerklGaugeMiddleman Contract', function () {
       expect(await fenix.allowance(merklGaugeMiddleman.target, merkleDistributorCreatorMock.target)).to.be.eq(ethers.MaxUint256);
     });
   });
-  describe('#setFenixAllowance', async () => {
+  describe('#setNestAllowance', async () => {
     it('can be called by anyone and increase allowance of fenix to merkle distributor to max', async () => {
       await merklGaugeMiddleman.connect(signers.deployer).setGauge(signers.otherUser1.address, params);
       await fenix.connect(signers.otherUser1).transfer(merklGaugeMiddleman.target, ethers.parseEther('0.7'));
@@ -100,7 +100,7 @@ describe('MerklGaugeMiddleman Contract', function () {
       // not changed,  because new erc20 implementation
       expect(await fenix.allowance(merklGaugeMiddleman.target, merkleDistributorCreatorMock.target)).to.be.eq(ethers.MaxUint256);
 
-      await merklGaugeMiddleman.connect(signers.otherUser1).setFenixAllowance();
+      await merklGaugeMiddleman.connect(signers.otherUser1).setNestAllowance();
       expect(await fenix.allowance(merklGaugeMiddleman.target, merkleDistributorCreatorMock.target)).to.be.eq(ethers.MaxUint256);
     });
   });

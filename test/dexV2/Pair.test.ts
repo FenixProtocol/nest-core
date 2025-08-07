@@ -56,11 +56,11 @@ describe('Pair Contract', function () {
       expect(await pairStable.factory()).to.be.eq(pairFactory.target);
 
       if (deployed.fenix.target.toString().toLowerCase() < tokenTK6.target.toString().toLowerCase()) {
-        expect(await pairStable.name()).to.be.eq('StableV1 AMM - FNX/TK6');
-        expect(await pairStable.symbol()).to.be.eq('sAMM-FNX/TK6');
+        expect(await pairStable.name()).to.be.eq('StableV1 AMM - NEST/TK6');
+        expect(await pairStable.symbol()).to.be.eq('sAMM-NEST/TK6');
       } else {
-        expect(await pairStable.name()).to.be.eq('StableV1 AMM - TK6/FNX');
-        expect(await pairStable.symbol()).to.be.eq('sAMM-TK6/FNX');
+        expect(await pairStable.name()).to.be.eq('StableV1 AMM - TK6/NEST');
+        expect(await pairStable.symbol()).to.be.eq('sAMM-TK6/NEST');
       }
     });
   });

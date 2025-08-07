@@ -24,19 +24,19 @@ import {
 } from '@cryptoalgebra/integral-core/artifacts/contracts/AlgebraPoolDeployer.sol/AlgebraPoolDeployer.json';
 
 import { NonfungiblePositionManager, SwapRouter } from '@cryptoalgebra/integral-periphery/typechain';
-import { AlgebraCommunityVault, AlgebraFactoryUpgradeable, AlgebraPoolDeployer } from '../../lib/fenix-algebra/src/core/typechain';
+import { AlgebraCommunityVault, AlgebraFactoryUpgradeable, AlgebraPoolDeployer } from '../../lib/nest-algebra/src/core/typechain';
 import {
   BribeFactoryUpgradeable,
   BribeUpgradeable,
   CompoundEmissionExtensionUpgradeable,
   CompoundEmissionExtensionUpgradeableMock,
-  CompoundVeFNXManagedNFTStrategyUpgradeable,
+  CompoundVeNESTManagedNFTStrategyUpgradeable,
   ERC20Mock,
   ERC721PresetMinterPauserAutoId,
   FeesVaultFactoryUpgradeable,
   FeesVaultFactoryUpgradeable__factory,
   FeesVaultUpgradeable,
-  Fenix,
+  Nest,
   GaugeFactoryUpgradeable,
   GaugeUpgradeable,
   ManagedNFTManagerUpgradeable,
@@ -50,7 +50,7 @@ import {
   TransparentUpgradeableProxy,
   VeArtProxy,
   VeBoostUpgradeable,
-  VeFnxDistributorUpgradeable,
+  VeNestDistributorUpgradeable,
   VoterUpgradeableV2,
   VoterUpgradeableV2__factory,
   VotingEscrowUpgradeableV2,
@@ -71,7 +71,7 @@ export type SignersList = {
 export type CoreFixtureDeployed = {
   signers: SignersList;
   voter: VoterUpgradeableV2;
-  fenix: Fenix;
+  fenix: Nest;
   minter: MinterUpgradeable;
   veArtProxy: VeArtProxy;
   votingEscrow: VotingEscrowUpgradeableV2;
@@ -86,7 +86,7 @@ export type CoreFixtureDeployed = {
   feesVaultImplementation: FeesVaultUpgradeable;
   feesVaultFactory: FeesVaultFactoryUpgradeable;
   veBoost: VeBoostUpgradeable;
-  veFnxDistributor: VeFnxDistributorUpgradeable;
+  veFnxDistributor: VeNestDistributorUpgradeable;
   managedNFTManager: ManagedNFTManagerUpgradeable;
   compoundEmissionExtension: CompoundEmissionExtensionUpgradeableMock;
 };
@@ -133,10 +133,10 @@ export async function deployVirtualRewarderWithoutInitialize(deployer: HardhatEt
 }
 
 export async function deployCompoundStrategyWithoutInitialize(deployer: HardhatEthersSigner, proxyAdmin: string) {
-  const factory = await ethers.getContractFactory('CompoundVeFNXManagedNFTStrategyUpgradeable');
+  const factory = await ethers.getContractFactory('CompoundVeNESTManagedNFTStrategyUpgradeable');
   const implementation = await factory.connect(deployer).deploy();
   const proxy = await deployTransaperntUpgradeableProxy(deployer, proxyAdmin, await implementation.getAddress());
-  const attached = factory.attach(proxy.target) as any as CompoundVeFNXManagedNFTStrategyUpgradeable;
+  const attached = factory.attach(proxy.target) as any as CompoundVeNESTManagedNFTStrategyUpgradeable;
   return attached;
 }
 
@@ -155,23 +155,23 @@ export async function deployMinter(
   return attached;
 }
 
-export async function deployVeFnxDistributor(
+export async function deployVeNestDistributor(
   deployer: HardhatEthersSigner,
   proxyAdmin: string,
 
   fenix: string,
   votingEscrow: string,
-): Promise<VeFnxDistributorUpgradeable> {
-  const factory = await ethers.getContractFactory('VeFnxDistributorUpgradeable');
+): Promise<VeNestDistributorUpgradeable> {
+  const factory = await ethers.getContractFactory('VeNestDistributorUpgradeable');
   const implementation = await factory.connect(deployer).deploy();
   const proxy = await deployTransaperntUpgradeableProxy(deployer, proxyAdmin, await implementation.getAddress());
-  const attached = factory.attach(proxy.target) as any as VeFnxDistributorUpgradeable;
+  const attached = factory.attach(proxy.target) as any as VeNestDistributorUpgradeable;
   await attached.initialize(fenix, votingEscrow);
   return attached;
 }
 
-export async function deployFenixToken(deployer: HardhatEthersSigner, minter: string): Promise<Fenix> {
-  const factory = await ethers.getContractFactory('Fenix');
+export async function deployFenixToken(deployer: HardhatEthersSigner, minter: string): Promise<Nest> {
+  const factory = await ethers.getContractFactory('Nest');
   return await factory.connect(deployer).deploy(minter);
 }
 
@@ -414,8 +414,6 @@ export async function deployAlgebraCore(): Promise<FactoryFixture> {
 }
 
 export async function completeFixture(): Promise<CoreFixtureDeployed> {
-  console.log('completeFixture start');
-
   const signers = await getSigners();
 
   const fenix = await deployFenixToken(signers.deployer, signers.deployer.address);
@@ -494,7 +492,7 @@ export async function completeFixture(): Promise<CoreFixtureDeployed> {
     await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await veBoostImpl.getAddress()),
   ) as VeBoostUpgradeable;
 
-  let veFnxDistributor = await deployVeFnxDistributor(
+  let veFnxDistributor = await deployVeNestDistributor(
     signers.deployer,
     signers.proxyAdmin.address,
     await fenix.getAddress(),

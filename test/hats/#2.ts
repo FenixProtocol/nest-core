@@ -6,7 +6,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { ERC20Mock, Fenix, Pair } from '../../typechain-types';
+import { ERC20Mock, Nest, Pair } from '../../typechain-types';
 import { ZERO } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, FactoryFixture, deployAlgebraCore, deployERC20MockToken } from '../utils/coreFixture';
 
@@ -24,7 +24,7 @@ describe('#2 Adversary can steal all bribe rewards', function () {
   };
   let tokenTK18: ERC20Mock;
   let tokenTK6: ERC20Mock;
-  let fenix: Fenix;
+  let fenix: Nest;
   let algebraCore: FactoryFixture;
   let poolV2FenixTk18: Pair;
   let poolV3FenixTk18: AlgebraPool;
@@ -49,7 +49,7 @@ describe('#2 Adversary can steal all bribe rewards', function () {
   });
 
   it('Check state after deployed', async () => {
-    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('7500000'));
+    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000'));
     expect(await deployed.v2PairFactory.communityVaultFactory()).to.be.eq(await deployed.feesVaultFactory.target);
     expect(await algebraCore.factory.vaultFactory()).to.be.eq(await deployed.feesVaultFactory.target);
   });
