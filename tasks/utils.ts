@@ -2,14 +2,14 @@ import { AlgebraFactoryUpgradeable, AlgebraPool } from '@cryptoalgebra/integral-
 import {
   BribeFactoryUpgradeable,
   FeesVaultFactoryUpgradeable,
-  Fenix,
+  Nest,
   GaugeFactoryUpgradeable,
   MinimalLinearVestingUpgradeable,
   MinterUpgradeable,
   Pair,
   PairFactoryUpgradeable,
   VeBoostUpgradeable,
-  VeFnxSplitMerklAidropUpgradeable,
+  VeNestSplitMerklAidropUpgradeable,
   VoterUpgradeableV2,
   VotingEscrowUpgradeableV2,
 } from '../typechain-types';
@@ -219,18 +219,18 @@ export async function getVeBoostState(hre: HardhatRuntimeEnvironment, veBoost: V
   const [owner, minLockedTimeForBoost, boostFNXPercentage, priceProvider, minUSDAmount] = await Promise.all([
     veBoost.owner(),
     veBoost.getMinLockedTimeForBoost(),
-    veBoost.getBoostFNXPercentage(),
+    veBoost.getBoostNESTPercentage(),
     veBoost.priceProvider(),
     veBoost.minUSDAmount(),
   ]);
 
-  let pp = await hre.ethers.getContractAt(InstanceName.AlgebraFNXPriceProviderUpgradeable, priceProvider);
+  let pp = await hre.ethers.getContractAt(InstanceName.AlgebraNESTPriceProviderUpgradeable, priceProvider);
 
   const [ppFNX, ppUSD, ppPool, usdToFnxPrice, currentTick] = await Promise.all([
-    pp.FNX(),
+    pp.NEST(),
     pp.USD(),
     pp.pool(),
-    pp.getUsdToFNXPrice(),
+    pp.getUsdToNESTPrice(),
     pp.currentTick(),
   ]);
 
@@ -264,7 +264,7 @@ export type TokenState = {
   totalSupplyFormmated: string;
   owner: string;
 };
-export async function getFenixState(fenix: Fenix): Promise<TokenState> {
+export async function getFenixState(fenix: Nest): Promise<TokenState> {
   const [name, symbol, totalSupply, owner] = await Promise.all([fenix.name(), fenix.symbol(), fenix.totalSupply(), fenix.owner()]);
   return {
     address: fenix.target.toString(),
@@ -325,7 +325,7 @@ export async function getMinterState(minter: MinterUpgradeable): Promise<MinterS
     minter.weekly(),
     minter.active_period(),
     minter.lastInflationPeriod(),
-    minter.fenix(),
+    minter.nest(),
     minter.voter(),
     minter.ve(),
     minter.owner(),
@@ -596,7 +596,7 @@ export type VeFnxSplitMerklAidropState = {
   merklRoot: string;
   isPaused: boolean;
 };
-export async function getVeFnxSplitMerklAidropState(veFnxSplit: VeFnxSplitMerklAidropUpgradeable): Promise<VeFnxSplitMerklAidropState> {
+export async function getVeFnxSplitMerklAidropState(veFnxSplit: VeNestSplitMerklAidropUpgradeable): Promise<VeFnxSplitMerklAidropState> {
   const [owner, token, votingEscrow, isPaused, merklRoot] = await Promise.all([
     veFnxSplit.owner(),
     veFnxSplit.token(),
@@ -665,7 +665,7 @@ export async function getVoterState(voter: VoterUpgradeableV2): Promise<VoterUpg
     voter.v2GaugeFactory(),
     voter.v3GaugeFactory(),
     voter.merklDistributor(),
-    voter.veFnxMerklAidrop(),
+    voter.veNestMerklAidrop(),
     voter.index(),
     voter.voteDelay(),
     voter.distributionWindowDuration(),

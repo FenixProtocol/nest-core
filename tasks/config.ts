@@ -25,7 +25,7 @@ export default {
       'erc20',
       'BribeProxy',
       'GaugeProxy',
-      'FenixVaultProxy',
+      'NestVaultProxy',
       'StrategyProxy',
     ],
   },

@@ -85,7 +85,7 @@ export async function deployProxy(proxyAdmin: string, implementation: string, na
 export async function getDeployedDataFromDeploys() {
   let deploysData = getDeploysData();
   return {
-    Fenix: await ethers.getContractAt('Fenix', deploysData['Fenix']),
+    Nest: await ethers.getContractAt('Nest', deploysData['Nest']),
     ProxyAdmin: await ethers.getContractAt('ProxyAdmin', deploysData['ProxyAdmin']),
     BribeFactoryImplementation: await ethers.getContractAt('BribeFactoryUpgradeable', deploysData['BribeFactoryImplementation']),
     BribeImplementation: await ethers.getContractAt('BribeUpgradeable', deploysData['BribeImplementation']),
@@ -108,13 +108,13 @@ export async function getDeployedDataFromDeploys() {
     Minter: await ethers.getContractAt('MinterUpgradeable', deploysData['Minter']),
     FeesVaultFactory: await ethers.getContractAt('FeesVaultFactoryUpgradeable', deploysData['FeesVaultFactory']),
     PairImplementation: await ethers.getContractAt('Pair', deploysData['PairImplementation']),
-    VeFnxDistributorImplementation: await ethers.getContractAt(
-      'VeFnxDistributorUpgradeable',
-      deploysData['VeFnxDistributorImplementation'],
+    VeNestDistributorImplementation: await ethers.getContractAt(
+      'VeNestDistributorUpgradeable',
+      deploysData['VeNestDistributorImplementation'],
     ),
-    VeFnxDistributor: await ethers.getContractAt('VeFnxDistributorUpgradeable', deploysData['VeFnxDistributor']),
+    VeNestDistributor: await ethers.getContractAt('VeNestDistributorUpgradeable', deploysData['VeNestDistributor']),
     MerklGaugeMiddleman: await ethers.getContractAt('MerklGaugeMiddleman', deploysData['MerklGaugeMiddleman']),
-    RFenix: await ethers.getContractAt('RFenix', deploysData['rFNX']),
+    RNest: await ethers.getContractAt('RNest', deploysData['rNEST']),
   };
 }
 export async function deployERC20Faucet(name: string, symbol: string, decimals: number) {

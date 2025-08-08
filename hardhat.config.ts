@@ -73,6 +73,17 @@ const config: HardhatUserConfig = {
     customChains: [],
   },
   networks: {
+    hyperevm_testnet: {
+      url: `https://rpc.hyperliquid-testnet.xyz/evm`,
+      chainId: 998,
+      accounts: {
+        mnemonic: `${process.env.HYPER_EVM_TESTNET_MNEMONIC}`,
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 20,
+        passphrase: '',
+      },
+    },
     hardhat: {
       allowUnlimitedContractSize: true,
     },

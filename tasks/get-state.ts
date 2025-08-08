@@ -39,7 +39,7 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
       InstanceName.FeesVaultFactoryUpgradeable,
       deployData[AliasDeployedContracts.FeesVaultFactoryUpgradeable_Proxy],
     );
-    const Fenix = await hre.ethers.getContractAt(InstanceName.Fenix, deployData[AliasDeployedContracts.Fenix]);
+    const Fenix = await hre.ethers.getContractAt(InstanceName.Nest, deployData[AliasDeployedContracts.Nest]);
     const MinterUpgradeable = await hre.ethers.getContractAt(
       InstanceName.MinterUpgradeable,
       deployData[AliasDeployedContracts.MinterUpgradeable_Proxy],
@@ -53,8 +53,8 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
       deployData[AliasDeployedContracts.BribeFactoryUpgradeable_Proxy],
     );
     const VeFnxSplitMerklAidropUpgradeable = await hre.ethers.getContractAt(
-      InstanceName.VeFnxSplitMerklAidropUpgradeable,
-      deployData[AliasDeployedContracts.VeFnxSplitMerklAidropUpgradeable_Proxy],
+      InstanceName.VeNestSplitMerklAidropUpgradeable,
+      deployData[AliasDeployedContracts.VeNestSplitMerklAidropUpgradeable_Proxy],
     );
     const VoterUpgradeable = await hre.ethers.getContractAt(
       InstanceName.VoterUpgradeable,
