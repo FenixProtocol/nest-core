@@ -14,7 +14,7 @@ describe('MinterUpgradeable Contract', function () {
 
   const WEEK: bigint = BigInt(86400 * 7);
   const INITIAL_TOKEN_SUPPLY = ethers.parseEther('1000000000');
-  const WEEKLY = ethers.parseEther('30000000');
+  const WEEKLY = ethers.parseEther('20000000');
 
   async function currentPeriod(): Promise<bigint> {
     return (BigInt(await time.latest()) / WEEK) * WEEK;
@@ -52,7 +52,7 @@ describe('MinterUpgradeable Contract', function () {
       expect(await minter.decayRate()).to.be.eq(100);
       expect(await minter.teamRate()).to.be.eq(500);
       expect(await minter.MAX_TEAM_RATE()).to.be.eq(500);
-      expect(await minter.weekly()).to.be.eq(ethers.parseEther('30000000'));
+      expect(await minter.weekly()).to.be.eq(ethers.parseEther('20000000'));
       expect(await minter.lastInflationPeriod()).to.be.eq(ZERO);
       expect(await minter.TAIL_EMISSION()).to.be.eq(20);
     });
@@ -326,7 +326,7 @@ describe('MinterUpgradeable Contract', function () {
     it('Should corect work after change inflation rate beetwen epoch', async () => {
       await time.increase(WEEK);
       await minter.update_period();
-      expect(await minter.weekly()).to.be.eq(ethers.parseEther('30000000'));
+      expect(await minter.weekly()).to.be.eq(ethers.parseEther('20000000'));
 
       await time.increase(WEEK);
       await minter.update_period();

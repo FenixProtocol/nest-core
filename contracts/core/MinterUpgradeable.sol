@@ -53,7 +53,7 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
         inflationPeriodCount = 12;
 
         active_period = ((block.timestamp + (2 * WEEK)) / WEEK) * WEEK;
-        weekly = 30_000_000 * 1e18; // represents a starting weekly emission of 30_000_000 Nest (3% from 1_000_000_000) (Nest has 18 decimals)
+        weekly = 20_000_000 * 1e18; // represents a starting weekly emission of 20_000_000 Nest (2% from 1_000_000_000) (Nest has 18 decimals)
 
         nest = INest(IVotingEscrow(ve_).token());
         voter = IVoter(voter_);

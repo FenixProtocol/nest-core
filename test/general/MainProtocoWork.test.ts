@@ -298,11 +298,11 @@ describe('Main', function () {
 
     expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000'));
 
-    let emission = ethers.parseEther('30000000') - (ethers.parseEther('30000000') * BigInt(500)) / BigInt(10000); // emission without team amount
+    let emission = ethers.parseEther('20000000') - (ethers.parseEther('20000000') * BigInt(500)) / BigInt(10000); // emission without team amount
 
     await deployed.voter.distributeAll();
 
-    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000') + ethers.parseEther('30000000'));
+    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000') + ethers.parseEther('20000000'));
 
     expect(await fenix.balanceOf(v2Gauge.target)).to.be.closeTo((emission * BigInt(2)) / BigInt(3), ethers.parseEther('1')); // vote for this pool was 2/3
     expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO); // nothing got to gauge, because distribution to merkle
