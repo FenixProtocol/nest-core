@@ -125,6 +125,7 @@ enum ContractsInstanceName {
 
 enum ContractsMocksInstanceName {
   ERC20OwnableMock = 'ERC20OwnableMock',
+  ERC20Mock = 'ERC20Mock',
 }
 
 export const InstanceName = {

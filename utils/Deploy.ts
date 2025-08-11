@@ -66,6 +66,9 @@ export const saveToDeployedContractsAddressList = async (name: string, address: 
 };
 
 export async function logTx(contract: BaseContract, transaction: Promise<any>) {
+  console.log('Wait 10 seconds before tx...');
+  await t(10000);
+
   const tx = await transaction;
   await tx.wait();
 
@@ -176,5 +179,9 @@ export const deployProxy = async (options: TransparentProxyDeployOptions) => {
 
   return instance;
 };
+
+function t(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export { AliasDeployedContracts };

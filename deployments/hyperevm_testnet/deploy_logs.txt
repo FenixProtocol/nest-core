@@ -1,0 +1,498 @@
+Starting deployment of BribeFactoryUpgradeable...
+	Constructor arguments: []
+BribeFactoryUpgradeable deployed at 0xd268a052d91273a7f594A89F722dd2285506F207
+Save to deploys.json deployed address of BribeFactoryUpgradeable_Implementation:0xd268a052d91273a7f594A89F722dd2285506F207
+Starting deployment of BribeUpgradeable...
+	Constructor arguments: []
+BribeUpgradeable deployed at 0xBCA4E20Ea37C5855B3E78ECEf630939252b0cF0a
+Save to deploys.json deployed address of BribeUpgradeable_Implementation:0xBCA4E20Ea37C5855B3E78ECEf630939252b0cF0a
+Starting deployment of GaugeFactoryUpgradeable...
+	Constructor arguments: []
+GaugeFactoryUpgradeable deployed at 0x7ed7758F3C354Cb9B879d58b206aB11cEB40F70A
+Save to deploys.json deployed address of GaugeFactoryUpgradeable_Implementation:0x7ed7758F3C354Cb9B879d58b206aB11cEB40F70A
+Starting deployment of MinterUpgradeable...
+	Constructor arguments: []
+MinterUpgradeable deployed at 0xb261B323eC3f0bD13f20C674c97Ea4F44B6EcFD8
+Save to deploys.json deployed address of MinterUpgradeable_Implementation:0xb261B323eC3f0bD13f20C674c97Ea4F44B6EcFD8
+Starting deployment of NestRaiseUpgradeable...
+	Constructor arguments: []
+NestRaiseUpgradeable deployed at 0xED20780f436e08cDCa20766c282396700FFDf476
+Save to deploys.json deployed address of NestRaiseUpgradeable_Implementation:0xED20780f436e08cDCa20766c282396700FFDf476
+Starting deployment of VeNestDistributorUpgradeable...
+	Constructor arguments: []
+VeNestDistributorUpgradeable deployed at 0x899Cdf1eef724289B1Caa1d0404b6Dc4D6E3B0A9
+Save to deploys.json deployed address of VeNestDistributorUpgradeable_Implementation:0x899Cdf1eef724289B1Caa1d0404b6Dc4D6E3B0A9
+Starting deployment of VeNestSplitMerklAidropUpgradeable...
+	Constructor arguments: []
+VeNestSplitMerklAidropUpgradeable deployed at 0xd736ca882424a40b42D5CCF60502617B32Abf664
+Save to deploys.json deployed address of VeNestSplitMerklAidropUpgradeable_Implementation:0xd736ca882424a40b42D5CCF60502617B32Abf664
+Starting deployment of VoterUpgradeableV2...
+	Constructor arguments: []
+VoterUpgradeableV2 deployed at 0xb0d16e6EE45acDCDA1Ccab720C280073A6bcd1e0
+Save to deploys.json deployed address of VoterUpgradeable_Implementation:0xb0d16e6EE45acDCDA1Ccab720C280073A6bcd1e0
+Starting deployment of VotingEscrowUpgradeableV2...
+	Constructor arguments: []
+VotingEscrowUpgradeableV2 deployed at 0x666dB022B62c8FC3175228a8452e43c8C0a3dE36
+Save to deploys.json deployed address of VotingEscrowUpgradeable_Implementation:0x666dB022B62c8FC3175228a8452e43c8C0a3dE36
+Starting deployment of Pair...
+	Constructor arguments: []
+Pair deployed at 0xCd258A7885760A3a3befF9C74A722880133BB3Eb
+Save to deploys.json deployed address of Pair_Implementation:0xCd258A7885760A3a3befF9C74A722880133BB3Eb
+Starting deployment of SingelTokenVirtualRewarderUpgradeable...
+	Constructor arguments: []
+SingelTokenVirtualRewarderUpgradeable deployed at 0x1b710dfb49578eE048E9cC6F493c7860027B9Ff9
+Save to deploys.json deployed address of SingelTokenVirtualRewarderUpgradeable_Implementation:0x1b710dfb49578eE048E9cC6F493c7860027B9Ff9
+Starting deployment of CompoundVeNESTManagedNFTStrategyUpgradeable...
+	Constructor arguments: []
+CompoundVeNESTManagedNFTStrategyUpgradeable deployed at 0xd42Db613018864F3Cf00a85612624cFEF82C0C1E
+Save to deploys.json deployed address of CompoundVeNESTManagedNFTStrategyUpgradeable_Implementation:0xd42Db613018864F3Cf00a85612624cFEF82C0C1E
+Starting deployment of CompoundVeNESTManagedNFTStrategyFactoryUpgradeable...
+	Constructor arguments: []
+CompoundVeNESTManagedNFTStrategyFactoryUpgradeable deployed at 0x12E26a1EF606FDFD26393428410987aEd72f0821
+Save to deploys.json deployed address of CompoundVeNESTManagedNFTStrategyFactoryUpgradeable_Implementation:0x12E26a1EF606FDFD26393428410987aEd72f0821
+Starting deployment of RouterV2PathProviderUpgradeable...
+	Constructor arguments: []
+RouterV2PathProviderUpgradeable deployed at 0x9a955dEb01d18Fc30B0210849a15277ccAD1144A
+Save to deploys.json deployed address of RouterV2PathProviderUpgradeable_Implementation:0x9a955dEb01d18Fc30B0210849a15277ccAD1144A
+Starting deployment of ManagedNFTManagerUpgradeable...
+	Constructor arguments: []
+ManagedNFTManagerUpgradeable deployed at 0x452C3633ee78CEdD36eFF3128215900B5761ed1D
+Save to deploys.json deployed address of ManagedNFTManagerUpgradeable_Implementation:0x452C3633ee78CEdD36eFF3128215900B5761ed1D
+Starting deployment of PairAPIUpgradeable...
+	Constructor arguments: []
+PairAPIUpgradeable deployed at 0x808f8E07dD4F16D2082E119c8022082098f2062C
+Save to deploys.json deployed address of PairAPIUpgradeable_Implementation:0x808f8E07dD4F16D2082E119c8022082098f2062C
+Starting deployment of RewardAPIUpgradeable...
+	Constructor arguments: []
+RewardAPIUpgradeable deployed at 0x4bF0CE3a2E11ECA9c70C0f0fBA5dbCD7f23b7840
+Save to deploys.json deployed address of RewardAPIUpgradeable_Implementation:0x4bF0CE3a2E11ECA9c70C0f0fBA5dbCD7f23b7840
+Starting deployment of VeNFTAPIUpgradeable...
+	Constructor arguments: []
+VeNFTAPIUpgradeable deployed at 0x0a554ed142030c99C49a08dfbe4BfbB906817aA0
+Save to deploys.json deployed address of VeNFTAPIUpgradeable_Implementation:0x0a554ed142030c99C49a08dfbe4BfbB906817aA0
+Starting deployment of UtilsUpgradeable...
+	Constructor arguments: []
+UtilsUpgradeable deployed at 0x9A931246628fa28f6AbD671A00AA16a0A4361340
+Save to deploys.json deployed address of UtilsUpgradeable_Implementation:0x9A931246628fa28f6AbD671A00AA16a0A4361340
+Starting deployment of BribeVeNESTRewardToken...
+	Constructor arguments: []
+BribeVeNESTRewardToken deployed at 0xF52Fa0dA4BE5C2CD543B0b1adcbA3e09663502aD
+Save to deploys.json deployed address of BribeVeNESTRewardToken_Implementation:0xF52Fa0dA4BE5C2CD543B0b1adcbA3e09663502aD
+Starting deployment of CustomBribeRewardRouter...
+	Constructor arguments: []
+CustomBribeRewardRouter deployed at 0xc902533B01a9a14884d068E24791fb9dDd3e5446
+Save to deploys.json deployed address of CustomBribeRewardRouter_Implementation:0xc902533B01a9a14884d068E24791fb9dDd3e5446
+Starting deployment of GetInformationAggregatorUpgradeable...
+	Constructor arguments: []
+GetInformationAggregatorUpgradeable deployed at 0x9F48407d164d3407F8D46A6cB7D30417d33849A7
+Save to deploys.json deployed address of GetInformationAggregatorUpgradeable_Implementation:0x9F48407d164d3407F8D46A6cB7D30417d33849A7
+Starting deployment of UtilsUpgradeable...
+	Constructor arguments: []
+UtilsUpgradeable deployed at 0x354dCb934708ed5B5efd047d72161bA9De04891B
+Save to deploys.json deployed address of UtilsUpgradeable_Implementation:0x354dCb934708ed5B5efd047d72161bA9De04891B
+Starting deployment of PairFactoryUpgradeable...
+	Constructor arguments: []
+PairFactoryUpgradeable deployed at 0x023cBEd0f4816A4a0C5d4D905Bc55931D51522CE
+Save to deploys.json deployed address of PairFactoryUpgradeable_Implementation:0x023cBEd0f4816A4a0C5d4D905Bc55931D51522CE
+Starting deployment of FeesVaultFactoryUpgradeable...
+	Constructor arguments: []
+FeesVaultFactoryUpgradeable deployed at 0x8C2Ba09Fe9514d971F606944bd41655bFC7Eec7E
+Save to deploys.json deployed address of FeesVaultFactoryUpgradeable_Implementation:0x8C2Ba09Fe9514d971F606944bd41655bFC7Eec7E
+Starting deployment of FeesVaultUpgradeable...
+	Constructor arguments: []
+FeesVaultUpgradeable deployed at 0x87DB91334fAb1141dE5b0ce4B91dA8d3c09c14Bd
+Save to deploys.json deployed address of FeesVaultUpgradeable_Implementation:0x87DB91334fAb1141dE5b0ce4B91dA8d3c09c14Bd
+Starting deployment of GaugeUpgradeable...
+	Constructor arguments: [1]
+GaugeUpgradeable deployed at 0xdD453A41e7BFC8e55f8fF536311628783a51A235
+Save to deploys.json deployed address of GaugeUpgradeable_V2Pools_Implementation:0xdD453A41e7BFC8e55f8fF536311628783a51A235
+Starting deployment of GaugeUpgradeable...
+	Constructor arguments: [2]
+GaugeUpgradeable deployed at 0xe9017fbeBf96b661C63C5ed1cbac6904DfFA5dE0
+Save to deploys.json deployed address of GaugeUpgradeable_V3Pools_Implementation:0xe9017fbeBf96b661C63C5ed1cbac6904DfFA5dE0
+Starting deployment of GaugeRewarder...
+	Constructor arguments: []
+GaugeRewarder deployed at 0x51983D934EE35a80d5475f72fAcB23B1731AC8dB
+Save to deploys.json deployed address of GaugeRewader_Implementation:0x51983D934EE35a80d5475f72fAcB23B1731AC8dB
+Starting deployment of CompoundEmissionExtensionUpgradeable...
+	Constructor arguments: []
+CompoundEmissionExtensionUpgradeable deployed at 0xaC61499aA01A67975d6B1488DC5ece65cf5E2F51
+Save to deploys.json deployed address of CompoundEmissionExtensionUpgradeable_Implementation:0xaC61499aA01A67975d6B1488DC5ece65cf5E2F51
+
+Starting deployment of ProxyAdmin...
+	Constructor arguments: []
+ProxyAdmin deployed at 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+Save to deploys.json deployed address of ProxyAdmin:0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+
+
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0xd268a052d91273a7f594A89F722dd2285506F207
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x68A45299f278A079F988BD00bd4B54e58bdeD139
+Save to deploys.json deployed address of BribeFactoryUpgradeable_Proxy:0x68A45299f278A079F988BD00bd4B54e58bdeD139
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x7ed7758F3C354Cb9B879d58b206aB11cEB40F70A
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x6F6365Fe925b6a185D8c2A19575bC9ad61bF5113
+Save to deploys.json deployed address of GaugeFactory_V2Pools_Proxy:0x6F6365Fe925b6a185D8c2A19575bC9ad61bF5113
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x7ed7758F3C354Cb9B879d58b206aB11cEB40F70A
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x396C5E62C5cBFF1Aa6494AC6C89D0300d38d1680
+Save to deploys.json deployed address of GaugeFactory_V3Pools_Proxy:0x396C5E62C5cBFF1Aa6494AC6C89D0300d38d1680
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0xb261B323eC3f0bD13f20C674c97Ea4F44B6EcFD8
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x6fb7D7c2BB777b522a8bb3aDC9719AfaE9F45ca9
+Save to deploys.json deployed address of MinterUpgradeable_Proxy:0x6fb7D7c2BB777b522a8bb3aDC9719AfaE9F45ca9
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0xED20780f436e08cDCa20766c282396700FFDf476
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x64DeDf842A82B42cF57DaFeE09B995600Ddc815c
+Save to deploys.json deployed address of NestRaiseUpgradeable_Proxy:0x64DeDf842A82B42cF57DaFeE09B995600Ddc815c
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x899Cdf1eef724289B1Caa1d0404b6Dc4D6E3B0A9
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0xdBF3681ec756CC6aF921dC61D240B07dC303f5Fa
+Save to deploys.json deployed address of VeNestDistributorUpgradeable_Proxy:0xdBF3681ec756CC6aF921dC61D240B07dC303f5Fa
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0xd736ca882424a40b42D5CCF60502617B32Abf664
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0xA1ff4dDDdf3BD330F7636EA29Be69B03f9BdC1c8
+Save to deploys.json deployed address of VeNestSplitMerklAidropUpgradeable_Proxy:0xA1ff4dDDdf3BD330F7636EA29Be69B03f9BdC1c8
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0xb0d16e6EE45acDCDA1Ccab720C280073A6bcd1e0
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x92D72c76e49C09Cde2A2AF4390231935321Be59e
+Save to deploys.json deployed address of VoterUpgradeable_Proxy:0x92D72c76e49C09Cde2A2AF4390231935321Be59e
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x666dB022B62c8FC3175228a8452e43c8C0a3dE36
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7
+Save to deploys.json deployed address of VotingEscrowUpgradeable_Proxy:0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x12E26a1EF606FDFD26393428410987aEd72f0821
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0xFe53020034965eEd4A6d9d4b2A4292eE49b1bd64
+Save to deploys.json deployed address of CompoundVeNESTManagedNFTStrategyFactoryUpgradeable_Proxy:0xFe53020034965eEd4A6d9d4b2A4292eE49b1bd64
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x9a955dEb01d18Fc30B0210849a15277ccAD1144A
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0xF3c1e652801915D38222911db9A2962dCAEafD06
+Save to deploys.json deployed address of RouterV2PathProviderUpgradeable_Proxy:0xF3c1e652801915D38222911db9A2962dCAEafD06
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x452C3633ee78CEdD36eFF3128215900B5761ed1D
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0xc69471d8fa84021F0A1548225915b5D0416cB47C
+Save to deploys.json deployed address of ManagedNFTManagerUpgradeable_Proxy:0xc69471d8fa84021F0A1548225915b5D0416cB47C
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x808f8E07dD4F16D2082E119c8022082098f2062C
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0xa94D25fEFEE8DC4f72e205d7f722f60de5aCfb40
+Save to deploys.json deployed address of PairAPIUpgradeable_Proxy:0xa94D25fEFEE8DC4f72e205d7f722f60de5aCfb40
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x4bF0CE3a2E11ECA9c70C0f0fBA5dbCD7f23b7840
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x7a6e92a520b00e2d968c655F5a0F8c2F4262AF87
+Save to deploys.json deployed address of RewardAPIUpgradeable_Proxy:0x7a6e92a520b00e2d968c655F5a0F8c2F4262AF87
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x0a554ed142030c99C49a08dfbe4BfbB906817aA0
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x15E4A31AE9B064743a10DA3d099177588467374D
+Save to deploys.json deployed address of VeNFTAPIUpgradeable_Proxy:0x15E4A31AE9B064743a10DA3d099177588467374D
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x354dCb934708ed5B5efd047d72161bA9De04891B
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x72564cf28028cCeEa69C27657d97468993BF4F5d
+Save to deploys.json deployed address of UtilsUpgradeable_Proxy:0x72564cf28028cCeEa69C27657d97468993BF4F5d
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0xF52Fa0dA4BE5C2CD543B0b1adcbA3e09663502aD
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x2716d3162064967397f34C0B500c3943B7D95f6C
+Save to deploys.json deployed address of BribeVeNESTRewardToken_Proxy:0x2716d3162064967397f34C0B500c3943B7D95f6C
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0xc902533B01a9a14884d068E24791fb9dDd3e5446
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0xfd3E399A6B6952B1473f3dc5AdFED57678FFa5fB
+Save to deploys.json deployed address of CustomBribeRewardRouter_Proxy:0xfd3E399A6B6952B1473f3dc5AdFED57678FFa5fB
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x9F48407d164d3407F8D46A6cB7D30417d33849A7
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x86D7Ef02400560e720011DcaFC51A99e90542F01
+Save to deploys.json deployed address of GetInformationAggregatorUpgradeable_Proxy:0x86D7Ef02400560e720011DcaFC51A99e90542F01
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: 0x354dCb934708ed5B5efd047d72161bA9De04891B
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+TransparentUpgradeableProxy deployed at 0x969063afE8F07242C66D090352c393462eE33dC6
+Save to deploys.json deployed address of UtilsUpgradeable_Proxy:0x969063afE8F07242C66D090352c393462eE33dC6
+Starting deployment of TransparentUpgradeableProxy...
+	Logic address: undefined
+	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
+	Data: 0x
+
+
+
+
+Starting deployment of ERC20Mock...
+	Constructor arguments: ["Fake USDT","fUSDT",6]
+ERC20Mock deployed at 0x7C5a2D63a06A0886ce414DFe7c43cb419e0B3B2a
+Save to deploys.json deployed address of ERC20_FakeUSDT:0x7C5a2D63a06A0886ce414DFe7c43cb419e0B3B2a
+	Called Contract(0x7C5a2D63a06A0886ce414DFe7c43cb419e0B3B2a).mint(to_: "0x047E7946F92360B3E9f622FE2257B627A92810e2", amount_: "1000000000000")
+	Transaction hash: 0xcb14d4c3304eea2da2a832c03035f2dc6d325d09c0453d2be63ddbd28662887b
+Starting deployment of ERC20Mock...
+	Constructor arguments: ["Fake USDC","fUSDC",18]
+ERC20Mock deployed at 0x3e3a88Db1B6Fe6CBE76075914293b04fEAF238f2
+Save to deploys.json deployed address of ERC20_FakeUSDC:0x3e3a88Db1B6Fe6CBE76075914293b04fEAF238f2
+	Called Contract(0x3e3a88Db1B6Fe6CBE76075914293b04fEAF238f2).mint(to_: "0x047E7946F92360B3E9f622FE2257B627A92810e2", amount_: "1000000000000000000000000")
+	Transaction hash: 0x0dc4a7503ed3269294a1eb291e6605221b86410dfb237860c9d21ffa62dac824
+Starting deployment of ERC20Mock...
+	Constructor arguments: ["Fake Wrapped BTC","wBTC",8]
+ERC20Mock deployed at 0xa2c52D2B3D95399f592677c4f249A2DFd2c0d496
+Save to deploys.json deployed address of ERC20_FakeWBTC:0xa2c52D2B3D95399f592677c4f249A2DFd2c0d496
+	Called Contract(0xa2c52D2B3D95399f592677c4f249A2DFd2c0d496).mint(to_: "0x047E7946F92360B3E9f622FE2257B627A92810e2", amount_: "100000000000000")
+	Transaction hash: 0x1552a58f6c8eb5a07b8b54ea56ade3b3cce7a85460a003731cd42e16827974ad
+Starting deployment of ERC20Mock...
+	Constructor arguments: ["Fake TOK18","fTOK18",18]
+ERC20Mock deployed at 0xF89Ae1424f37B807eeE87546d7E1B498c0FD3e96
+Save to deploys.json deployed address of ERC20_TOK18:0xF89Ae1424f37B807eeE87546d7E1B498c0FD3e96
+	Called Contract(0xF89Ae1424f37B807eeE87546d7E1B498c0FD3e96).mint(to_: "0x047E7946F92360B3E9f622FE2257B627A92810e2", amount_: "1000000000000000000000000")
+	Transaction hash: 0x8ee4ad50a42b74e00840425eeda09da4e49f7e1afc80d3791a8e8857ee860c8a
+Starting deployment of ERC20Mock...
+	Constructor arguments: ["Fake TOK9","TOK9",9]
+ERC20Mock deployed at 0x360D5785aE3B2e90F3E753025Ed15F068b6800aE
+Save to deploys.json deployed address of ERC20_TOK9:0x360D5785aE3B2e90F3E753025Ed15F068b6800aE
+	Called Contract(0x360D5785aE3B2e90F3E753025Ed15F068b6800aE).mint(to_: "0x047E7946F92360B3E9f622FE2257B627A92810e2", amount_: "1000000000000000")
+	Transaction hash: 0xaf7369527b5d5e98dd61d009d530d075c73808c66fcb287ab2b6750b3b127faf
+
+Starting deployment of ERC20Mock...
+	Constructor arguments: ["Fake Uniswap Token","fUNI",18]
+ERC20Mock deployed at 0x0F5083908AA1e324EC1C3F2B42269Cb6D35fBe51
+Save to deploys.json deployed address of ERC20_FakeUniV2:0x0F5083908AA1e324EC1C3F2B42269Cb6D35fBe51
+	Called Contract(0x0F5083908AA1e324EC1C3F2B42269Cb6D35fBe51).mint(to_: "0x047E7946F92360B3E9f622FE2257B627A92810e2", amount_: "1000000000000000000000000")
+	Transaction hash: 0x8169496d6e8ea48e531bb3a539924335d3644f4bcfc49c5f56ac2a5b5af28624
+Starting deployment of Nest...
+	Constructor arguments: ["0x6fb7D7c2BB777b522a8bb3aDC9719AfaE9F45ca9"]
+Nest deployed at 0xe70ef3e5748D5aEF2E7D586a6C5809D8b5292513
+Save to deploys.json deployed address of Nest:0xe70ef3e5748D5aEF2E7D586a6C5809D8b5292513
+
+
+Wait 5 seconds before tx...
+	Called Contract(0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7).initialize(token_: "0xe70ef3e5748D5aEF2E7D586a6C5809D8b5292513")
+	Transaction hash: 0x97022e4ef30e488ffa8c81de32905af139ea4c8dd21df302769ed413a52bb5f2
+Wait 5 seconds before tx...
+	Called Contract(0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7).updateAddress(key_: "managedNFTManager", value_: "0xc69471d8fa84021F0A1548225915b5D0416cB47C")
+	Transaction hash: 0x9acfc825f65c173ebe2e581e4dffa7311001ef55fb51a92e329c7377141c5efd
+Wait 5 seconds before tx...
+	Called Contract(0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7).updateAddress(key_: "voter", value_: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e")
+	Transaction hash: 0x307091de0c6ca4a8ef23762c286f9e31da8355df301801a91e4fa0fe19dadf93
+Wait 5 seconds before tx...
+	Called Contract(0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7).updateAddress(key_: "customBribeRewardRouter", value_: "0xfd3E399A6B6952B1473f3dc5AdFED57678FFa5fB")
+	Transaction hash: 0xf79acbfde8ae8aef8fecf1c11e4d5db07b656038993597c3fe32f08473e50d2a
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).initialize(votingEscrow_: "0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7")
+	Transaction hash: 0x3c4e629c99fe423613168fd14c1d50f7a37f819094a45357440f91a87ec9e055
+
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).grantRole(role: "0x71840dc4906352362b0cdaf79870196c8e42acafade72d5d5a6d59291253ceb1", account: "0x047E7946F92360B3E9f622FE2257B627A92810e2")
+	Transaction hash: 0x030a160d8838578a6c65c200409529feca62e3baf1fb0bd681a6656ed8afdae6
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).grantRole(role: "0xdb77e4a0d65a915fbfe630f3ac05f3a2259b73e7baead93657155a1e625c8b5e", account: "0x047E7946F92360B3E9f622FE2257B627A92810e2")
+	Transaction hash: 0xdcd7747984da4a3ed07e40cc0c8ad6960fb21426d118ab3f74581a8673c83be8
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "minter", value_: "0x6fb7D7c2BB777b522a8bb3aDC9719AfaE9F45ca9")
+	Transaction hash: 0x20c77253e2bc28bae7ffa82fba4a0f840cb90f23b1007f195768c17eb4c30465
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "minter", value_: "0x6fb7D7c2BB777b522a8bb3aDC9719AfaE9F45ca9")
+	Transaction hash: 0x3b313eedde987edde45b74ed0dff351986773e79778e820ff3cc3014bdcdaf6a
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "bribeFactory", value_: "0x68A45299f278A079F988BD00bd4B54e58bdeD139")
+	Transaction hash: 0xf4133bbe6e7a7c6c54c3ad3824e74c45944ba802ae4de505e0cf0f1663fe0a54
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "merklDistributor", value_: "0xD6014A6D8b3412398ec08e350670B4F9A6dd0595")
+	Transaction hash: 0xd8f212e6686c93bc213bca0b66d6ea1789418b337018da1321031f76ec6ef7f7
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "veNestMerklAidrop", value_: "0xA1ff4dDDdf3BD330F7636EA29Be69B03f9BdC1c8")
+	Transaction hash: 0xd419d960fa16ed57d1360f0f488ee88b3834f8dbadaf2552d4c4ed1e5a47955b
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "managedNFTManager", value_: "0xc69471d8fa84021F0A1548225915b5D0416cB47C")
+	Transaction hash: 0xebc81b7de8222fb04d6aa6b34ea0eeecb80db83625e02f5b3a944f5ca9b0e748
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "v2PoolFactory", value_: "0x3b5d4B8B23Bd25f321491DC31768Fd6cE01969DD")
+	Transaction hash: 0x0e25cd216d1433e68fdcf90b39535ecfe0e0bcd5c24e468cec2998bcda6c870b
+Wait 5 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "v3PoolFactory", value_: "0x9F72Fdf5678289661DE009edCeFA1D255940Aa7b")
+	Transaction hash: 0x3914eb8efaac46486aa7f6028f428021544025ef047f8d9a3dfbdb778a14e286
+Wait 5 seconds before tx...
+
+Wait 10 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "v2GaugeFactory", value_: "0x6F6365Fe925b6a185D8c2A19575bC9ad61bF5113")
+	Transaction hash: 0x9d4d45eac03228e3fc33a403eac2d01a167d6c43be1b8d220eb5701148d4043d
+Wait 10 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "v3GaugeFactory", value_: "0x396C5E62C5cBFF1Aa6494AC6C89D0300d38d1680")
+	Transaction hash: 0xe16bed6d3837c0ad94c928f97928cbba83dc0859e679bc330bf8a9c73e1c379e
+Wait 10 seconds before tx...
+	Called Contract(0x92D72c76e49C09Cde2A2AF4390231935321Be59e).updateAddress(key_: "compoundEmissionExtension", value_: "0xeBBD3E922bc070A5B665A9d4C3ebcaF091B6A79b")
+	Transaction hash: 0xeb926f539ed0bb78b7ab9f5beb8ad6efd2ea08e3f8282f6c10c5d1f8f55d8c2a
+Wait 10 seconds before tx...
+	Called Contract(0x6fb7D7c2BB777b522a8bb3aDC9719AfaE9F45ca9).initialize(voter_: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e", ve_: "0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7")
+	Transaction hash: 0xd7b7f00751ae42d509506efe7b321980874a4fd3b4d94a23f162dc678e128c16
+Wait 10 seconds before tx...
+	Called Contract(0x2716d3162064967397f34C0B500c3943B7D95f6C).initialize(votingEscrow_: "0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7")
+	Transaction hash: 0x010b4f70f479dd9752160a8922914d8daf289d0013707059e07a3f06d89d8799
+Wait 10 seconds before tx...
+	Called Contract(0xfd3E399A6B6952B1473f3dc5AdFED57678FFa5fB).initialize(voter_: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e", bribeVeNestRewardToken_: "0x2716d3162064967397f34C0B500c3943B7D95f6C")
+	Transaction hash: 0x092ebf7637e2690aff4c864026148f2ac2ca45dc72a6753d5198867f7ed10f8d
+Wait 10 seconds before tx...
+	Called Contract(0x2716d3162064967397f34C0B500c3943B7D95f6C).grantRole(role: "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", account: "0xfd3E399A6B6952B1473f3dc5AdFED57678FFa5fB")
+	Transaction hash: 0xc548e3b26cf3c43c17545edee3cbcbd9428f79c5ef270294c3ac93c44d9f7a8d
+Wait 10 seconds before tx...
+	Called Contract(0xfd3E399A6B6952B1473f3dc5AdFED57678FFa5fB).setupFuncEnable(funcSign_: "0x51f74fa1", isEnable_: "true")
+	Transaction hash: 0x5b5eb6a0349690ff8bc57203799b96b9f82dd68a90927a69275df16112b32d57
+Wait 10 seconds before tx...
+	Called Contract(0xfd3E399A6B6952B1473f3dc5AdFED57678FFa5fB).setupFuncEnable(funcSign_: "0x3f26906c", isEnable_: "true")
+	Transaction hash: 0x5e4d34361270f80d4fb80c9c10a052340a9e95de1721d0b4100d048f15981c78
+Wait 10 seconds before tx...
+	Called Contract(0x68A45299f278A079F988BD00bd4B54e58bdeD139).initialize(_voter: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e", _bribeImplementation: "0xBCA4E20Ea37C5855B3E78ECEf630939252b0cF0a")
+	Transaction hash: 0xaa1b378ac1e5544ad6b28bc874e8ddeafa8bd73647da69a8c97b7f6777369fb5
+Wait 10 seconds before tx...
+	Called Contract(0x68A45299f278A079F988BD00bd4B54e58bdeD139).pushDefaultRewardToken(_token: "0xe70ef3e5748D5aEF2E7D586a6C5809D8b5292513")
+	Transaction hash: 0x7e40013e7cc379dfd8b9ef874fd8c61e9cc59ec37dcd1c389cf83907d5b13fa8
+Wait 10 seconds before tx...
+	Called Contract(0x68A45299f278A079F988BD00bd4B54e58bdeD139).pushDefaultRewardToken(_token: "0x7C5a2D63a06A0886ce414DFe7c43cb419e0B3B2a")
+	Transaction hash: 0x6e4edef737d6f0fbf2e3404399fc0b12d89bd3bc091ba5dbb5e75adf7275bb4e
+Wait 10 seconds before tx...
+	Called Contract(0x68A45299f278A079F988BD00bd4B54e58bdeD139).pushDefaultRewardToken(_token: "0x3e3a88Db1B6Fe6CBE76075914293b04fEAF238f2")
+	Transaction hash: 0xc1468f8bc3590fb29fcdaf6782a332c5f40480db2fa26121186d82b1f47230c5
+Wait 10 seconds before tx...
+	Called Contract(0x68A45299f278A079F988BD00bd4B54e58bdeD139).pushDefaultRewardToken(_token: "0xa2c52D2B3D95399f592677c4f249A2DFd2c0d496")
+	Transaction hash: 0xfcfbda2ba9457c95e02f809c54a84e054572143b0997f2a83216ba34c1f770b2
+Wait 10 seconds before tx...
+	Called Contract(0x68A45299f278A079F988BD00bd4B54e58bdeD139).pushDefaultRewardToken(_token: "0xF89Ae1424f37B807eeE87546d7E1B498c0FD3e96")
+	Transaction hash: 0x728a8ae28bf4246c145eab30c0dd407d24e95ed55bb073dd3dd0e3e965393970
+Wait 10 seconds before tx...
+	Called Contract(0x68A45299f278A079F988BD00bd4B54e58bdeD139).pushDefaultRewardToken(_token: "0x360D5785aE3B2e90F3E753025Ed15F068b6800aE")
+	Transaction hash: 0x45c25540919746c990b6a53e923694886d3cbf3a281aa8db2ef7db96841cfabe
+Wait 10 seconds before tx...
+	Called Contract(0x68A45299f278A079F988BD00bd4B54e58bdeD139).pushDefaultRewardToken(_token: "0x0F5083908AA1e324EC1C3F2B42269Cb6D35fBe51")
+	Transaction hash: 0x1a9ddf9acab24fc53bfe21cd2176543c887e8a600f77d5fd33ca645661a0ce26
+Wait 10 seconds before tx...
+	Called Contract(0x6F6365Fe925b6a185D8c2A19575bC9ad61bF5113).initialize(_voter: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e", _gaugeImplementation: "0xdD453A41e7BFC8e55f8fF536311628783a51A235", _merklGaugeMiddleman: "0xD6014A6D8b3412398ec08e350670B4F9A6dd0595")
+	Transaction hash: 0x69bbba5610b51966faef3b733ccd13bb3c2a3b5a9e56da2c0a5cf9fee45c5e00
+Wait 10 seconds before tx...
+	Called Contract(0x396C5E62C5cBFF1Aa6494AC6C89D0300d38d1680).initialize(_voter: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e", _gaugeImplementation: "0xdD453A41e7BFC8e55f8fF536311628783a51A235", _merklGaugeMiddleman: "0xD6014A6D8b3412398ec08e350670B4F9A6dd0595")
+	Transaction hash: 0xa104175165d793a3d3d158c2fb7f70117e66f294f829273c2074fefa7ac3ce7e
+Wait 10 seconds before tx...
+	Called Contract(0xc69471d8fa84021F0A1548225915b5D0416cB47C).initialize(votingEscrow_: "0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7", voter_: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e")
+	Transaction hash: 0x6988e7ed3d1429db166074feeee2186c1c09d718678db96ab73913bd1f1231ae
+Wait 10 seconds before tx...
+	Called Contract(0x357F998b1F0360b8E3Bab6D097857420971568b5).initialize(voter_: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e", feesVaultImplementation_: "0x87DB91334fAb1141dE5b0ce4B91dA8d3c09c14Bd", defaultDistributionConfig_: "10000,,")
+	Transaction hash: 0x4ed625108f5a48917a807df54b8796a1f0767b37c07eb76b25ddadd8c2095784
+Wait 10 seconds before tx...
+	Called Contract(0xa94D25fEFEE8DC4f72e205d7f722f60de5aCfb40).initialize(voter_: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e")
+	Transaction hash: 0xeaf84e7191d863dd8b1149ab02803583fe668b93ff96347692fb23fde0af750d
+Wait 10 seconds before tx...
+	Called Contract(0x15E4A31AE9B064743a10DA3d099177588467374D).initialize(_voter: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e")
+	Transaction hash: 0x015b499393ac959b50fe544ceff295074988158f6666e6f34f138e6a656dd98e
+Wait 10 seconds before tx...
+	Called Contract(0x15E4A31AE9B064743a10DA3d099177588467374D).setManagedNFTManager(managedNFTManager_: "0xc69471d8fa84021F0A1548225915b5D0416cB47C")
+	Transaction hash: 0xa140e553e868ca1be42fd10bce4e45ed14b0fac5942ca8257ed18a796ed4281b
+Wait 10 seconds before tx...
+	Called Contract(0x15E4A31AE9B064743a10DA3d099177588467374D).setPairAPI(_pairApi: "0xa94D25fEFEE8DC4f72e205d7f722f60de5aCfb40")
+	Transaction hash: 0x20480b361a68a7d9abaf8a386a101fecb85157fe8e437da5ecde2509da294df9
+Wait 10 seconds before tx...
+	Called Contract(0x7a6e92a520b00e2d968c655F5a0F8c2F4262AF87).initialize(_voter: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e")
+	Transaction hash: 0x157eabd9a4c699edcef2ad573c44ad70f4e1306832db7a57b408972400ae01de
+Wait 10 seconds before tx...
+	Called Contract(0x3b5d4B8B23Bd25f321491DC31768Fd6cE01969DD).initialize(implementation_: "0xCd258A7885760A3a3befF9C74A722880133BB3Eb", communityVaultFactory_: "0x357F998b1F0360b8E3Bab6D097857420971568b5")
+	Transaction hash: 0xd7df2f2f9011b521a81c810d6717ce6650637758b86c15d28136e7672d00df00
+Wait 10 seconds before tx...
+	Called Contract(0x86D7Ef02400560e720011DcaFC51A99e90542F01).updateAddress(keys_: "4,3,2,1", values_: "0xc69471d8fa84021F0A1548225915b5D0416cB47C,0x3b5d4B8B23Bd25f321491DC31768Fd6cE01969DD,0x92D72c76e49C09Cde2A2AF4390231935321Be59e,0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7")
+	Transaction hash: 0x52e424fb756942461373fcd5e718e759625cf61e2e067f621362f1a32af04e3a
+
+Starting deployment of RouterV2...
+	Constructor arguments: ["0x3b5d4B8B23Bd25f321491DC31768Fd6cE01969DD","0xADcb2f358Eae6492F61A5F87eb8893d09391d160"]
+RouterV2 deployed at 0xcbE782Ed88dd51836c8f0244c665a20CaD3b06aA
+Save to deploys.json deployed address of RouterV2:0xcbE782Ed88dd51836c8f0244c665a20CaD3b06aA
+Starting deployment of UniswapV2PartialRouter...
+	Constructor arguments: ["0x3b5d4B8B23Bd25f321491DC31768Fd6cE01969DD","0xADcb2f358Eae6492F61A5F87eb8893d09391d160"]
+UniswapV2PartialRouter deployed at 0x19e47F4768969c32e38F48b6AaA695d1AE2fFB17
+Save to deploys.json deployed address of UniswapV2PartialRouter:0x19e47F4768969c32e38F48b6AaA695d1AE2fFB17
+
+
+Wait 10 seconds before tx...
+	Called Contract(0xdBF3681ec756CC6aF921dC61D240B07dC303f5Fa).initialize(nest_: "0xe70ef3e5748D5aEF2E7D586a6C5809D8b5292513", votingEscrow_: "0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7")
+	Transaction hash: 0x6cde3665573c70f670af1c78a906554ca679020dd08b39ce94700233f13d2754
+Wait 10 seconds before tx...
+	Called Contract(0xdBF3681ec756CC6aF921dC61D240B07dC303f5Fa).grantRole(role: "0xfbd454f36a7e1a388bd6fc3ab10d434aa4578f811acbbcf33afb1c697486313c", account: "0x047E7946F92360B3E9f622FE2257B627A92810e2")
+	Transaction hash: 0x98b00a4e996d646cfc3bb204c6c013a27af0940915209997a63855a24f086d79
+Wait 10 seconds before tx...
+	Called Contract(0xdBF3681ec756CC6aF921dC61D240B07dC303f5Fa).grantRole(role: "0x10dac8c06a04bec0b551627dad28bc00d6516b0caacd1c7b345fcdb5211334e4", account: "0x047E7946F92360B3E9f622FE2257B627A92810e2")
+	Transaction hash: 0xf73bc4d8e4a00173ffe0e23f0ff35497840a725a9a1a68deda43917e386f7667
+Wait 10 seconds before tx...
+	Called Contract(0xA1ff4dDDdf3BD330F7636EA29Be69B03f9BdC1c8).initialize(token_: "0xe70ef3e5748D5aEF2E7D586a6C5809D8b5292513", votingEscrow_: "0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7", pureTokensRate_: "500000000000000000")
+	Transaction hash: 0x497ec8b405f197b8603de460a8d2a6c0823c22e8420e5ade49628598c8a9e66d
+Wait 10 seconds before tx...
+	Called Contract(0xA1ff4dDDdf3BD330F7636EA29Be69B03f9BdC1c8).setIsAllowedClaimOperator(operator_: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e", isAllowed_: "true")
+	Transaction hash: 0x238c6bf7894c1db9bd33db6c78d0f4f4a332dc3a44fb1af0b9ed7f3276415dfe
+Wait 10 seconds before tx...
+	Called Contract(0xF3c1e652801915D38222911db9A2962dCAEafD06).initialize(factory_: "0x3b5d4B8B23Bd25f321491DC31768Fd6cE01969DD", router_: "0xcbE782Ed88dd51836c8f0244c665a20CaD3b06aA")
+	Transaction hash: 0x627d2897746048b7dac7fb90bb24849f6669dae41e0ee757cc9e6f5c205d74e5
+Wait 10 seconds before tx...
+	Called Contract(0xFe53020034965eEd4A6d9d4b2A4292eE49b1bd64).initialize(strategyImplementation_: "0xd42Db613018864F3Cf00a85612624cFEF82C0C1E", virtualRewarderImplementation_: "0x1b710dfb49578eE048E9cC6F493c7860027B9Ff9", managedNFTManager_: "0xc69471d8fa84021F0A1548225915b5D0416cB47C", routerV2PathProvider_: "0xF3c1e652801915D38222911db9A2962dCAEafD06")
+	Transaction hash: 0x8c158d66970562b67087700c7fef0bd01068952af6b2b60b358ead7d9f8ad0f7
+
+
+Wait 10 seconds before tx...
+	Called Contract(0xD6014A6D8b3412398ec08e350670B4F9A6dd0595).initialize(token_: "0xe70ef3e5748D5aEF2E7D586a6C5809D8b5292513", voter_: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e", minter_: "0x6fb7D7c2BB777b522a8bb3aDC9719AfaE9F45ca9")
+	Transaction hash: 0x3cc94026d63e62626daa751234f7f9342645b2a5efebf2d0d9d72d5e99da9633
+Wait 10 seconds before tx...
+	Called Contract(0xD6014A6D8b3412398ec08e350670B4F9A6dd0595).setSigner(signer_: "0x40a48B370c512b9f3F02F17b3680A3C3c3186158")
+	Transaction hash: 0xb252339ac20e2561a22d2bd88456d0522a0f6cc4c803684c9d9fc480da2012c4
+Wait 10 seconds before tx...
+	Called Contract(0xD6014A6D8b3412398ec08e350670B4F9A6dd0595).grantRole(role: "0xbeec13769b5f410b0584f69811bfd923818456d5edcf426b0e31cf90eed7a3f6", account: "0x047E7946F92360B3E9f622FE2257B627A92810e2")
+	Transaction hash: 0x49a1995e24890269955c7081898adbbf0c4e9eb265e8768907ddb84453d144f6
+Wait 10 seconds before tx...
+	Called Contract(0xD6014A6D8b3412398ec08e350670B4F9A6dd0595).grantRole(role: "0xa1b0b7f2395fdcc15ae087ceb3d1fa3e32b39c5dd8aca23265d8ee0d7f3db69e", account: "0x047E7946F92360B3E9f622FE2257B627A92810e2")
+	Transaction hash: 0x676b237b922f16e91495e4ab56b8d97557717aca1a02332ffa042cf302d3a894
+Wait 10 seconds before tx...
+	Called Contract(0xeBBD3E922bc070A5B665A9d4C3ebcaF091B6A79b).initialize(voter_: "0x92D72c76e49C09Cde2A2AF4390231935321Be59e", token_: "0xe70ef3e5748D5aEF2E7D586a6C5809D8b5292513", votingEscrow_: "0xb891eC0804750F819cB4548CEA4D8EDe41D4FDe7")
+	Transaction hash: 0x11062f2163e48e5e486358e8a54ce4b4229804cabdb80ae1acc5860499d25fe0
+
+
+Wait 10 seconds before tx...
+	Called Contract(0x357F998b1F0360b8E3Bab6D097857420971568b5).grantRole(role: "0x400be8cdea82c593ef278a0994f451d04daad18f3a2ced40bcac267b98678ad2", account: "0x3b5d4B8B23Bd25f321491DC31768Fd6cE01969DD")
+	Transaction hash: 0xd3dacea096aea38b1a2a883f2ed2918aa3f586d61888899788c940c6d97d5421
+Wait 10 seconds before tx...
+	Called Contract(0x357F998b1F0360b8E3Bab6D097857420971568b5).grantRole(role: "0x400be8cdea82c593ef278a0994f451d04daad18f3a2ced40bcac267b98678ad2", account: "0x9F72Fdf5678289661DE009edCeFA1D255940Aa7b")
+	Transaction hash: 0xbe07e7999bdc6516f75f298cc5459227047664d4bd47348cb6a699d87cb82cbd
+Wait 10 seconds before tx...
+	Called Contract(0x357F998b1F0360b8E3Bab6D097857420971568b5).grantRole(role: "0x6318e0386017ad20a3ceaccdcc5664338f312d23d7291730079e3aa16981ac1e", account: "0x047E7946F92360B3E9f622FE2257B627A92810e2")
+	Transaction hash: 0x402ffba4d1839926468ea8e504e0b9c647908adfd37d2f45b290705a0273ef2e
+
+
+Wait 10 seconds before tx...
+	Called Contract(0x6fb7D7c2BB777b522a8bb3aDC9719AfaE9F45ca9).start()
+	Transaction hash: 0x4e07e0d465b69a0e85975919ad440bb0b41034646bdea6dad6cbc8a3811b2d02
+Wait 10 seconds before tx...
+	Called Contract(0x6fb7D7c2BB777b522a8bb3aDC9719AfaE9F45ca9).update_period()
+	Transaction hash: 0x014526ed219a982dd0e944892dead517980ed740d481660f9e1103eb73cd2e09
