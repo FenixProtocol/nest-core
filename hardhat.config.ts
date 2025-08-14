@@ -69,10 +69,30 @@ const config: HardhatUserConfig = {
     enabled: false,
   },
   etherscan: {
-    apiKey: {},
-    customChains: [],
+    apiKey: `${process.env.ETHERSCAN_API_KEY}`,
+    customChains: [
+      {
+        network: 'baseSepolia',
+        chainId: 84532,
+        urls: {
+          apiURL: 'https://api-sepolia.basescan.org',
+          browserURL: 'https://sepolia.basescan.org',
+        },
+      },
+    ],
   },
   networks: {
+    baseSepolia: {
+      url: `${process.env.BASE_SEPOLIA_RPC || 'https://sepolia.base.org'}`,
+      chainId: 84532,
+      accounts: {
+        mnemonic: `${process.env.HYPER_EVM_TESTNET_MNEMONIC}`,
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 20,
+        passphrase: '',
+      },
+    },
     hyperevm_testnet: {
       url: `https://rpc.hyperliquid-testnet.xyz/evm`,
       chainId: 998,
