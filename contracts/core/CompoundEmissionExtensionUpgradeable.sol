@@ -411,7 +411,7 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Ree
      * @param claimsParams_ An array of `ClaimParams` describing each user's claim details:
      *   - `target`: The user whose emissions are being claimed.
      *   - `gauges`: The array of gauge addresses to claim from.
-     *   - `merkl`:  Optional data for merkle-based claims (if applicable).
+     *   - `blaze`:  Optional data for Blaze-based claims (if applicable).
      */
     function compoundEmissionClaimBatch(ClaimParams[] calldata claimsParams_) external onlyRole(COMPOUND_KEEPER_ROLE) nonReentrant {
         for (uint256 i; i < claimsParams_.length; ) {
@@ -430,7 +430,7 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Ree
      * @param claimParams_ The `ClaimParams` struct:
      *   - `target`: The user who is claiming.
      *   - `gauges`: The array of gauge addresses to claim from.
-     *   - `merkl`:  Optional data for merkle-based claims.
+     *   - `blaze`:  Optional data for blaze-based claims.
      */
     function compoundEmisisonClaim(ClaimParams calldata claimParams_) external nonReentrant {
         _checkSender(claimParams_.target);
@@ -501,7 +501,7 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Ree
         (uint256 toTargetLocks, uint256 toTargetBribePools) = voterCache.onCompoundEmissionClaim(
             claimParams_.target,
             claimParams_.gauges,
-            claimParams_.merkl
+            claimParams_.blaze
         );
 
         if (toTargetLocks + toTargetBribePools == 0) {

@@ -13,7 +13,7 @@ import {IGaugeFactory} from "../gauges/interfaces/IGaugeFactory.sol";
 import {IBribeFactory} from "../bribes/interfaces/IBribeFactory.sol";
 import {IMinter} from "./interfaces/IMinter.sol";
 import {IVeNestSplitMerklAidrop} from "./interfaces/IVeNestSplitMerklAidrop.sol";
-import {IMerklDistributor} from "../integration/interfaces/IMerklDistributor.sol";
+import {IGaugeRewarder} from "./interfaces/IGaugeRewarder.sol";
 import {IManagedNFTManager} from "../nest/interfaces/IManagedNFTManager.sol";
 import {IBribe} from "../bribes/interfaces/IBribe.sol";
 import {IGauge} from "../gauges/interfaces/IGauge.sol";
@@ -67,8 +67,8 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     /// @notice Address of the V3 Gauge Factory contract.
     address public v3GaugeFactory;
 
-    /// @notice Address of the Merkl Distributor contract.
-    address public merklDistributor;
+    /// @notice Address of the Gauger Rewarder contract.
+    address public gaugeRewarder;
 
     /// @notice Address of the veNEST Merkl Airdrop contract.
     address public veNestMerklAidrop;
@@ -189,8 +189,8 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             minter = value_;
         } else if (key == 0xf23a19003b02ccc6ddd73a13c071e09977c34bfd7b5318a44fe456d9a77dd0af) {
             bribeFactory = value_;
-        } else if (key == 0x18c95c463f9590b3f298aef56c7cfb639672452cd99ac8d92a9fc0e2ef46ab55) {
-            merklDistributor = value_;
+        } else if (key == 0x1af6e9d2dfdf64ddba14557cad2fbf2fa425cb621027ca4a046acd69a4ee3efd) {
+            gaugeRewarder = value_;
         } else if (key == 0x38cc4214bb0493731337d7194d130d634a9ad58b75e5151622283c2784daed79) {
             veNestMerklAidrop = value_;
         } else if (key == 0x8ba8cbf9a47db7b5e8ae6c0bff072ed6faefec4a0722891b09f22b7ac343fd4f) {
@@ -660,7 +660,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
      *
      * @param target_ The address of the user for whom the emission claim is being processed.
      * @param gauges_ The array of gauge addresses from which to claim rewards on behalf of `target_`.
-     * @param merkl_  Optional Merkle-based claim data (if the Voter supports Merkle claims).
+     * @param blaze_  Optional Blaze-based claim data (if the Voter supports Blaze claims).
      *
      * @return toTargetLocks      The portion of claimed tokens that should go into veNFT locks.
      * @return toTargetBribePools The portion of claimed tokens that should go into bribe pools.
@@ -668,7 +668,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     function onCompoundEmissionClaim(
         address target_,
         address[] calldata gauges_,
-        AggregateClaimMerklDataParams calldata merkl_
+        AggregateClaimBlazeDataParams calldata blaze_
     ) external nonReentrant returns (uint256 toTargetLocks, uint256 toTargetBribePools) {
         ICompoundEmissionExtension compoundEmissionExtensionCache = ICompoundEmissionExtension(compoundEmissionExtension);
         _checkSender(address(compoundEmissionExtension));
@@ -679,7 +679,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
 
         _claimGaugesRewardsFor(target_, gauges_);
 
-        _claimMerklRewardsFor(target_, merkl_);
+        _claimBlazeRewardsFor(target_, blaze_);
 
         (toTargetLocks, toTargetBribePools) = compoundEmissionExtensionCache.getAmountOutToCompound(
             target_,
@@ -699,14 +699,14 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
      * @param gauges_ The array of gauge addresses to claim rewards from.
      * @param bribes_ The parameters for claiming bribes without specifying a token ID.
      * @param bribesByTokenId_ The parameters for claiming bribes associated with a specific token ID.
-     * @param merkl_ The parameters for claiming rewards using Merkl distributor.
+     * @param blaze_ The parameters for claiming rewards using Blaze Gauge Rewarder.
      * @param splitMerklAidrop_ The parameters for claiming VeNest Merkl airdrop data.
      * @param aggregateCreateLock_ The parameters for locking a percentage of the claimed rewards into a veNFT.
      *
      * Functionality:
      * - Claims rewards from gauges.
      * - Claims bribes, both with and without token IDs.
-     * - Claims Merkl-based airdrops.
+     * - Claims Blaze-based airdrops.
      * - Claims VeNest-based Merkl airdrops.
      * - Converts a specified percentage of claimed reward tokens into a veNFT lock.
      */
@@ -714,7 +714,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         address[] calldata gauges_,
         AggregateClaimBribesParams calldata bribes_,
         AggregateClaimBribesByTokenIdParams calldata bribesByTokenId_,
-        AggregateClaimMerklDataParams calldata merkl_,
+        AggregateClaimBlazeDataParams calldata blaze_,
         AggregateClaimVeNestMerklAirdrop calldata splitMerklAidrop_,
         AggregateCreateLockParams calldata aggregateCreateLock_
     ) external {
@@ -729,8 +729,8 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             if (bribesByTokenId_.bribes.length > 0) {
                 claimBribes(bribesByTokenId_.bribes, bribesByTokenId_.tokens, bribesByTokenId_.tokenId);
             }
-
-            _claimMerklRewardsFor(_msgSender(), merkl_);
+            
+            _claimBlazeRewardsFor(_msgSender(), blaze_);
 
             if (splitMerklAidrop_.amount > 0) {
                 IVeNestSplitMerklAidrop(veNestMerklAidrop).claimFor(
@@ -987,22 +987,17 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     }
 
     /**
-     * @notice Internal function to claim Merkl-based rewards on behalf of `target_`.
+     * @notice Internal function to claim Blaze-based rewards on behalf of `target_`.
      * @param target_ The address for which to claim.
-     * @param merklParams_ The parameters for Merkl-based claiming.
-     * @custom:error InvalidMerklDataUser Thrown if any of the users in `merklParams_` is not `target_`.
+     * @param blaze_ The parameters for Blaze-based claiming.
      */
-    function _claimMerklRewardsFor(address target_, AggregateClaimMerklDataParams calldata merklParams_) internal {
-        for (uint256 i; i < merklParams_.users.length; ) {
-            if (merklParams_.users[i] != target_) {
-                revert InvalidMerklDataUser();
+    function _claimBlazeRewardsFor(address target_, AggregateClaimBlazeDataParams calldata blaze_) internal {
+        if(blaze_.totalAmount > 0) {
+            IGaugeRewarder rewarder = IGaugeRewarder(gaugeRewarder);
+            uint256 claimed = rewarder.claimed(target_);
+            if(blaze_.totalAmount > claimed) {
+                IGaugeRewarder(gaugeRewarder).claimFor(target_, blaze_.totalAmount, blaze_.deadline, blaze_.signature);
             }
-            unchecked {
-                i++;
-            }
-        }
-        if (merklParams_.users.length > 0) {
-            IMerklDistributor(merklDistributor).claim(merklParams_.users, merklParams_.tokens, merklParams_.amounts, merklParams_.proofs);
         }
     }
 

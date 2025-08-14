@@ -115,7 +115,7 @@ interface ICompoundEmissionExtension {
      * @dev
      *  - `target` is the user whose emissions are being claimed.
      *  - `gauges` is a list of gauge addresses for which to claim the user’s emissions.
-     *  - `merkl` is optional merkle-based claim data (if the Voter supports merkle proofs).
+     *  - `blaze` is optional blaze-based claim data (if the Voter supports blaze signature).
      */
     struct ClaimParams {
         /**
@@ -127,9 +127,9 @@ interface ICompoundEmissionExtension {
          */
         address[] gauges;
         /**
-         * @notice Optional data for merkle-based claims, if applicable in the Voter implementation.
+         * @notice Optional data for blaze-based claims, if applicable in the Voter implementation.
          */
-        IVoter.AggregateClaimMerklDataParams merkl;
+        IVoter.AggregateClaimBlazeDataParams blaze;
     }
 
     // --------------------- Events ---------------------

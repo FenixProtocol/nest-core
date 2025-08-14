@@ -66,17 +66,15 @@ interface IVoter is IAccessControlUpgradeable {
     }
 
     /**
-     * @notice Parameters for claiming Merkl data.
-     * @param users The array of user addresses to claim for.
-     * @param tokens The array of token addresses.
-     * @param amounts The array of amounts to claim.
-     * @param proofs The array of arrays containing Merkle proofs.
+     * @notice Parameters for claiming Blaze data.
+     * @param totalAmount The total amount of reward being claimed.
+     * @param deadline The expiration time of the claim.
+     * @param signature The signature authorizing the claim.
      */
-    struct AggregateClaimMerklDataParams {
-        address[] users;
-        address[] tokens;
-        uint256[] amounts;
-        bytes32[][] proofs;
+    struct AggregateClaimBlazeDataParams {
+        uint256 totalAmount;
+        uint256 deadline;
+        bytes signature;
     }
 
     /**
@@ -523,7 +521,7 @@ interface IVoter is IAccessControlUpgradeable {
      *
      * @param target_ The address of the user for whom the emission claim is being processed.
      * @param gauges_ The array of gauge addresses from which to claim rewards on behalf of `target_`.
-     * @param merkl_  Optional Merkle-based claim data (if the Voter supports Merkle claims).
+     * @param blaze_  Optional Blaze-based claim data (if the Voter supports Blaze claims).
      *
      * @return toTargetLocks      The portion of claimed tokens that should go into veNFT locks.
      * @return toTargetBribePools The portion of claimed tokens that should go into bribe pools.
@@ -531,6 +529,6 @@ interface IVoter is IAccessControlUpgradeable {
     function onCompoundEmissionClaim(
         address target_,
         address[] calldata gauges_,
-        AggregateClaimMerklDataParams calldata merkl_
+        AggregateClaimBlazeDataParams calldata blaze_
     ) external returns (uint256 toTargetLocks, uint256 toTargetBribePools);
 }
