@@ -133,13 +133,13 @@ contract VeArtProxy is IVeArtProxy {
         return
             string.concat(
                 IVeArtProxyStatic(artProxyStatic).startPart(),
-                '<text x="5.5em" y="4.2em" class="venest__font-poppins">',
+                '<text x="5.5em" y="4.2em" class="prefix__venest__font-poppins">',
                 NumberFormatter.formatNumber(balance_, 18, 2),
-                '</text><text x="5.5em" y="7.2em" class="venest__font-poppins">',
+                '</text><text x="5.5em" y="7.2em" class="prefix__venest__font-poppins">',
                 NumberFormatter.formatNumber(votingPower_, 18, 2),
-                '</text><text x="5.5em" y="31.7em" class="venest__font-poppins">',
+                '</text><text x="5.5em" y="31.7em" class="prefix__venest__font-poppins">',
                 toDateString(lockedEnd_),
-                '</text><text x="30.5em" y="31.7em" class="venest__font-poppins">',
+                '</text><text x="30.5em" y="31.7em" class="prefix__venest__font-poppins">',
                 tokenId_.toString(),
                 "</text>",
                 artStatic.endPart()
