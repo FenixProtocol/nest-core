@@ -1,10 +1,10 @@
 # Nest Example APR Calculation
 
-This document provides an example and methodology for calculating the APR (Annual Percentage Rate) for users who have locked their veNFTs in the `CompoundVeFNXManagedNFTStrategy`. When a user connects their NFT to mVeNFT, the standard APR calculation becomes unavailable. Therefore, a specific calculation method is created for these users.
+This document provides an example and methodology for calculating the APR (Annual Percentage Rate) for users who have locked their veNFTs in the `CompoundVeNESTManagedNFTStrategy`. When a user connects their NFT to mVeNFT, the standard APR calculation becomes unavailable. Therefore, a specific calculation method is created for these users.
 
 ## Concept
 
-Any rewards accumulated by this strategy are converted into FNX and distributed among users. The user's reward is the received amount once a week, which will be added to their veNFT balance after withdrawal.
+Any rewards accumulated by this strategy are converted into NEST and distributed among users. The user's reward is the received amount once a week, which will be added to their veNFT balance after withdrawal.
 
 ### APR Calculation
 
@@ -12,14 +12,14 @@ APR is the expected percentage by which the user's veNFT balance will increase o
 
 ### Available Information
 
-1. **Total FNX Deposited in the Strategy by Users:** The overall amount of FNX deposited by all users in the strategy.
-2. **User's FNX Deposited in the Strategy per Epoch:** The amount of FNX deposited by a specific user in the strategy for a given epoch.
-3. **Rewards in Previous Epochs:** The rewards in FNX distributed among all users in past epochs.
+1. **Total NEST Deposited in the Strategy by Users:** The overall amount of NEST deposited by all users in the strategy.
+2. **User's NEST Deposited in the Strategy per Epoch:** The amount of NEST deposited by a specific user in the strategy for a given epoch.
+3. **Rewards in Previous Epochs:** The rewards in NEST distributed among all users in past epochs.
 4. **Incoming Rewards to the Strategy for Users:** The amount of rewards entering the strategy for distribution to users.
 
 ### Example Calculation
 
-!!! **Important** This calculation shows how much the APR will be in the case of the same reward for voting as in the previous epoch for the next year. For a more accurate calculation, you can use the arithmetic average of the last few epochs. Other remuneration or incentives that may be received are not taken into account. Only remuneration from voting converted into FNX is taken into account.
+!!! **Important** This calculation shows how much the APR will be in the case of the same reward for voting as in the previous epoch for the next year. For a more accurate calculation, you can use the arithmetic average of the last few epochs. Other remuneration or incentives that may be received are not taken into account. Only remuneration from voting converted into NEST is taken into account.
 
 To calculate the APR based on the previous week's reward:
 
@@ -71,12 +71,12 @@ YearEndBalance = P * (1 + \frac{WeekRewardPercent}{100\%})^{52}
 Where \( P \) is the initial mVeNFT balance.
 
 #### **Example:**
-Last week, 1000 FNX were distributed as a reward to users in the compound strategy, after selling all bribes, etc. The TotalSupply was = 100000 FNX
+Last week, 1000 NEST were distributed as a reward to users in the compound strategy, after selling all bribes, etc. The TotalSupply was = 100000 NEST
 
 Therefore, the weekly reward was:
 
 ```math
-WeeklyPercentagOfReward = \frac{1,000\ FNX}{100,000\ FNX } * 100\\% = 1\\%
+WeeklyPercentagOfReward = \frac{1,000\ NEST}{100,000\ NEST } * 100\\% = 1\\%
 ```
 
 ```math
@@ -84,20 +84,20 @@ YearAPR = 1\% * 52\ epoch = 52\% APR
 ```
 
 ```math
-Year End Balance = 100,000\ FNX * (1 + \frac{1\%}{100\%})^{52} = 167,768.892\ FNX
+Year End Balance = 100,000\ NEST * (1 + \frac{1\%}{100\%})^{52} = 167,768.892\ NEST
 ```
 
 ```math
-Compound Year APR = (\frac{167,768.892\ FNX}{100,000\ FNX} - 1) * 100\% = 67.7\%
+Compound Year APR = (\frac{167,768.892\ NEST}{100,000\ NEST} - 1) * 100\% = 67.7\%
 ```
 
 ## Contract Code and Methods
 
 ### Functions to Retrieve Information
 
-- **getLockedRewardsBalance(uint256 tokenId_)** (`CompoundVeFNXManagedNFTStrategyUpgradeable`): Retrieves the total amount of locked rewards available for a specific NFT based on its tokenId.
-- **balanceOf(uint256 tokenId_)** (`CompoundVeFNXManagedNFTStrategyUpgradeable` and `SingelTokenVirtualRewarderUpgradeable`): Retrieves the balance or stake associated with a specific NFT.
-- **totalSupply()** (`CompoundVeFNXManagedNFTStrategyUpgradeable` and `SingelTokenVirtualRewarderUpgradeable`): Retrieves the total supply of stakes managed by the strategy.
+- **getLockedRewardsBalance(uint256 tokenId_)** (`CompoundVeNESTManagedNFTStrategyUpgradeable`): Retrieves the total amount of locked rewards available for a specific NFT based on its tokenId.
+- **balanceOf(uint256 tokenId_)** (`CompoundVeNESTManagedNFTStrategyUpgradeable` and `SingelTokenVirtualRewarderUpgradeable`): Retrieves the balance or stake associated with a specific NFT.
+- **totalSupply()** (`CompoundVeNESTManagedNFTStrategyUpgradeable` and `SingelTokenVirtualRewarderUpgradeable`): Retrieves the total supply of stakes managed by the strategy.
 - **calculateAvailableRewardsAmount(uint256 tokenId_)** (`SingelTokenVirtualRewarderUpgradeable`): Calculates the available rewards amount for a given tokenId.
 - **balanceOfAt(uint256 tokenId_, uint256 timestamp_)** (`SingelTokenVirtualRewarderUpgradeable`): Provides the balance of a specific tokenId at a given timestamp.
 - **totalSupplyAt(uint256 timestamp_)** (`SingelTokenVirtualRewarderUpgradeable`): Provides the total supply of tokens at a given timestamp.
@@ -105,9 +105,9 @@ Compound Year APR = (\frac{167,768.892\ FNX}{100,000\ FNX} - 1) * 100\% = 67.7\%
 
 ### Events
 
-- **OnAttach(uint256 tokenId_, uint256 userBalance_)** (`CompoundVeFNXManagedNFTStrategyUpgradeable`): Emitted when an NFT is attached to the strategy.
-- **OnDettach(uint256 tokenId_, uint256 userBalance_, uint256 lockedRewards)** (`CompoundVeFNXManagedNFTStrategyUpgradeable`): Emitted when an NFT is detached from the strategy.
-- **Compound(address indexed user, uint256 amount)** (`CompoundVeFNXManagedNFTStrategyUpgradeable`): Emitted when the earnings are compounded.
+- **OnAttach(uint256 tokenId_, uint256 userBalance_)** (`CompoundVeNESTManagedNFTStrategyUpgradeable`): Emitted when an NFT is attached to the strategy.
+- **OnDettach(uint256 tokenId_, uint256 userBalance_, uint256 lockedRewards)** (`CompoundVeNESTManagedNFTStrategyUpgradeable`): Emitted when an NFT is detached from the strategy.
+- **Compound(address indexed user, uint256 amount)** (`CompoundVeNESTManagedNFTStrategyUpgradeable`): Emitted when the earnings are compounded.
 - **Deposit(uint256 tokenId_, uint256 amount_, uint256 epoch_)** (`SingelTokenVirtualRewarderUpgradeable`): Emitted when a deposit is made.
 - **Withdraw(uint256 tokenId_, uint256 amount_, uint256 epoch_)** (`SingelTokenVirtualRewarderUpgradeable`): Emitted when a withdrawal is made.
 - **Harvest(uint256 tokenId_, uint256 reward, uint256 epoch_)** (`SingelTokenVirtualRewarderUpgradeable`): Emitted when rewards are harvested.

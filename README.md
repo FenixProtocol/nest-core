@@ -1,42 +1,13 @@
-# Fenix Core
+# Nest Core
 
-Welcome to **Fenix Core**, the new official home for the [Fenix](https://github.com/Satsyxbt/Fenix) repository!
-
----
-
-## :sparkles: Repository Relocation
-
-#### Moved From:
-- **[Satsyxbt/Fenix](https://github.com/Satsyxbt/Fenix)**  
-  This repository is now archived/outdated.
-- **[Satsyxbt/Fenix-Dex-V3](https://github.com/Satsyxbt/fenix-dex-v3)**  
-  This repository is now archived/outdated.
-#### Moved To:
-- **[FenixProtocol/fenix-core](https://github.com/FenixProtocol/fenix-core)**  
-- **[FenixProtocol/fenix-algebra](https://github.com/FenixProtocol/fenix-algebra)**  
-
----
-
-### :warning: Important Note on Fenix Dex V3
-- The **old** Fenix Dex V3 repository at [Satsyxbt/Fenix-dex-v3](https://github.com/Satsyxbt/Fenix-dex-v3) has also been migrated.
-- Please use **[FenixProtocol/fenix-algebra](https://github.com/FenixProtocol/fenix-algebra)** for the latest iteration of Dex V3 and related algebraic components.
-
----
+Welcome to **Nest Core**
 
 ## Project overiew
-
-The `Fenix` protocol is a modified version of `Chronos & Thena`, introducing innovations and changes
-
-At its core, the protocol is based on the `ve(3,3)` concept, with a new set of integrations and a variable set of rules.
-
-
-### Links
-- [Fenix ve(3,3) Core](https://github.com/Satsyxbt/Fenix)
-- [Docs](https://docs.fenixfinance.io/)
+The protocol is based on the `ve(3,3)` concept, with a new set of integrations and a variable set of rules.
 
 
 
-## VotingEscrow (veFNX) Overview
+## VotingEscrow (veNEST) Overview
 
 ### Available actions in certain states
 
@@ -66,18 +37,18 @@ The table below outlines the main features of the `VotingEscrowUpgradeableV2` co
 ### Getting the code
 Clone this repository
 ```sh
-git clone --recursive -j8  https://github.com/Satsyxbt/Fenix
+git clone --recursive -j8  https://github.com/FenixProtocol/nest-core
 ```
 or
 ```sh
-git clone https://github.com/Satsyxbt/Fenix
-cd fenix
+git clone https://github.com/FenixProtocol/nest-core
+cd nest-core
 git submodule update --init --recursive
 ```
 
 Enter into the directory
 ```sh
-cd fenix
+cd nest-core
 ```
 
 Install dependency
@@ -86,11 +57,11 @@ npm install
 ```
 
 ### Running basic tests
-To run the existing tests, also need to compile the artifacts of the fenix-algebra library
+To run the existing tests, also need to compile the artifacts of the nest-algebra library
 ```
 sh
 1.
-    cd lib/fenix-algebra
+    cd lib/nest-algebra
     npm install
 
 2. 

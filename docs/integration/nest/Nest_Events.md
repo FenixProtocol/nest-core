@@ -78,7 +78,7 @@
      * @dev Emitted when rewards are compounded by the caller.
      *
      * @param caller The address of the account that called the compound function.
-     * @param amount The amount of VeFNX tokens that were compounded.
+     * @param amount The amount of VeNFT tokens that were compounded.
      */
     event Compound(address indexed caller, uint256 indexed amount);
 

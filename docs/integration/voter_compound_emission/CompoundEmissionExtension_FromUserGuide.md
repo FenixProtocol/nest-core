@@ -225,7 +225,7 @@ compoundEmissionClaimBatch(ClaimParams[] calldata claimsParams_);
 struct ClaimParams {
     address target;          // user whose emissions to claim
     address[] gauges;        // which gauges to claim from
-    IVoter.AggregateClaimMerklDataParams merkl; // optional merkle-based data
+    IVoter.AggregateClaimBlazeDataParams blaze; // optional blaze-based data
 }
 ```
 

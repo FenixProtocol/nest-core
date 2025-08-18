@@ -17,7 +17,7 @@ function compoundEmissionClaimBatch(ClaimParams[] calldata claimsParams_) extern
 **Description:**
 Triggers the compounding of emissions for multiple users in a single batch operation. This includes:
 1. Claiming rewards from gauges for each user.
-2. Optionally claiming additional rewards via a Merkl proof.
+2. Optionally claiming additional rewards via a Blaze signature.
 3. Locking the portion of emissions allocated to veNFT locks according to each user's configuration.
 4. Sending the portion of emissions allocated to bribe pools to their respective targets.
 
@@ -25,7 +25,7 @@ Triggers the compounding of emissions for multiple users in a single batch opera
 - **claimsParams_**: An array of `ClaimParams` structs, where each struct contains the following fields:
   - **target**: `address` - The user for whom the emissions are being compounded.
   - **gauges**: `address[]` - The list of gauge contracts to claim rewards from.
-  - **merkl**: `IVoter.AggregateClaimMerklDataParams` - Merkl proof data for claiming additional rewards.
+  - **blaze**: `IVoter.AggregateClaimBlazeDataParams` - Blaze signature data for claiming additional rewards.
 
 **Requirements:**
 - The caller must have the `COMPOUND_KEEPER_ROLE`.
@@ -42,7 +42,7 @@ Triggers the compounding of emissions for multiple users in a single batch opera
    Gather the necessary information for each user in the form of `ClaimParams`. This includes:
    - User addresses (`target`).
    - Gauges from which to claim emissions (`gauges`).
-   - Merkl proof data for additional rewards (`merkl`).
+   - Blaze signature data for additional rewards (`blaze`).
 
    **Example:**
    ```solidity
@@ -51,22 +51,20 @@ Triggers the compounding of emissions for multiple users in a single batch opera
    claims[0] = ClaimParams({
        target: 0x1234567890abcdef1234567890abcdef12345678,
        gauges: [0xabcdefabcdefabcdefabcdefabcdefabcdef],
-       merkl: IVoter.AggregateClaimMerklDataParams({
-           users: [0x1234567890abcdef1234567890abcdef12345678],
-           tokens: [0x9876543210abcdef9876543210abcdef98765432],
-           amounts: [1000],
-           proofs: [["0xabc...", "0xdef..."]]
+       blaze: IVoter.AggregateClaimBlazeDataParams({
+           deadline: deadline
+           totalAmount: 1000,
+           signature: "0xabc..."
        })
    });
 
    claims[1] = ClaimParams({
        target: 0xabcdefabcdefabcdefabcdefabcdefabcdefabcdef,
        gauges: [0x1234567890abcdef1234567890abcdef12345678],
-       merkl: IVoter.AggregateClaimMerklDataParams({
-           users: [0xabcdefabcdefabcdefabcdefabcdefabcdefabcdef],
-           tokens: [0x9876543210abcdef9876543210abcdef98765432],
-           amounts: [500],
-           proofs: [["0xghi...", "0xjkl..."]]
+       blaze: IVoter.AggregateClaimBlazeDataParams({
+           deadline: deadline
+           totalAmount: 1000,
+           signature: "0xabc..."
        })
    });
    ```
@@ -104,13 +102,13 @@ ClaimParams[] memory claims = new ClaimParams[](2);
 claims[0] = ClaimParams({
     target: 0x1234567890abcdef1234567890abcdef12345678,
     gauges: [0xabcdefabcdefabcdefabcdefabcdefabcdef],
-    merkl: {}
+    blaze: {}
 });
 
 claims[1] = ClaimParams({
     target: 0xabcdefabcdefabcdefabcdefabcdefabcdefabcdef,
     gauges: [0x1234567890abcdef1234567890abcdef12345678],
-    merkl: {}
+    blaze: {}
 });
 
 // Execute the batch claim

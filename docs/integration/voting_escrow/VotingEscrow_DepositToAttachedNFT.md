@@ -68,7 +68,7 @@ event Supply(uint256 prevSupply, uint256 newSupply);
 
 ## Example: Depositing Tokens to an Attached NFT
 
-Below is a simplified JavaScript example that demonstrates how to call the `depositToAttachedNFT` function from the `VotingEscrow` contract. It assumes that the user has already approved the Voting Escrow contract to spend FNX tokens on their behalf.
+Below is a simplified JavaScript example that demonstrates how to call the `depositToAttachedNFT` function from the `VotingEscrow` contract. It assumes that the user has already approved the Voting Escrow contract to spend NEST tokens on their behalf.
 
 ```javascript
 // Assuming the contract instance has been created and connected to a signer

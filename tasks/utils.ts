@@ -200,23 +200,23 @@ export type VeBoostState = {
   owner: string;
   minLockedTimeForBoost: bigint;
   minLockedTimeForBoostFormmated: string;
-  boostFNXPercentage: bigint;
-  boostFNXPercentageFormmated: string;
+  boostNESTPercentage: bigint;
+  boostNESTPercentageFormmated: string;
   priceProvider: string;
   minUSDAmount: bigint;
   minUSDAmountFormmated: string;
   priceProviderState: {
     address: string;
-    fnx: string;
+    nest: string;
     usd: string;
     pool: string;
-    usdToFnxPrice: bigint;
-    usdToFnxPriceFormmated: string;
+    usdToNestPrice: bigint;
+    usdToNestPriceFormmated: string;
     currentTick: bigint;
   };
 };
 export async function getVeBoostState(hre: HardhatRuntimeEnvironment, veBoost: VeBoostUpgradeable): Promise<VeBoostState> {
-  const [owner, minLockedTimeForBoost, boostFNXPercentage, priceProvider, minUSDAmount] = await Promise.all([
+  const [owner, minLockedTimeForBoost, boostNESTPercentage, priceProvider, minUSDAmount] = await Promise.all([
     veBoost.owner(),
     veBoost.getMinLockedTimeForBoost(),
     veBoost.getBoostNESTPercentage(),
@@ -226,7 +226,7 @@ export async function getVeBoostState(hre: HardhatRuntimeEnvironment, veBoost: V
 
   let pp = await hre.ethers.getContractAt(InstanceName.AlgebraNESTPriceProviderUpgradeable, priceProvider);
 
-  const [ppFNX, ppUSD, ppPool, usdToFnxPrice, currentTick] = await Promise.all([
+  const [ppNEST, ppUSD, ppPool, usdToNestPrice, currentTick] = await Promise.all([
     pp.NEST(),
     pp.USD(),
     pp.pool(),
@@ -239,19 +239,19 @@ export async function getVeBoostState(hre: HardhatRuntimeEnvironment, veBoost: V
     owner,
     minLockedTimeForBoost,
     minLockedTimeForBoostFormmated: Number(minLockedTimeForBoost) / 86400 + ' days',
-    boostFNXPercentage,
-    boostFNXPercentageFormmated: Number(boostFNXPercentage) / 100 + '%',
+    boostNESTPercentage,
+    boostNESTPercentageFormmated: Number(boostNESTPercentage) / 100 + '%',
     priceProvider,
     minUSDAmount,
     minUSDAmountFormmated: formatEther(minUSDAmount),
     priceProviderState: {
       address: pp.target.toString(),
       currentTick: currentTick,
-      fnx: ppFNX,
+      nest: ppNEST,
       usd: ppUSD,
       pool: ppPool,
-      usdToFnxPrice: usdToFnxPrice,
-      usdToFnxPriceFormmated: formatEther(usdToFnxPrice),
+      usdToNestPrice: usdToNestPrice,
+      usdToNestPriceFormmated: formatEther(usdToNestPrice),
     },
   };
 }
@@ -345,7 +345,7 @@ export async function getMinterState(minter: MinterUpgradeable): Promise<MinterS
     teamRate,
     teamRatePercent: Number(teamRate) / 100 + '%',
     weekly,
-    weeklyFormmated: formatEther(weekly) + ' FNX',
+    weeklyFormmated: formatEther(weekly) + ' NEST',
     activePeriod,
     lastInflationPeriod,
     fenix,
@@ -586,7 +586,7 @@ export async function getMinimalLinearVestingState(
   };
 }
 
-export type VeFnxSplitMerklAidropState = {
+export type VeNestSplitMerklAidropState = {
   address: string;
   owner: string;
   token: string;
@@ -596,21 +596,21 @@ export type VeFnxSplitMerklAidropState = {
   merklRoot: string;
   isPaused: boolean;
 };
-export async function getVeFnxSplitMerklAidropState(veFnxSplit: VeNestSplitMerklAidropUpgradeable): Promise<VeFnxSplitMerklAidropState> {
+export async function getVeNestSplitMerklAidropState(veNestSplit: VeNestSplitMerklAidropUpgradeable): Promise<VeNestSplitMerklAidropState> {
   const [owner, token, votingEscrow, isPaused, merklRoot] = await Promise.all([
-    veFnxSplit.owner(),
-    veFnxSplit.token(),
-    veFnxSplit.votingEscrow(),
-    veFnxSplit.paused(),
-    veFnxSplit.merklRoot(),
+    veNestSplit.owner(),
+    veNestSplit.token(),
+    veNestSplit.votingEscrow(),
+    veNestSplit.paused(),
+    veNestSplit.merklRoot(),
   ]);
   let pureTokensRate = 0n;
   try {
-    pureTokensRate = await veFnxSplit.pureTokensRate();
+    pureTokensRate = await veNestSplit.pureTokensRate();
   } catch {}
 
   return {
-    address: veFnxSplit.target.toString(),
+    address: veNestSplit.target.toString(),
     owner,
     token,
     votingEscrow,
@@ -631,8 +631,8 @@ export type VoterUpgradeableState = {
   v3PoolFactory: string;
   v2GaugeFactory: string;
   v3GaugeFactory: string;
-  merklDistributor: string;
-  veFnxMerklAidrop: string;
+  gaugeRewarder: string;
+  veNestMerklAidrop: string;
   index: bigint;
   voteDelay: bigint;
   distributionWindowDuration: bigint;
@@ -650,8 +650,8 @@ export async function getVoterState(voter: VoterUpgradeableV2): Promise<VoterUpg
     v3PoolFactory,
     v2GaugeFactory,
     v3GaugeFactory,
-    merklDistributor,
-    veFnxMerklAidrop,
+    gaugeRewarder,
+    veNestMerklAidrop,
     index,
     voteDelay,
     distributionWindowDuration,
@@ -664,7 +664,7 @@ export async function getVoterState(voter: VoterUpgradeableV2): Promise<VoterUpg
     voter.v3PoolFactory(),
     voter.v2GaugeFactory(),
     voter.v3GaugeFactory(),
-    voter.merklDistributor(),
+    voter.gaugeRewarder(),
     voter.veNestMerklAidrop(),
     voter.index(),
     voter.voteDelay(),
@@ -691,8 +691,8 @@ export async function getVoterState(voter: VoterUpgradeableV2): Promise<VoterUpg
     v3PoolFactory,
     v2GaugeFactory,
     v3GaugeFactory,
-    merklDistributor,
-    veFnxMerklAidrop,
+    gaugeRewarder,
+    veNestMerklAidrop,
     index,
     voteDelay,
     distributionWindowDuration,

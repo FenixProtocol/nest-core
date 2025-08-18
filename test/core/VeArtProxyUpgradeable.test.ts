@@ -7,12 +7,7 @@ describe('VeArtProxyUpgradeable Contract', function () {
   let veArtProxy: VeArtProxy;
 
   before(async function () {
-    let artStatic = await ethers.deployContract('VeArtProxyStatic', [
-      ART_RPOXY_PARTS.lockedIcon,
-      ART_RPOXY_PARTS.unlockedIcon,
-      ART_RPOXY_PARTS.transferablePart,
-      ART_RPOXY_PARTS.notTransferablePart,
-    ]);
+    let artStatic = await ethers.deployContract('VeArtProxyStatic', []);
 
     await artStatic.setStartPart(ART_RPOXY_PARTS.startPart);
     await artStatic.setEndPart(ART_RPOXY_PARTS.endPart);

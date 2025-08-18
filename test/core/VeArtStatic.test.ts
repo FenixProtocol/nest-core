@@ -8,29 +8,7 @@ describe('VeArtProxyUpgradeable Contract', function () {
   let artStatic: VeArtProxyStatic;
 
   before(async function () {
-    artStatic = await ethers.deployContract('VeArtProxyStatic', [
-      ART_RPOXY_PARTS.lockedIcon,
-      ART_RPOXY_PARTS.unlockedIcon,
-      ART_RPOXY_PARTS.transferablePart,
-      ART_RPOXY_PARTS.notTransferablePart,
-    ]);
-  });
-
-  it('suceess init params', async () => {
-    expect(await artStatic.lockedIcon()).to.be.equal(ART_RPOXY_PARTS.lockedIcon);
-    expect(await artStatic.unlockedIcon()).to.be.equal(ART_RPOXY_PARTS.unlockedIcon);
-    expect(await artStatic.transferablePart()).to.be.equal(ART_RPOXY_PARTS.transferablePart);
-    expect(await artStatic.notTransferablePart()).to.be.equal(ART_RPOXY_PARTS.notTransferablePart);
-  });
-
-  it('success returns correct icon by getLockIcon', async () => {
-    expect(await artStatic.getLockIcon(true)).to.be.equal(ART_RPOXY_PARTS.lockedIcon);
-    expect(await artStatic.getLockIcon(false)).to.be.equal(ART_RPOXY_PARTS.unlockedIcon);
-  });
-
-  it('success returns correct transferable part by getIsTransferablePart', async () => {
-    expect(await artStatic.getIsTransferablePart(true)).to.be.equal(ART_RPOXY_PARTS.transferablePart);
-    expect(await artStatic.getIsTransferablePart(false)).to.be.equal(ART_RPOXY_PARTS.notTransferablePart);
+    artStatic = await ethers.deployContract('VeArtProxyStatic');
   });
 
   it('success call setStartPart and setup', async () => {

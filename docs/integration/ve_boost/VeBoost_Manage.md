@@ -15,23 +15,23 @@ function setPriceProvider(address priceProvider_) external onlyOwner;
 ```
 
 **Description:**
-Sets a new address for the FNX to USD price provider. Only the contract owner can call this function.
+Sets a new address for the NEST to USD price provider. Only the contract owner can call this function.
 
 **Parameters:**
 - `priceProvider_`: The address of the new price provider.
 
-### Set FNX Boost Percentage
+### Set NEST Boost Percentage
 
 **Signature:**
 ```solidity
-function setFNXBoostPercentage(uint256 boostFNXPercentage_) external onlyOwner;
+function setNESTBoostPercentage(uint256 boostNESTPercentage_) external onlyOwner;
 ```
 
 **Description:**
-Sets a new boost percentage for FNX tokens. Only the contract owner can call this function.
+Sets a new boost percentage for NEST tokens. Only the contract owner can call this function.
 
 **Parameters:**
-- `boostFNXPercentage_`: The new boost percentage in basis points.
+- `boostNESTPercentage_`: The new boost percentage in basis points.
 
 **Example:**
 - If the boost percentage is set to 1000, it means a 10% boost.
@@ -114,8 +114,8 @@ To ensure the VeBoost contract has sufficient tokens to provide boosts, tokens n
      IERC20(token).transfer(address(veBoostContract), amount);
      ```
 
-To add reward tokens that are not FNX for distribution, simply transfer the tokens to the VeBoost contract address. **Ensure that the VeBoost contract has a sufficient balance of FNX tokens, as reward tokens are distributed proportionally to the FNX balance.**
+To add reward tokens that are not NEST for distribution, simply transfer the tokens to the VeBoost contract address. **Ensure that the VeBoost contract has a sufficient balance of NEST tokens, as reward tokens are distributed proportionally to the NEST balance.**
 
 ### **!!! Important Note:**
-When adding other tokens as rewards, make sure that the corresponding FNX amount has already been deposited into the contract. Reward tokens are issued proportionally to the FNX balance.
-**For example, if the FNX balance is 1 token and the USDB balance is 10000, in case the user receives 1 FNX as a boost, he will also receive 10_000 USDB**
+When adding other tokens as rewards, make sure that the corresponding NEST amount has already been deposited into the contract. Reward tokens are issued proportionally to the NEST balance.
+**For example, if the NEST balance is 1 token and the USDB balance is 10000, in case the user receives 1 NEST as a boost, he will also receive 10_000 USDB**

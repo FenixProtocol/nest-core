@@ -83,5 +83,5 @@ Function: `distribute(address[] memory _gauges)` in the `VoterUpgradeable` contr
   - Allows for targeted distribution to ensure all intended recipients receive their rewards.
 
 #### **5. Bribes proccessing and Nest strategy management**
-Authorized addresses of `NEST` strategies must perform all necessary actions within the first hour of the new epoch. For example, they must sell all rewards, convert FNX, and call `compound`. Failure to perform these actions will result in users who staked in these strategies not receiving their rewards for the epoch if they detach their veNFT before this actions after end of distribution window
+Authorized addresses of `NEST` strategies must perform all necessary actions within the first hour of the new epoch. For example, they must sell all rewards, convert NEST, and call `compound`. Failure to perform these actions will result in users who staked in these strategies not receiving their rewards for the epoch if they detach their veNFT before this actions after end of distribution window
 

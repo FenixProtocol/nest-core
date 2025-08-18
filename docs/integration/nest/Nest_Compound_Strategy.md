@@ -1,7 +1,7 @@
-# Compound VeFNX Managed NFT Strategy Upgradeable
+# Compound VeNEST Managed NFT Strategy Upgradeable
 
 ## Overview
-The `Compound VeFNX Managed NFT Strategy Upgradeable` is a smart contract designed to enhance the management of FENIX tokens through compounding rewards and stake management within a decentralized finance (DeFi) environment. This contract is an integral part of a broader system that utilizes non-fungible tokens (NFTs) to represent financial strategies. It automates the process of reinvesting harvested rewards back into VeFNX, aiming to maximize returns and increase the underlying voting power of the tokens.
+The `Compound VeNEST Managed NFT Strategy Upgradeable` is a smart contract designed to enhance the management of FENIX tokens through compounding rewards and stake management within a decentralized finance (DeFi) environment. This contract is an integral part of a broader system that utilizes non-fungible tokens (NFTs) to represent financial strategies. It automates the process of reinvesting harvested rewards back into VeNEST, aiming to maximize returns and increase the underlying voting power of the tokens.
 
 ## Reward Lifecycle
 Rewards are accumulated over time and become accessible when participants choose to detach from the strategy. The amount of reward a user receives is proportional to their share of the total amount staked in the strategy. The reward is given to the user in the new era, during the distribution in the distribution window. **But in any case, you should make sure that the reward has been given out before leaving the strategy.**
@@ -23,11 +23,11 @@ function balanceOf(uint256 tokenId_) external view returns (uint256)
 ```
 Shows the current balance or stake of a specific NFT in the strategy.
 
-#### Get Total Supply of Locked FNX
+#### Get Total Supply of Locked NEST
 ```js
 function totalSupply() external view returns (uint256)
 ```
-Return the total supply of FNX stakes managed by the strategy.
+Return the total supply of NEST stakes managed by the strategy.
 
 #### Get Strategy Name
 ```js
@@ -35,27 +35,27 @@ function name() external view returns (string)
 ```
 Returns the name of the current strategy for identification purposes.
 
-#### Get Managed veFNX NFT ID
+#### Get Managed VeNEST NFT ID
 ```js
 function managedTokenId() external view returns (uint256)
 ```
-Provides the ID of the veFNX managed under this strategy, linking specific actions and rewards to it.
+Provides the ID of the VeNEST managed under this strategy, linking specific actions and rewards to it.
 
 ---
 
 ### Public Functions
-#### Compound veFNX in veFNX Managed NFT
+#### Compound VeNEST in VeNEST Managed NFT
 
 ```js
     function compoundVeNFTsAll() external
     function compoundVeNFTs(uint256[] calldata tokenIds_) external
 ```
 
-#### Compound FNX in veFNX Managed NFT
+#### Compound NEST in VeNEST Managed NFT
 ```js
 function compound() external
 ```
-Compounds all available FNX on the strategy's balance into the managed NFT’s VeFNX stake, thereby enhancing the voting power and future rewards potential.
+Compounds all available NEST on the strategy's balance into the managed NFT’s VeNEST stake, thereby enhancing the voting power and future rewards potential.
 
 #### Claim Bribes
 ```js

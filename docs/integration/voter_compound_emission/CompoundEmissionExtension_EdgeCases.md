@@ -7,15 +7,15 @@ This document outlines important edge cases and their handling in the **Compound
 ## 1. Token Approval Requirement
 
 ### **Scenario**
-Before emissions can be compounded and locked by the contract, the user must approve their FNX tokens for the **Voter** contract. This is necessary for the contract to access and manage the user's FNX balance.
+Before emissions can be compounded and locked by the contract, the user must approve their NEST tokens for the **Voter** contract. This is necessary for the contract to access and manage the user's NEST balance.
 
 ### **Steps**
-1. The user calls the `approve` function on the FNX token contract, setting the **Voter** contract as the spender:
+1. The user calls the `approve` function on the NEST token contract, setting the **Voter** contract as the spender:
    ```solidity
    function approve(address spender, uint256 amount) external;
    ```
    - `spender`: The address of the Voter contract.
-   - `amount`: The amount of FNX tokens to approve.
+   - `amount`: The amount of NEST tokens to approve.
 
 2. Without this approval, the contract will fail to transfer tokens for compounding.
 

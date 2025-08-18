@@ -1,9 +1,9 @@
 # Strategy lifecyle
-The lifecycle of a compound strategy in the VeFNX ecosystem is managed through various contract interactions, specifically orchestrated by the CompoundVeFNXManagedNFTStrategyFactoryUpgradeable. Below is a detailed description and enhancement of each step involv
+The lifecycle of a compound strategy in the veNEST ecosystem is managed through various contract interactions, specifically orchestrated by the CompoundVeNESTManagedNFTStrategyFactoryUpgradeable. Below is a detailed description and enhancement of each step involv
 1. **Create strategy**
 An authorized address calls the factory to create a new strategy by specifying the strategy's name. This is done through the method:
 ```js
-CompoundVeFNXManagedNFTStrategyFactoryUpgradeable.createStrategy(string calldata name_)
+CompoundVeNESTManagedNFTStrategyFactoryUpgradeable.createStrategy(string calldata name_)
 ```
 Upon successful creation, the following event is emitted:****
 ```js

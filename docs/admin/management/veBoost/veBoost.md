@@ -2,7 +2,7 @@
 # VeBoost Contract
 
 ## Overview
-The `VeBoostUpgradeable` contract implements boosting functionality within the Fenix ecosystem, allowing users to receive boosts based on locked FNX tokens.
+The `VeBoostUpgradeable` contract implements boosting functionality within the Fenix ecosystem, allowing users to receive boosts based on locked NEST tokens.
 
 
 ## Interaction
@@ -18,20 +18,20 @@ For interaction, you can use any approach to interact with SC, such as:
 
 ### Admin functions
 
-#### `setFNXBoostPercentage(uint256 boostFNXPercentage_)`
-Sets the FNX boost percentage. Only callable by the contract owner.
+#### `setNESTBoostPercentage(uint256 boostNESTPercentage_)`
+Sets the NEST boost percentage. Only callable by the contract owner.
 
 - `PRECISION` = 10_000 = 100%
 - `DEFAULT_PERCENTAGE` = 1_000 = 10%
   
 ```js
-function setFNXBoostPercentage(uint256 boostFNXPercentage_)
+function setNESTBoostPercentage(uint256 boostNESTPercentage_)
 ```
 
-#### `setMinFNXAmount(uint256 minFNXAmount_)`
-Sets the minimum FNX amount required for a boost. Only callable by the contract owner. 
+#### `setMinNESTAmount(uint256 minNESTAmount_)`
+Sets the minimum NEST amount required for a boost. Only callable by the contract owner. 
 ```js
-function setMinFNXAmount(uint256 minFNXAmount_)
+function setMinNESTAmount(uint256 minNESTAmount_)
 ```
 
 #### `setMinLockedTime(uint256 minLockedTime_)`
@@ -67,17 +67,17 @@ function recoverTokens(address token_, uint256 recoverAmount_)
 #### `rewardTokens()`
 Returns an array of addresses for all reward tokens available.
 
-#### `getMinFNXAmountForBoost()`
-Returns the minimum FNX amount required for receiving a boost.
+#### `getMinNESTAmountForBoost()`
+Returns the minimum NEST amount required for receiving a boost.
 
 #### `getMinLockedTimeForBoost()`
 Returns the minimum locked time required to qualify for a boost.
 
-#### `getBoostFNXPercentage()`
-Returns the current FNX boost percentage.
+#### `getBoostNESTPercentage()`
+Returns the current NEST boost percentage.
 
-#### `getAvailableBoostFNXAmount()`
-Returns the available amount of FNX for boosts, considering both balance and allowance.
+#### `getAvailableBoostNESTAmount()`
+Returns the available amount of NEST for boosts, considering both balance and allowance.
 
-#### `calculateBoostFNXAmount(uint256 depositedFNXAmount_)`
-Calculates the amount of FNX that can be boosted based on the deposited amount.
+#### `calculateBoostNESTAmount(uint256 depositedNESTAmount_)`
+Calculates the amount of NEST that can be boosted based on the deposited amount.

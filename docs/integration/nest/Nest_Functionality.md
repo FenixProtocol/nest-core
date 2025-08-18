@@ -10,5 +10,5 @@
 * The rewards received are not subject to the veBoost functionality.
   
 ## Managed NFT
-* Specific veFNX NFTs that are managed by strategy contracts for optimizing the voting process.
-* Users can attach their veFNX NFTs to a managed NFT, which transfers control over their voting power to the managed NFT strategy contract.
+* Specific veNEST NFTs that are managed by strategy contracts for optimizing the voting process.
+* Users can attach their veNEST NFTs to a managed NFT, which transfers control over their voting power to the managed NFT strategy contract.

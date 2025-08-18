@@ -1,6 +1,6 @@
 # Claim Bribes With ERC20 and Tokens Recover
 
-This document provides an overview of the `claimBribesWithERC20Recover` and `claimBribesWithTokensRecover` functions in the `CompoundVeFNXManagedNFTStrategyUpgradeable` contract, explaining their parameters, functionality, and providing examples for usage.
+This document provides an overview of the `claimBribesWithERC20Recover` and `claimBribesWithTokensRecover` functions in the `CompoundVeNESTManagedNFTStrategyUpgradeable` contract, explaining their parameters, functionality, and providing examples for usage.
 
 ---
 
@@ -9,7 +9,7 @@ This document provides an overview of the `claimBribesWithERC20Recover` and `cla
 ### `claimBribesWithERC20Recover`
 The `claimBribesWithERC20Recover` function is designed to:
 1. Claim rewards (bribes) from specified contracts for the strategy.
-2. Recover selected ERC20 tokens (not fnx) and transfer them to a specified recipient.
+2. Recover selected ERC20 tokens (not NEST) and transfer them to a specified recipient.
 
 This is particularly useful for automating both the claiming of bribes and the withdrawal of tokens in a single transaction.
 

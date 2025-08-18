@@ -46,8 +46,8 @@ The `FeesVault` for each `PairFactory` and `AlgebraV3Pool` includes an emergency
 
 
 ### RFenix
-The RFenix contract includes a function to recover FNX tokens in emergency situations.
-* **Recover FNX Tokens**: Use the `recoverToken(uint256 amount_)` method to recover FNX tokens from the contract. This action can only be performed by the owner.
+The RFenix contract includes a function to recover NEST tokens in emergency situations.
+* **Recover NEST Tokens**: Use the `recoverToken(uint256 amount_)` method to recover NEST tokens from the contract. This action can only be performed by the owner.
 
 ### VeBoost
 The VeBoostUpgradeable contract includes a function to recover tokens in emergency situations.

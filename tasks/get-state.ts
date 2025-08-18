@@ -12,7 +12,7 @@ import {
   getPoolState,
   getVeBoostState,
   getBribeFactoryState,
-  getVeFnxSplitMerklAidropState,
+  getVeNestSplitMerklAidropState,
   getMinimalLinearVestingState,
   getVoterState,
   getVotingEscrowState,
@@ -39,7 +39,7 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
       InstanceName.FeesVaultFactoryUpgradeable,
       deployData[AliasDeployedContracts.FeesVaultFactoryUpgradeable_Proxy],
     );
-    const Fenix = await hre.ethers.getContractAt(InstanceName.Nest, deployData[AliasDeployedContracts.Nest]);
+    const Nest = await hre.ethers.getContractAt(InstanceName.Nest, deployData[AliasDeployedContracts.Nest]);
     const MinterUpgradeable = await hre.ethers.getContractAt(
       InstanceName.MinterUpgradeable,
       deployData[AliasDeployedContracts.MinterUpgradeable_Proxy],
@@ -52,7 +52,7 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
       InstanceName.BribeFactoryUpgradeable,
       deployData[AliasDeployedContracts.BribeFactoryUpgradeable_Proxy],
     );
-    const VeFnxSplitMerklAidropUpgradeable = await hre.ethers.getContractAt(
+    const VeNestSplitMerklAidropUpgradeable = await hre.ethers.getContractAt(
       InstanceName.VeNestSplitMerklAidropUpgradeable,
       deployData[AliasDeployedContracts.VeNestSplitMerklAidropUpgradeable_Proxy],
     );
@@ -83,7 +83,7 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
     console.log('getVoterState data....');
 
     const voterState = await getVoterState(VoterUpgradeable);
-    const veFnxSplitMerklAidropState = await getVeFnxSplitMerklAidropState(VeFnxSplitMerklAidropUpgradeable);
+    const veNestSplitMerklAidropState = await getVeNestSplitMerklAidropState(VeNestSplitMerklAidropUpgradeable);
 
     const veBoostState = await getVeBoostState(hre, VeBoostUpgradeable);
 
@@ -95,7 +95,7 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
         return getPairState(PairFactory, FeesVaultFactoryUpgradeable, await hre.ethers.getContractAt(InstanceName.Pair, pair));
       }),
     );
-    const fenixState = await getFenixState(Fenix);
+    const nestState = await getFenixState(Nest);
     let minimalLinearVestingState = {};
     try {
       const MinimalLinearVestingUpgradeable = await hre.ethers.getContractAt(
@@ -137,14 +137,14 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
     }
 
     const result = {
-      fenixState,
+      nestState,
       minterState,
       veBoostState,
       voterState,
       votingEscrowState,
       gaugeFactoryV2PoolsState,
       gaugeFactoryV3PoolsState,
-      veFnxSplitMerklAidropState,
+      veNestSplitMerklAidropState,
       minimalLinearVestingState,
       bribeFactoryState,
       pairFactoryState,

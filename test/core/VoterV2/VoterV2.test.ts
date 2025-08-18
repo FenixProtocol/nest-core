@@ -86,7 +86,7 @@ describe('VotingEscrow_V2', function () {
 
     it('#onCompoundEmissionClaim', async () => {
       await expect(
-        Voter.onCompoundEmissionClaim(ethers.ZeroAddress, [], { users: [ethers.ZeroAddress], proofs: [], tokens: [], amounts: [] }),
+        Voter.onCompoundEmissionClaim(ethers.ZeroAddress, [], { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 }),
       ).to.be.revertedWithCustomError(Voter, 'AccessDenied');
     });
   });
@@ -231,7 +231,7 @@ describe('VotingEscrow_V2', function () {
         beforeEach(async () => {
           await Voter.updateAddress('minter', ethers.ZeroAddress);
           await Voter.updateAddress('bribeFactory', ethers.ZeroAddress);
-          await Voter.updateAddress('merklDistributor', ethers.ZeroAddress);
+          await Voter.updateAddress('gaugeRewarder', ethers.ZeroAddress);
           await Voter.updateAddress('veNestMerklAidrop', ethers.ZeroAddress);
           await Voter.updateAddress('managedNFTManager', ethers.ZeroAddress);
           await Voter.updateAddress('v2PoolFactory', ethers.ZeroAddress);
@@ -242,7 +242,7 @@ describe('VotingEscrow_V2', function () {
 
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);
@@ -258,7 +258,7 @@ describe('VotingEscrow_V2', function () {
             .withArgs('compoundEmissionExtension', deployed.compoundEmissionExtension.target);
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);
@@ -274,7 +274,7 @@ describe('VotingEscrow_V2', function () {
             .withArgs('minter', deployed.minter.target);
           expect(await Voter.minter()).to.be.eq(deployed.minter.target);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);
@@ -290,7 +290,7 @@ describe('VotingEscrow_V2', function () {
             .withArgs('bribeFactory', deployed.bribeFactory.target);
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(deployed.bribeFactory.target);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);
@@ -300,13 +300,13 @@ describe('VotingEscrow_V2', function () {
           expect(await Voter.compoundEmissionExtension()).to.be.eq(ethers.ZeroAddress);
         });
 
-        it('merklDistributor', async () => {
-          await expect(Voter.updateAddress('merklDistributor', deployed.merklDistributionCreator.target))
+        it('gaugeRewarder', async () => {
+          await expect(Voter.updateAddress('gaugeRewarder', deployed.merklDistributionCreator.target))
             .to.be.emit(Voter, 'UpdateAddress')
-            .withArgs('merklDistributor', deployed.merklDistributionCreator.target);
+            .withArgs('gaugeRewarder', deployed.merklDistributionCreator.target);
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(deployed.merklDistributionCreator.target);
+          expect(await Voter.gaugeRewarder()).to.be.eq(deployed.merklDistributionCreator.target);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);
@@ -322,7 +322,7 @@ describe('VotingEscrow_V2', function () {
             .withArgs('veNestMerklAidrop', TEST_ADDRESS);
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(TEST_ADDRESS);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);
@@ -338,7 +338,7 @@ describe('VotingEscrow_V2', function () {
             .withArgs('managedNFTManager', TEST_ADDRESS);
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(TEST_ADDRESS);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);
@@ -354,7 +354,7 @@ describe('VotingEscrow_V2', function () {
             .withArgs('v2PoolFactory', TEST_ADDRESS);
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(TEST_ADDRESS);
@@ -370,7 +370,7 @@ describe('VotingEscrow_V2', function () {
             .withArgs('v3PoolFactory', TEST_ADDRESS);
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);
@@ -385,7 +385,7 @@ describe('VotingEscrow_V2', function () {
             .withArgs('v2GaugeFactory', TEST_ADDRESS);
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);
@@ -400,7 +400,7 @@ describe('VotingEscrow_V2', function () {
             .withArgs('v3GaugeFactory', TEST_ADDRESS);
           expect(await Voter.minter()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.bribeFactory()).to.be.eq(ethers.ZeroAddress);
-          expect(await Voter.merklDistributor()).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugeRewarder()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.veNestMerklAidrop()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.managedNFTManager()).to.be.eq(ethers.ZeroAddress);
           expect(await Voter.v2PoolFactory()).to.be.eq(ethers.ZeroAddress);

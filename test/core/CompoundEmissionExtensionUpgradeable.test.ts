@@ -1410,7 +1410,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
               target: signers.otherUser2,
               gauges: [],
-              merkl: { users: [], proofs: [], tokens: [], amounts: [] },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             }),
           ).to.be.revertedWithCustomError(CompoundEmissionExtension, 'AccessDenied');
 
@@ -1418,44 +1418,10 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
               target: signers.otherUser1,
               gauges: [],
-              merkl: { users: [], proofs: [], tokens: [], amounts: [] },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             }),
           ).to.be.not.reverted;
         });
-      });
-    });
-    describe('Should fail if', async () => {
-      it('User provide not own address ,in  users arrays (Merkl params)', async () => {
-        await expect(
-          CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
-            target: signers.otherUser1,
-            gauges: [],
-            merkl: {
-              proofs: [],
-              amounts: [],
-              tokens: [],
-              users: [signers.otherUser2],
-            },
-          }),
-        ).to.be.revertedWithCustomError(Voter, 'InvalidMerklDataUser');
-      });
-      it('KEEPER provide different target and user address ,in  users arrays (Merkl params)', async () => {
-        await Voter.grantRole(await CompoundEmissionExtension.COMPOUND_KEEPER_ROLE(), signers.deployer);
-
-        await expect(
-          CompoundEmissionExtension.connect(signers.deployer).compoundEmissionClaimBatch([
-            {
-              target: signers.otherUser1,
-              gauges: [],
-              merkl: {
-                proofs: [],
-                amounts: [],
-                tokens: [],
-                users: [signers.otherUser2],
-              },
-            },
-          ]),
-        ).to.be.revertedWithCustomError(Voter, 'InvalidMerklDataUser');
       });
     });
 
@@ -1497,22 +1463,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1546,22 +1502,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
 
@@ -1604,22 +1550,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1713,22 +1649,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1817,22 +1743,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1941,12 +1857,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -2065,12 +1976,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -2173,12 +2079,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -2267,22 +2168,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
 
@@ -2381,12 +2272,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              merkl: {
-                proofs: [],
-                users: [],
-                amounts: [],
-                tokens: [],
-              },
+              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
           ]);
 

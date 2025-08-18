@@ -1,12 +1,12 @@
 # Creating a Merkle Tree for Rewards Distribution
 
-This guide explains how to create a Merkle Tree for managing rewards distribution in the VeFnxSplitMerklAidrop contract. The process involves defining a list of users and their respective rewards, creating the Merkle Tree, generating the Merkle root, and obtaining proofs for users.
+This guide explains how to create a Merkle Tree for managing rewards distribution in the VeNestSplitMerklAidrop contract. The process involves defining a list of users and their respective rewards, creating the Merkle Tree, generating the Merkle root, and obtaining proofs for users.
 
 ## Example script for generate merkl tree and input/output dat
 
-- [Script for generate tree](/docs/integration/ve_fnx_split_merkl_airdrop/generateTree.ts)
-- [Input Data](/docs/integration/ve_fnx_split_merkl_airdrop/input.json)
-- [Output Data](/docs/integration/ve_fnx_split_merkl_airdrop/output.json)
+- [Script for generate tree](/docs/integration/ve_nest_split_merkl_airdrop/generateTree.ts)
+- [Input Data](/docs/integration/ve_nest_split_merkl_airdrop/input.json)
+- [Output Data](/docs/integration/ve_nest_split_merkl_airdrop/output.json)
 
 
 ## Steps to Create a Merkle Tree

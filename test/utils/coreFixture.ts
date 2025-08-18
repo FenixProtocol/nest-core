@@ -176,12 +176,7 @@ export async function deployFenixToken(deployer: HardhatEthersSigner, minter: st
 }
 
 export async function deployArtProxy(deployer: HardhatEthersSigner, votingEscrow: string, managedNFTManager: string): Promise<VeArtProxy> {
-  const staticProxy = await ethers.deployContract('VeArtProxyStatic', [
-    ART_RPOXY_PARTS.lockedIcon,
-    ART_RPOXY_PARTS.unlockedIcon,
-    ART_RPOXY_PARTS.transferablePart,
-    ART_RPOXY_PARTS.notTransferablePart,
-  ]);
+  const staticProxy = await ethers.deployContract('VeArtProxyStatic');
   await staticProxy.setStartPart(ART_RPOXY_PARTS.startPart);
   await staticProxy.setEndPart(ART_RPOXY_PARTS.endPart);
   const factory = await ethers.getContractFactory('VeArtProxy');
@@ -511,6 +506,8 @@ export async function completeFixture(): Promise<CoreFixtureDeployed> {
   await voter.updateAddress('managedNFTManager', managedNFTManager);
 
   const resultArtProxy = await deployArtProxy(signers.deployer, votingEscrow.target.toString(), managedNFTManager.target.toString());
+
+  await votingEscrow.updateAddress('artProxy', resultArtProxy);
 
   let compoundEmissionExtension = await deployCompoundEmissionExtension(
     signers.deployer,

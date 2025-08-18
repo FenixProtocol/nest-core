@@ -13,25 +13,25 @@ event RewardSent(address indexed token, address indexed recipient, uint256 index
 ```
 
 **Description:**
-Emitted when a reward (Not FNX) is sent to a token (locked position in VeFNX) owner as part of the boost process.
+Emitted when a reward (Not NEST) is sent to a token (locked position in veNFT) owner as part of the boost process.
 
 **Parameters:**
 - `token`: The address of the reward token.
 - `recipient`: The recipient of the reward.
 - `rewardTokenBoostAmount`: The amount of reward token sent.
 
-### FNXBoostPercentage
+### NESTBoostPercentage
 
 **Signature:**
 ```solidity
-event FNXBoostPercentage(uint256 indexed fnxBoostPercentage);
+event NESTBoostPercentage(uint256 indexed nestBoostPercentage);
 ```
 
 **Description:**
-Emitted when the FNX boost percentage is updated.
+Emitted when the NEST boost percentage is updated.
 
 **Parameters:**
-- `fnxBoostPercentage`: New boost percentage.
+- `nestBoostPercentage`: New boost percentage.
 
 ### MinUSDAmount
 
