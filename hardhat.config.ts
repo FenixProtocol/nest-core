@@ -7,6 +7,7 @@ import 'dotenv/config';
 import 'hardhat-ignore-warnings';
 import 'hardhat-abi-exporter';
 import './tasks';
+import 'hardhat-tracer';
 
 const DEFAULT_COMPILER_SETTINGS: SolcUserConfig = {
   version: '0.8.19',
@@ -66,16 +67,18 @@ const LOWEST_CONTRACT_SIZE_COMPILER_SETTINGS: SolcUserConfig = {
 };
 const config: HardhatUserConfig = {
   sourcify: {
-    enabled: false,
+    enabled: true,
   },
   etherscan: {
-    apiKey: `${process.env.ETHERSCAN_API_KEY}`,
+    apiKey: {
+      baseSepolia: `${process.env.ETHERSCAN_API_KEY}`,
+    },
     customChains: [
       {
         network: 'baseSepolia',
         chainId: 84532,
         urls: {
-          apiURL: 'https://api-sepolia.basescan.org',
+          apiURL: 'https://api.etherscan.io/v2/api?chainid=84532',
           browserURL: 'https://sepolia.basescan.org',
         },
       },

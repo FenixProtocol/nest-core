@@ -132,25 +132,25 @@ async function main() {
     DeployedContracts[AliasDeployedContracts.CompoundEmissionExtensionUpgradeable_Proxy],
   );
 
-  // await logTx(VotingEscrowUpgradeable_Proxy, VotingEscrowUpgradeable_Proxy.initialize(Nest));
+  await logTx(VotingEscrowUpgradeable_Proxy, VotingEscrowUpgradeable_Proxy.initialize(Nest));
 
-  // await logTx(
-  //   VotingEscrowUpgradeable_Proxy,
-  //   VotingEscrowUpgradeable_Proxy.updateAddress('managedNFTManager', ManagedNFTManagerUpgradeable_Proxy),
-  // );
-  // await logTx(VotingEscrowUpgradeable_Proxy, VotingEscrowUpgradeable_Proxy.updateAddress('voter', VoterUpgradeable_Proxy));
-  // await logTx(
-  //   VotingEscrowUpgradeable_Proxy,
-  //   VotingEscrowUpgradeable_Proxy.updateAddress('customBribeRewardRouter', CustomBribeRewardRouter_Proxy),
-  // );
+  await logTx(
+    VotingEscrowUpgradeable_Proxy,
+    VotingEscrowUpgradeable_Proxy.updateAddress('managedNFTManager', ManagedNFTManagerUpgradeable_Proxy),
+  );
+  await logTx(VotingEscrowUpgradeable_Proxy, VotingEscrowUpgradeable_Proxy.updateAddress('voter', VoterUpgradeable_Proxy));
+  await logTx(
+    VotingEscrowUpgradeable_Proxy,
+    VotingEscrowUpgradeable_Proxy.updateAddress('customBribeRewardRouter', CustomBribeRewardRouter_Proxy),
+  );
 
-  // await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.initialize(VotingEscrowUpgradeable_Proxy));
+  await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.initialize(VotingEscrowUpgradeable_Proxy));
 
-  // await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.grantRole(ethers.id('GOVERNANCE_ROLE'), deployer));
+  await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.grantRole(ethers.id('GOVERNANCE_ROLE'), deployer));
 
-  // await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.grantRole(ethers.id('VOTER_ADMIN_ROLE'), deployer));
+  await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.grantRole(ethers.id('VOTER_ADMIN_ROLE'), deployer));
 
-  //await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('minter', MinterUpgradeable_Proxy));
+  await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('minter', MinterUpgradeable_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('bribeFactory', BribeFactoryUpgradeable_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('gaugeRewarder', GaugeRewader_Proxy));
 
@@ -256,6 +256,10 @@ async function main() {
       DeployedContracts[AliasDeployedContracts.Pair_Implementation],
       FeesVaultFactoryUpgradeable_Proxy,
     ),
+  );
+  await logTx(
+    PairFactoryUpgradeable_Proxy,
+    PairFactoryUpgradeable_Proxy.grantRole(await PairFactoryUpgradeable_Proxy.PAIRS_CREATOR_ROLE(), deployer),
   );
 
   await logTx(

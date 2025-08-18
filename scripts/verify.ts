@@ -1,100 +1,30 @@
 import { getDeployedDataFromDeploys, getDeploysData } from './utils';
 import hre from 'hardhat';
 import { ethers } from 'hardhat';
-
-const WETH = '0x4200000000000000000000000000000000000023';
+import { getDeployedContractsAddressList, getProxyAdminAddress } from '../utils/Deploy';
 
 async function main() {
-  let deployed = await getDeployedDataFromDeploys();
-  let data = await getDeploysData();
+  const DeployedContracts = await getDeployedContractsAddressList();
+  const ProxyAdmin = await getProxyAdminAddress();
+  const keys = Object.keys(DeployedContracts);
 
-  const signers = await ethers.getSigners();
-  const deployer = signers[0];
+  for await (const key of keys) {
+    if (key.endsWith('_Proxy')) {
+      let addr = DeployedContracts[key];
+      console.log('Target:', addr);
+      try {
+        let ke = key.replace('Implementation', 'Proxy');
+        console.log('\targs:', ke, ProxyAdmin, '0x');
 
-  await hre.run('verify:verify', {
-    address: deployed.BribeFactoryImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.BribeImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.GaugeFactoryImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.GaugeImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.MinterImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.VotingEscrowImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.VeArtProxyImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.VoterImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.FeesVaultImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.PairImplementation.target,
-    constructorArguments: [],
-  });
-  await hre.run('verify:verify', {
-    address: deployed.PairFactoryImplementation.target,
-    constructorArguments: [],
-  });
-
-  await hre.run('verify:verify', {
-    address: deployed.ProxyAdmin.target,
-    constructorArguments: [],
-  });
-
-  await hre.run('verify:verify', {
-    address: deployed.VeNestDistributorImplementation.target,
-    constructorArguments: [],
-  });
-
-  await hre.run('verify:verify', {
-    address: data['AlgebraFNXPriceProviderImplementation'],
-    constructorArguments: [],
-  });
-
-  await hre.run('verify:verify', {
-    address: data['VeBoostImplementation'],
-    constructorArguments: [],
-  });
-
-  await hre.run('verify:verify', {
-    address: data['VeBoostImplementation'],
-    constructorArguments: [],
-  });
-
-  await hre.run('verify:verify', {
-    address: deployed.Nest.target,
-    constructorArguments: [deployer.address],
-  });
-
-  await hre.run('verify:verify', {
-    address: deployed.FeesVaultFactory.target,
-    constructorArguments: [deployed.FeesVaultImplementation.target, deployed.Voter.target],
-  });
-
-  await hre.run('verify:verify', {
-    address: data['RouterV2'],
-    constructorArguments: [deployed.PairFactory.target, WETH],
-  });
+        await hre.run('verify:verify', {
+          address: addr,
+          constructorArguments: [DeployedContracts[ke], ProxyAdmin, '0x'],
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }
 }
 
 main().catch((error) => {
