@@ -1,7 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { ERC20Mock, FeesVaultUpgradeable, Pair, PairFactoryUpgradeable, PairFactoryUpgradeable__factory } from '../../typechain-types';
+import { ERC20Mock, FeesVaultFactoryUpgradeable, FeesVaultUpgradeable, Pair, PairFactoryUpgradeable, PairFactoryUpgradeable__factory } from '../../typechain-types';
 import { ONE_ETHER, ZERO } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, SignersList, deployERC20MockToken } from '../utils/coreFixture';
 
@@ -10,7 +10,7 @@ describe('Pair Contract', function () {
   let signers: SignersList;
   let pairFactoryFactory: PairFactoryUpgradeable__factory;
   let pairFactory: PairFactoryUpgradeable;
-  let feesVaultFactory: FeesVaultUpgradeable;
+  let feesVaultFactory: FeesVaultFactoryUpgradeable;
   let deployed: CoreFixtureDeployed;
   let tokenTK18: ERC20Mock;
   let tokenTK6: ERC20Mock;
