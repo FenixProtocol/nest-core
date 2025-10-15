@@ -7,6 +7,7 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {IPairFactory} from "./interfaces/IPairFactory.sol";
 import {IPair} from "./interfaces/IPair.sol";
 import {IFeesVaultFactory} from "../fees/interfaces/IFeesVaultFactory.sol";
+import {ICustomVolatileDynamicFee} from "./interfaces/ICustomVolatileDynamicFee.sol";
 
 contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
     bytes32 public constant override PAIRS_ADMINISTRATOR_ROLE = keccak256("PAIRS_ADMINISTRATOR");
@@ -32,6 +33,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
 
     mapping(address => uint256) internal _customFee;
     mapping(address => uint256) internal _customProtocolFee;
+    mapping(address => address) internal _customVolatileDynamicFeeModule;
 
     error AddressZero();
 
@@ -39,10 +41,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(
-        address implementation_,
-        address communityVaultFactory_
-    ) external initializer {
+    function initialize(address implementation_, address communityVaultFactory_) external initializer {
         _checkAddressZero(implementation_);
         _checkAddressZero(communityVaultFactory_);
 
@@ -93,6 +92,16 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
         emit SetCustomProtocolFee(_pair, _newFee);
     }
 
+    function setCustomVolatileDynamicFeeModule(address pair_, address module_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _checkAddressZero(pair_);
+        /*
+         * @Dev Dont check for the exist of a pair, it is allowed to set
+         * the module for not exist pair's address in the future through the calculation of the address
+         */
+        _customVolatileDynamicFeeModule[pair_] = module_;
+        emit SetCustomVolatileDynamicFeeModule(pair_, module_);
+    }
+
     function setCustomFee(address _pair, uint256 _fee) external onlyRole(FEES_MANAGER_ROLE) {
         _checkFeeAndPair(_pair, _fee, MAX_FEE);
         _customFee[_pair] = _fee;
@@ -134,12 +143,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
 
         address feesVaultForPool = IFeesVaultFactory(communityVaultFactory).createVaultForPool(pair);
 
-        IPair(pair).initialize(
-            token0,
-            token1,
-            stable,
-            feesVaultForPool
-        );
+        IPair(pair).initialize(token0, token1, stable, feesVaultForPool);
 
         getPair[token0][token1][stable] = pair;
         getPair[token1][token0][stable] = pair; // populate mapping in the reverse direction
@@ -153,6 +157,10 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
         return super.hasRole(role, user);
     }
 
+    function getCustomVolatileDynamicFeeModule(address pair_) external view virtual override returns (address) {
+        return _customVolatileDynamicFeeModule[pair_];
+    }
+
     // Stub functions for future improvments
     function getHookTarget(address /*pair_*/) external view virtual override returns (address) {
         return address(0);
@@ -163,7 +171,25 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
         if (fee != 0) {
             return fee;
         }
-        return stable_ ? stableFee : volatileFee;
+
+        if (stable_) {
+            return stableFee;
+        }
+
+        address cDFM = _customVolatileDynamicFeeModule[pair_];
+
+        if (cDFM == address(0)) {
+            return volatileFee;
+        }
+
+        if (ICustomVolatileDynamicFee(cDFM).isEnable()) {
+            (bool success, uint256 dynamicFee) = ICustomVolatileDynamicFee(cDFM).getFee(pair_);
+            if (success) {
+                return dynamicFee;
+            }
+        }
+
+        return volatileFee;
     }
 
     function getProtocolFee(address pair_) external view virtual override returns (uint256) {
@@ -201,7 +227,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
             revert AddressZero();
         }
     }
-    
+
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.

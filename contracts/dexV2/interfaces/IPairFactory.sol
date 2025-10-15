@@ -10,6 +10,7 @@ interface IPairFactory {
     event SetCustomProtocolFee(address indexed pair, uint256 fee);
     event SetCustomFee(address indexed pair, uint256 fee);
     event SetFee(bool stable, uint256 fee);
+    event SetCustomVolatileDynamicFeeModule(address indexed pair, address indexed module);
 
     error IncorrcectFee();
     error IncorrectPair();
@@ -47,4 +48,6 @@ interface IPairFactory {
     function isPaused() external view returns (bool);
 
     function isPublicPoolCreationMode() external view returns (bool);
+
+    function getCustomVolatileDynamicFeeModule(address pair_) external view returns (address);
 }
