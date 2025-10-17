@@ -14,4 +14,14 @@ contract BaseManagedNFTStrategyUpgradeableMock is BaseManagedNFTStrategyUpgradea
     function onDettach(uint256 tokenId, uint256 userBalance) external override returns (uint256 lockedRewards) {
         revert("not implemented");
     }
+
+    function dettachLockWindowInfo()
+        external
+        view
+        returns (
+            bool locked,
+            uint256 epochStart,
+            uint256 lockEnd
+    ) {}
+    function detachmentLockDuration() external view returns (uint256 duration) {}
 }

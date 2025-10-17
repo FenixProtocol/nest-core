@@ -10,10 +10,10 @@
   "VotingEscrowUpgradeable_Implementation": "0xCd258A7885760A3a3befF9C74A722880133BB3Eb",
   "Pair_Implementation": "0x1b710dfb49578eE048E9cC6F493c7860027B9Ff9",
   "SingelTokenVirtualRewarderUpgradeable_Implementation": "0xd42Db613018864F3Cf00a85612624cFEF82C0C1E",
-  "CompoundVeNESTManagedNFTStrategyUpgradeable_Implementation": "0x12E26a1EF606FDFD26393428410987aEd72f0821",
+  "CompoundVeNESTManagedNFTStrategyUpgradeable_Implementation": "0xB2dE6b43eb0c1Bd5093cf07E4dB08c438AA5e450",
   "CompoundVeNESTManagedNFTStrategyFactoryUpgradeable_Implementation": "0x9a955dEb01d18Fc30B0210849a15277ccAD1144A",
   "RouterV2PathProviderUpgradeable_Implementation": "0x452C3633ee78CEdD36eFF3128215900B5761ed1D",
-  "ManagedNFTManagerUpgradeable_Implementation": "0x808f8E07dD4F16D2082E119c8022082098f2062C",
+  "ManagedNFTManagerUpgradeable_Implementation": "0x98A0E8C053a277C0bb588c1F4143a965930e92c2",
   "PairAPIUpgradeable_Implementation": "0x4bF0CE3a2E11ECA9c70C0f0fBA5dbCD7f23b7840",
   "RewardAPIUpgradeable_Implementation": "0x0a554ed142030c99C49a08dfbe4BfbB906817aA0",
   "VeNFTAPIUpgradeable_Implementation": "0x9A931246628fa28f6AbD671A00AA16a0A4361340",
@@ -21,7 +21,7 @@
   "BribeVeNESTRewardToken_Implementation": "0xc902533B01a9a14884d068E24791fb9dDd3e5446",
   "CustomBribeRewardRouter_Implementation": "0x9F48407d164d3407F8D46A6cB7D30417d33849A7",
   "GetInformationAggregatorUpgradeable_Implementation": "0x354dCb934708ed5B5efd047d72161bA9De04891B",
-  "PairFactoryUpgradeable_Implementation": "0x8C2Ba09Fe9514d971F606944bd41655bFC7Eec7E",
+  "PairFactoryUpgradeable_Implementation": "0x0326e0392f7922F7DF97B8a7E1a9218d47648cA2",
   "FeesVaultFactoryUpgradeable_Implementation": "0x87DB91334fAb1141dE5b0ce4B91dA8d3c09c14Bd",
   "FeesVaultUpgradeable_Implementation": "0xdD453A41e7BFC8e55f8fF536311628783a51A235",
   "GaugeUpgradeable_V2Pools_Implementation": "0xe9017fbeBf96b661C63C5ed1cbac6904DfFA5dE0",
@@ -62,5 +62,7 @@
   "RouterV2": "0x15F8dF6FF900F3714F0f58db44A4d766cB9556c2",
   "UniswapV2PartialRouter": "0xDF7E687B74277D99faA4Ddd622d1AA03F2f8dA4B",
   "VeArtProxyStatic": "0x499A190748E9F1fc6CF52105b02c3eA1b3B3A64a",
-  "VeArtProxy": "0x72C39836954AbD164C59E7EE4D650FC8131E3926"
+  "VeArtProxy": "0x72C39836954AbD164C59E7EE4D650FC8131E3926",
+  "VolatileDynamicFeeOnePool_Implementation": "0x9eEaB2f1982c5300Ef2a017B9512a4bf318200E5",
+  "VolatileDynamicFeeOnePool_Proxy": "0xAD5813254AEFEE06340C5DdAA831b91e598A9d3e"
 }

@@ -54,11 +54,41 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
      */
     error NotAllowedActionWithManagedTokenId();
 
+    /**
+     * @notice Error thrown when a provided detachment-lock duration exceeds the allowed maximum.
+     * @param value The duration (in seconds) that was requested to be set.
+     * @param max   The maximum allowed duration (in seconds).
+     */
+    error DetachmentLockDurationTooLong(uint256 value, uint256 max);
+
+    /**
+     * @notice Reverts when a detachment is attempted within the active lock window.
+     * @param unlockAt Timestamp when the lock ends and detachment becomes allowed.
+     */
+    error DettachLockWindowActive(uint256 unlockAt);
+
     /// @notice The address of the nest ERC20 token contract. Used for depositing to Voting Escrow.
     address public override nest;
 
     /// @notice The address of the virtual rewarder contract for distributing additional rewards.
     address public override virtualRewarder;
+
+    /**
+     * @notice Optional per-strategy override for the detachment lock duration.
+     * @dev If set to 0, the strategy uses the manager's {defaultDetachmentLockDuration()}.
+     */
+    uint256 public detachmentLockDuration;
+
+    /** 
+     * @notice Hard cap for per-strategy detachment lock override (aligned with manager's 6 days bound).
+     * @dev Keep in sync with the manager-side maximum.
+     */
+    uint256 internal constant STRATEGY_MAX_DETACH_LOCK_DURATION = 6 days;
+
+    /**
+     * @dev Epoch duration
+     */
+    uint256 internal constant WEEK = 86400 * 7;
 
     /**
      * @notice Initializes the contract in an uninitialized state and disables further initializations.
@@ -94,6 +124,46 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
     }
 
     /**
+     * @notice Computes the current detachment-lock window and indicates whether detachment is blocked.
+     * @dev
+     * - The epoch start is aligned to the beginning of the current week:
+     *   `epochStart = floor(block.timestamp / WEEK) * WEEK`.
+     * - The effective lock duration is the strategy override `detachmentLockDuration` if non-zero;
+     *   otherwise it falls back to `managedNFTManager.defaultDetachmentLockDuration()`.
+     * - If the effective duration resolves to zero, the lock is considered disabled for this epoch and
+     *   `lockEnd` equals `epochStart`.
+     * - Detachment is considered locked while `block.timestamp < lockEnd`.
+     * @return locked     True if detachment is time-locked at the current block timestamp.
+     * @return epochStart The aligned start timestamp of the current weekly epoch.
+     * @return lockEnd    The timestamp when the lock window ends; equals `epochStart + duration`
+     *                    (or `epochStart` when duration is zero).
+     */
+    function dettachLockWindowInfo()
+        public
+        view
+        returns (
+            bool locked,
+            uint256 epochStart,
+            uint256 lockEnd
+        )
+    {
+        epochStart = (block.timestamp / WEEK) * WEEK;
+        uint256 duration = detachmentLockDuration;
+
+        if (duration == 0) {
+            duration = IManagedNFTManager(managedNFTManager).defaultDetachmentLockDuration();
+        }
+
+        if(duration == 0) {
+            return (false, epochStart, epochStart);
+        }
+
+        lockEnd = epochStart + duration;
+
+        return (block.timestamp < lockEnd, epochStart, lockEnd);
+    }
+
+    /**
      * @notice Attaches an NFT to the strategy and initializes participation in the virtual reward system.
      * @dev This function is called when an NFT is attached to this strategy, enabling it to start accumulating rewards.
      *
@@ -107,13 +177,21 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
 
     /**
      * @notice Detaches an NFT from the strategy, withdrawing all associated rewards and balances.
-     * @dev Handles the process of detaching an NFT, ensuring all accrued benefits are properly managed and withdrawn.
-     *
+     * @dev
+     * - Enforces the detachment time-lock by querying {dettachLockWindowInfo}. Reverts with
+     *   {DettachLockWindowActive} providing `lockEnd` if detachment is attempted while locked.
+     * - On success, withdraws the user's balance from the virtual rewarder and harvests accrued rewards.
+     * - Emits {OnDettach}.
      * @param tokenId_ The identifier of the NFT to detach.
      * @param userBalance_ The remaining balance or stake associated with the NFT at the time of detachment.
      * @return lockedRewards The amount of rewards locked and harvested upon detachment.
      */
     function onDettach(uint256 tokenId_, uint256 userBalance_) external override onlyManagedNFTManager returns (uint256 lockedRewards) {
+        (bool locked, , uint256 lockEnd) = dettachLockWindowInfo();
+        if(locked) {
+            revert DettachLockWindowActive(lockEnd);
+        }
+
         ISingelTokenVirtualRewarder virtualRewarderCache = ISingelTokenVirtualRewarder(virtualRewarder);
         virtualRewarderCache.withdraw(tokenId_, userBalance_);
         lockedRewards = virtualRewarderCache.harvest(tokenId_);
@@ -285,6 +363,23 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
         if (veNftTokenIdsToRecover_.length > 0) {
             _erc721Recover(votingEscrow, recipient_, veNftTokenIdsToRecover_);
         }
+    }
+
+    /**
+     * @notice Set the per-strategy detachment lock duration.
+     * @dev 
+     * - Set to 0 to fall back to the manager default.
+     * - Must not exceed {STRATEGY_MAX_DETACH_LOCK_DURATION}.
+     * - Emits {SetDetachmentLockDuration}.
+     * @param newDuration_ New duration in seconds (0 = use manager default).
+     */
+    function setDetachmentLockDuration(uint256 newDuration_) external onlyAdmin {
+        if(newDuration_ > STRATEGY_MAX_DETACH_LOCK_DURATION) {
+            revert DetachmentLockDurationTooLong(newDuration_, STRATEGY_MAX_DETACH_LOCK_DURATION);
+        }
+        uint256 old = detachmentLockDuration;
+        detachmentLockDuration = newDuration_;
+        emit SetDetachmentLockDuration(old, newDuration_);
     }
 
     /**

@@ -200,6 +200,38 @@ describe('ManagedNFTManager Contract', function () {
       expect(await managedNFTManager.managedTokensInfo(tokenId)).to.be.deep.eq([true, false, ZERO_ADDRESS]);
     });
   });
+  describe('#setDefaultDetachmentLockDuration', () => {
+    const DAY = 24 * 60 * 60;
+    it('only DEFAULT_ADMIN_ROLE can set', async () => {
+      await expect(
+        managedNFTManager.connect(signers.otherUser1).setDefaultDetachmentLockDuration(1),
+      ).to.be.revertedWith(
+        getAccessControlError(await managedNFTManager.DEFAULT_ADMIN_ROLE(), signers.otherUser1.address),
+      );
+    });
+
+    it('reverts when value exceeds 6 days cap', async () => {
+      const sixDays = 6 * DAY;
+      const overCap = sixDays + 1;
+
+      await expect(
+        managedNFTManager.setDefaultDetachmentLockDuration(overCap),
+      )
+        .to.be.revertedWithCustomError(managedNFTManager, 'DetachmentLockDurationTooLong')
+        .withArgs(overCap, sixDays);
+    });
+
+    it('emits event and updates state on valid value', async () => {
+      const prev = await managedNFTManager.defaultDetachmentLockDuration();
+      const newDuration = 3 * DAY;
+
+      await expect(managedNFTManager.setDefaultDetachmentLockDuration(newDuration))
+        .to.emit(managedNFTManager, 'SetDefaultDetachmentLockDuration')
+        .withArgs(prev, newDuration);
+
+      expect(await managedNFTManager.defaultDetachmentLockDuration()).to.equal(newDuration);
+    });
+  });
   describe('#setAuthorizedUser', async () => {
     it('fail if call from not admin', async () => {
       await expect(managedNFTManager.connect(signers.otherUser1).setAuthorizedUser(1, signers.otherUser1.address)).to.be.revertedWith(

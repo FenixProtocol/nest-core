@@ -63,6 +63,13 @@ interface ICompoundVeNESTManagedNFTStrategy is IManagedNFTStrategy, ISingelToken
      */
     event SetRouterV2PathProvider(address indexed oldRouterV2PathProvider, address indexed newRouterV2PathProvider);
 
+    /** 
+     * @notice Emitted when the per-strategy detachment lock duration is updated.
+     * @param previousDuration Previous duration in seconds (0 means "use manager default").
+     * @param newDuration      New duration in seconds (0 means "use manager default").
+     */
+    event SetDetachmentLockDuration(uint256 previousDuration, uint256 newDuration);
+
     /**
      * @notice Compounds accumulated rewards into additional stakes or holdings.
      * @dev Function to reinvest earned rewards back into the underlying asset to increase the principal amount.

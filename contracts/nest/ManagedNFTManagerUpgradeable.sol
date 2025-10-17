@@ -43,7 +43,14 @@ contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgrad
     error IncorrectUserNFT();
 
     error AddressZero();
-    
+
+    /**
+     * @notice Error thrown when a provided detachment-lock duration exceeds the allowed maximum.
+     * @param value The duration (in seconds) that was requested to be set.
+     * @param max   The maximum allowed duration (in seconds).
+     */
+    error DetachmentLockDurationTooLong(uint256 value, uint256 max);
+
     /**
      * @dev Represents the state and association of a user's NFT within the management system.
      * @notice Stores details about an NFT's attachment status, which managed token it's linked to, and any associated amounts.
@@ -100,6 +107,18 @@ contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgrad
     mapping(address => uint8) public override getStrategyFlags;
 
     /**
+     * @notice Default duration (in seconds) of the lock window that prevents detaching/withdrawing after epoch start.
+     * @dev Strategies should read this value as the baseline window unless an explicit per-strategy override applies.
+     */
+    uint256 public override defaultDetachmentLockDuration;
+    
+    /** 
+     * @notice Upper bound for the default detachment-lock duration: 6 days.
+     * @dev Used as a hard cap in {setDefaultDetachmentLockDuration}.
+     */
+    uint256 internal constant _MAX_DETACHMENT_LOCK_DURATION = 6 days;
+
+    /**
      * @dev Ensures that the function can only be called by the designated voter address.
      */
     modifier onlyVoter() {
@@ -142,6 +161,26 @@ contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgrad
 
         votingEscrow = votingEscrow_;
         voter = voter_;
+    }
+
+    /**
+     * @notice Set the default duration (in seconds) of the detachment/withdrawal lock window for strategies.
+     * @dev
+     * - The new duration must not exceed {MAX_DETACHMENT_LOCK_DURATION}.
+     * - Updates the public state variable {defaultDetachmentLockDuration}.
+     * - Emits {SetDefaultDetachmentLockDuration} on success.
+     * @param newDuration_ The new default lock duration, in seconds.
+     */
+    function setDefaultDetachmentLockDuration(uint256 newDuration_)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        if (newDuration_ > _MAX_DETACHMENT_LOCK_DURATION) {
+            revert DetachmentLockDurationTooLong(newDuration_, _MAX_DETACHMENT_LOCK_DURATION);
+        }
+        uint256 old = defaultDetachmentLockDuration;
+        defaultDetachmentLockDuration = newDuration_;
+        emit SetDefaultDetachmentLockDuration(old, newDuration_);
     }
 
     /**

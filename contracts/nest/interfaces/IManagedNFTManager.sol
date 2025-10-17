@@ -44,6 +44,15 @@ interface IManagedNFTManager {
     event SetStrategyFlags(address indexed strategy, uint8 flags);
 
     /**
+     * @notice Emitted when the default detachment-lock duration is updated.
+     * @param previousDuration The previous default duration (in seconds).
+     * @param newDuration      The new default duration (in seconds).
+     */
+    event SetDefaultDetachmentLockDuration(
+        uint256 previousDuration,
+        uint256 newDuration
+    );
+    /**
      * @notice Checks if a managed NFT is currently disabled.
      * @param managedTokenId_ The ID of the managed NFT.
      * @return True if the managed NFT is disabled, false otherwise.
@@ -109,6 +118,14 @@ interface IManagedNFTManager {
      * @return The flags assigned to the specified strategy.
      */
     function getStrategyFlags(address strategy_) external view returns (uint8);
+    
+    /**
+     * @notice Returns the default detachment/withdrawal lock window duration in seconds.
+     * @dev Strategies should treat this as the baseline lock window after epoch start
+     *      unless an explicit per-strategy override applies.
+     * @return duration The default lock duration, in seconds.
+     */
+    function defaultDetachmentLockDuration() external view returns (uint256 duration);
 
     /**
      * @notice Assigns an authorized user for a managed NFT.

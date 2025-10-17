@@ -120,4 +120,30 @@ interface IManagedNFTStrategy {
      * throws IncorrectManagedTokenId if the provided token ID is not managed or not owned by this contract.
      */
     function attachManagedNFT(uint256 managedTokenId_) external;
+
+    /**
+     * @notice Returns whether detachment is currently time-locked and the active window bounds.
+     * @dev
+     * - `epochStart` is implementation-defined (e.g., aligned to the start of the current week).
+     * - The effective lock duration may be the per-strategy override or the manager default.
+     * @return locked      True if detachment is currently blocked by the time-lock window.
+     * @return epochStart  The epoch start timestamp used to compute the lock window.
+     * @return lockEnd     The timestamp when detachment becomes allowed (end of the lock window).
+     */
+    function dettachLockWindowInfo()
+        external
+        view
+        returns (
+            bool locked,
+            uint256 epochStart,
+            uint256 lockEnd
+        );
+
+    /**
+     * @notice Per-strategy override for the detachment lock duration (in seconds).
+     * @dev If this value is zero, the strategy MUST fall back to the manager’s
+     *      {defaultDetachmentLockDuration()}.
+     * @return duration The configured per-strategy duration (0 = use manager default).
+     */
+    function detachmentLockDuration() external view returns (uint256 duration);
 }
