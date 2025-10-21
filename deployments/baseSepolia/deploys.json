@@ -63,6 +63,8 @@
   "UniswapV2PartialRouter": "0xDF7E687B74277D99faA4Ddd622d1AA03F2f8dA4B",
   "VeArtProxyStatic": "0x499A190748E9F1fc6CF52105b02c3eA1b3B3A64a",
   "VeArtProxy": "0x72C39836954AbD164C59E7EE4D650FC8131E3926",
-  "VolatileDynamicFeeOnePool_Implementation": "0x9eEaB2f1982c5300Ef2a017B9512a4bf318200E5",
-  "VolatileDynamicFeeOnePool_Proxy": "0xAD5813254AEFEE06340C5DdAA831b91e598A9d3e"
+  "VolatileDynamicFeeOnePool_Implementation": "0xdF2085782b1259A36Ea67D8566cE383698F512D3",
+  "VolatileDynamicFeeOnePool_Proxy": "0xAD5813254AEFEE06340C5DdAA831b91e598A9d3e",
+  "TokenPublicRaiseUpgradeable_Implementation": "0x78a0a956440B2Ddf545369571dE432a186995Bfa",
+  "TokenPublicRaiseUpgradeable_Proxy": "0x7298B4a60B33576cBf21Bba7E8Cb96FAEc8F9E93"
 }

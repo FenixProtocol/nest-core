@@ -74,6 +74,9 @@ export enum AliasDeployedContracts {
   CustomBribeRewardRouter_Implementation = 'CustomBribeRewardRouter_Implementation',
   CompoundEmissionExtensionUpgradeable_Proxy = 'CompoundEmissionExtensionUpgradeable_Proxy',
   CompoundEmissionExtensionUpgradeable_Implementation = 'CompoundEmissionExtensionUpgradeable_Implementation',
+  TokenPublicRaiseUpgradeable_Implementation = 'TokenPublicRaiseUpgradeable_Implementation',
+  TokenPublicRaiseUpgradeable_Proxy = 'TokenPublicRaiseUpgradeable_Proxy',
+
 }
 
 enum ContractsInstanceName {
@@ -121,7 +124,8 @@ enum ContractsInstanceName {
   BribeVeNESTRewardToken = 'BribeVeNESTRewardToken',
   CustomBribeRewardRouter = 'CustomBribeRewardRouter',
   CompoundEmissionExtensionUpgradeable = 'CompoundEmissionExtensionUpgradeable',
-  VolatileDynamicFeeOnePool = 'VolatileDynamicFeeOnePool'
+  VolatileDynamicFeeOnePool = 'VolatileDynamicFeeOnePool',
+  TokenPublicRaiseUpgradeable = 'TokenPublicRaiseUpgradeable'
 }
 
 enum ContractsMocksInstanceName {

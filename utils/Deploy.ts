@@ -145,10 +145,11 @@ export const deploy = async (options: BaseDeployOptions) => {
 
   await saveToDeployedContractsAddressList(saveAlias, address);
 
-  if (options.verify || false) {
-    await verify(address, constructorArguments);
-  }
-
+  try{
+    if (options.verify || false) {
+      await verify(address, constructorArguments);
+    }
+  }catch {}
   return instance;
 };
 
@@ -174,7 +175,9 @@ export const deployProxy = async (options: TransparentProxyDeployOptions) => {
   await saveToDeployedContractsAddressList(options.saveAlias, address);
 
   if (options.verify || false) {
-    await verify(address, [options.logic, options.admin, data]);
+    try{
+      await verify(address, [options.logic, options.admin, data]);
+    }catch {}
   }
 
   return instance;
