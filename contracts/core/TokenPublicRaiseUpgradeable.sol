@@ -73,24 +73,18 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
 
     /** 
      * @dev Reverts when `msg.value` is below the minimum accepted amount for a context.
-     * @param actual The provided amount.
-     * @param limit The required minimum amount.
      */
-    error DepositBelowMin(uint256 actual, uint256 limit);
+    error DepositBelowMin();
 
     /**
      * @dev Reverts when a user attempts to exceed the per-user cap.
-     * @param actual The already deposited amount by the user.
-     * @param limit The per-user maximum allowed deposit.
      */
-    error DepositAboveMax(uint256 actual, uint256 limit);
+    error DepositAboveMax();
 
     /**
      * @dev Reverts when the attempted deposit would exceed the global cap.
-     * @param attemptedTotal The total that would result after the attempted deposit.
-     * @param totalCap The configured global cap.
      */
-    error DepositCapReached(uint256 attemptedTotal, uint256 totalCap);
+    error DepositCapReached();
 
     /**
      * @dev Reverts on zero amount where non-zero is required.
@@ -321,33 +315,30 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
         if(!isRaiseActive()) {
             revert RaiseNotActive();
         }
-        
+        uint256 amount = msg.value;
+        _revertIfZero(amount);
+
         uint256 globalRemaining = totalDeposited >= totalDepositCap
             ? 0
             : (totalDepositCap - totalDeposited);
 
-        if (globalRemaining == 0) revert DepositCapReached(totalDeposited, totalDepositCap);
+        if (globalRemaining == 0) revert DepositCapReached();
 
         uint256 maxLimit = maxDeposit(_msgSender());
 
-        if (maxLimit == 0) revert DepositAboveMax(userDeposited[_msgSender()], maxDepositAmount);
+        if (maxLimit == 0 || amount > maxLimit) revert DepositAboveMax();
 
-        uint256 acceptedIn = msg.value;
+        if (amount + userDeposited[_msgSender()] < minDepositAmount) revert DepositBelowMin();
 
-        if (acceptedIn > maxLimit) acceptedIn = maxLimit;
-        _revertIfZero(acceptedIn);
-
-        if (acceptedIn + userDeposited[_msgSender()] < minDepositAmount) revert DepositBelowMin(acceptedIn, minDepositAmount);
-
-        uint256 tokensOut = acceptedIn * tokenPricePerOneNative / 1e18;
+        uint256 tokensOut = amount * tokenPricePerOneNative / 1e18;
 
         _revertIfZero(tokensOut);
 
-        totalDeposited += acceptedIn;
-        userDeposited[_msgSender()] += acceptedIn;
+        totalDeposited += amount;
+        userDeposited[_msgSender()] += amount;
         userTokensAllocated[_msgSender()] += tokensOut;
 
-        emit Deposited(_msgSender(), acceptedIn, tokensOut);
+        emit Deposited(_msgSender(), amount, tokensOut);
     }
 
     /**
@@ -369,11 +360,10 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
      * @param totalDepositCap_ Global cap across all users.
      *
      * Reverts:
-     * - {AmountZero} if any zero-forbidden value is zero (as checked).
+     * - {AmountZero} if any max or total value is zero (as checked).
      * - {InvalidDepositLimits} if `minDepositAmount_ > maxDepositAmount_`.
      */
     function _setDepositLimits(uint256 minDepositAmount_, uint256 maxDepositAmount_, uint256 totalDepositCap_) internal {
-        _revertIfZero(minDepositAmount_);
         _revertIfZero(maxDepositAmount_);
         _revertIfZero(totalDepositCap_);
 

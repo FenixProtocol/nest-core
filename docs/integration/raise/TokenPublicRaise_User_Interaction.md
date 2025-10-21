@@ -84,9 +84,9 @@ active, start, end, min, max, globalCap, price, totalIn, userIn, userOut, userMa
 ## 4) Reverts & Troubleshooting
 
 - `RaiseNotActive()` — deposit attempted outside the active window.
-- `DepositCapReached(attemptedTotal, totalCap)` — global cap is already reached.
-- `DepositAboveMax(actual, limit)` — you reached the per‑user cap; no more room.
-- `DepositBelowMin(actual, limit)` — your cumulative after this deposit would still be `< minDepositAmount`. Increase `msg.value` to at least `limit - userDeposited`.
+- `DepositCapReached()` — global cap is already reached.
+- `DepositAboveMax()` — you reached the per‑user cap; no more room.
+- `DepositBelowMin()` — your cumulative after this deposit would still be `< minDepositAmount`. Increase `msg.value` to at least `limit - userDeposited`.
 - `AmountZero()` — zero amounts are not allowed (e.g., trying to deposit 0 or tokensOut would compute to 0).
 - `RaiseNotEnded()` — owner tried to withdraw before `endTimestamp`.
 - `NativeTransferFailed()` — low‑level transfer to `treasury` failed.
