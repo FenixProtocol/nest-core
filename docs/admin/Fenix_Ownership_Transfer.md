@@ -14,7 +14,7 @@ BribeFactory(0xFD91dC9a8C3268fc556838baEd5871BE3Af6f32e).transferOwnership(0x486
 
 ## Grant Role — PairFactoryUpgradeable (FEES_MANAGER_ROLE)
 -  **Contract (PairFactoryUpgradeable)**: `0xa19C51D91891D3DF7C13Ed22a2f89d328A82950f`
--  **Current Admin From**: `0x0907fb24626a06e383BD289A0e9C8560b8cCC4b5`
+-  **Current Admin From**: `0xED8276141873621c18258D1c963C9F5d4014b5E5`
 -  **Grantee (To)**: FENIX_MAINNET_DEPLOYER - `0x4867664baafe5926b3ca338e96c88fb5a5feab30`
 
 **Action**: call `grantRole(bytes32 role, address account)` on `PairFactoryUpgradeable` with
