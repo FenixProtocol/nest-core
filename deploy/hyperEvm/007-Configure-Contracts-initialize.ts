@@ -157,7 +157,7 @@ async function main() {
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('veNestMerklAidrop', VeNestSplitMerklAidropUpgradeable_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('managedNFTManager', ManagedNFTManagerUpgradeable_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('v2PoolFactory', PairFactoryUpgradeable_Proxy));
-  await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('v3PoolFactory', '0x9F72Fdf5678289661DE009edCeFA1D255940Aa7b'));
+  // For future upgrade await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('v3PoolFactory', '0x9F72Fdf5678289661DE009edCeFA1D255940Aa7b'));
 
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('v2GaugeFactory', GaugeFactory_V2Pools_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('v3GaugeFactory', GaugeFactory_V3Pools_Proxy));
@@ -202,12 +202,6 @@ async function main() {
     BribeFactoryUpgradeable_Proxy,
     BribeFactoryUpgradeable_Proxy.pushDefaultRewardToken(DeployedContracts[AliasDeployedContracts.Nest]),
   );
-  await logTx(BribeFactoryUpgradeable_Proxy, BribeFactoryUpgradeable_Proxy.pushDefaultRewardToken(DeployedContracts['ERC20_FakeUSDT']));
-  await logTx(BribeFactoryUpgradeable_Proxy, BribeFactoryUpgradeable_Proxy.pushDefaultRewardToken(DeployedContracts['ERC20_FakeUSDC']));
-  await logTx(BribeFactoryUpgradeable_Proxy, BribeFactoryUpgradeable_Proxy.pushDefaultRewardToken(DeployedContracts['ERC20_FakeWBTC']));
-  await logTx(BribeFactoryUpgradeable_Proxy, BribeFactoryUpgradeable_Proxy.pushDefaultRewardToken(DeployedContracts['ERC20_TOK18']));
-  await logTx(BribeFactoryUpgradeable_Proxy, BribeFactoryUpgradeable_Proxy.pushDefaultRewardToken(DeployedContracts['ERC20_TOK9']));
-  await logTx(BribeFactoryUpgradeable_Proxy, BribeFactoryUpgradeable_Proxy.pushDefaultRewardToken(DeployedContracts['ERC20_FakeUniV2']));
 
   await logTx(
     GaugeFactory_V2Pools_Proxy,
@@ -221,7 +215,7 @@ async function main() {
     GaugeFactory_V3Pools_Proxy,
     GaugeFactory_V3Pools_Proxy.initialize(
       VoterUpgradeable_Proxy,
-      DeployedContracts[AliasDeployedContracts.GaugeUpgradeable_V2Pools_Implementation],
+      DeployedContracts[AliasDeployedContracts.GaugeUpgradeable_V3Pools_Implementation],
       GaugeRewader_Proxy,
     ),
   );
@@ -288,7 +282,7 @@ async function main() {
 
   await logTx(
     VeNestSplitMerklAidropUpgradeable_Proxy,
-    VeNestSplitMerklAidropUpgradeable_Proxy.initialize(Nest, VotingEscrowUpgradeable_Proxy, ethers.parseEther('0.5')),
+    VeNestSplitMerklAidropUpgradeable_Proxy.initialize(Nest, VotingEscrowUpgradeable_Proxy, 0),
   );
 
   await logTx(
@@ -313,7 +307,7 @@ async function main() {
 
   await logTx(GaugeRewader_Proxy, GaugeRewader_Proxy.initialize(Nest, VoterUpgradeable_Proxy, MinterUpgradeable_Proxy));
 
-  await logTx(GaugeRewader_Proxy, GaugeRewader_Proxy.setSigner('0x40a48B370c512b9f3F02F17b3680A3C3c3186158'));
+  await logTx(GaugeRewader_Proxy, GaugeRewader_Proxy.setSigner('0x41676a3Ad52294fceF2e875e3EaB92884dbB0A7e'));
 
   await logTx(GaugeRewader_Proxy, GaugeRewader_Proxy.grantRole(ethers.id('REWARDER_ROLE'), deployer));
 
@@ -331,21 +325,18 @@ async function main() {
       PairFactoryUpgradeable_Proxy,
     ),
   );
-  await logTx(
-    FeesVaultFactoryUpgradeable_Proxy,
-    FeesVaultFactoryUpgradeable_Proxy.grantRole(
-      await FeesVaultFactoryUpgradeable_Proxy.WHITELISTED_CREATOR_ROLE(),
-      '0x9f72fdf5678289661de009edcefa1d255940aa7b',
-    ),
-  );
+  // await logTx(
+  //   FeesVaultFactoryUpgradeable_Proxy,
+  //   FeesVaultFactoryUpgradeable_Proxy.grantRole(
+  //     await FeesVaultFactoryUpgradeable_Proxy.WHITELISTED_CREATOR_ROLE(),
+  //     '0x9f72fdf5678289661de009edcefa1d255940aa7b',
+  //   ),
+  // );
 
   await logTx(
     FeesVaultFactoryUpgradeable_Proxy,
     FeesVaultFactoryUpgradeable_Proxy.grantRole(await FeesVaultFactoryUpgradeable_Proxy.FEES_VAULT_ADMINISTRATOR_ROLE(), deployer),
   );
-
-  await logTx(MinterUpgradeable_Proxy, MinterUpgradeable_Proxy.start());
-  await logTx(MinterUpgradeable_Proxy, MinterUpgradeable_Proxy.update_period());
 }
 
 main()

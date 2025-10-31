@@ -7,41 +7,41 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   const Tasks = [
-    {
-      contract: InstanceName.BribeFactoryUpgradeable,
-      saveAlias: AliasDeployedContracts.BribeFactoryUpgradeable_Implementation,
-      constructorArguments: [],
-    },
-    {
-      contract: InstanceName.BribeUpgradeable,
-      saveAlias: AliasDeployedContracts.BribeUpgradeable_Implementation,
-      constructorArguments: [],
-    },
-    {
-      contract: InstanceName.GaugeFactoryUpgradeable,
-      saveAlias: AliasDeployedContracts.GaugeFactoryUpgradeable_Implementation,
-      constructorArguments: [],
-    },
-    {
-      contract: InstanceName.MinterUpgradeable,
-      saveAlias: AliasDeployedContracts.MinterUpgradeable_Implementation,
-      constructorArguments: [],
-    },
-    {
-      contract: InstanceName.NestRaiseUpgradeable,
-      saveAlias: AliasDeployedContracts.NestRaiseUpgradeable_Implementation,
-      constructorArguments: [],
-    },
-    {
-      contract: InstanceName.VeNestDistributorUpgradeable,
-      saveAlias: AliasDeployedContracts.VeNestDistributorUpgradeable_Implementation,
-      constructorArguments: [],
-    },
-    {
-      contract: InstanceName.VeNestSplitMerklAidropUpgradeable,
-      saveAlias: AliasDeployedContracts.VeNestSplitMerklAidropUpgradeable_Implementation,
-      constructorArguments: [],
-    },
+    // {
+    //   contract: InstanceName.BribeFactoryUpgradeable,
+    //   saveAlias: AliasDeployedContracts.BribeFactoryUpgradeable_Implementation,
+    //   constructorArguments: [],
+    // },
+    // {
+    //   contract: InstanceName.BribeUpgradeable,
+    //   saveAlias: AliasDeployedContracts.BribeUpgradeable_Implementation,
+    //   constructorArguments: [],
+    // },
+    // {
+    //   contract: InstanceName.GaugeFactoryUpgradeable,
+    //   saveAlias: AliasDeployedContracts.GaugeFactoryUpgradeable_Implementation,
+    //   constructorArguments: [],
+    // },
+    // {
+    //   contract: InstanceName.MinterUpgradeable,
+    //   saveAlias: AliasDeployedContracts.MinterUpgradeable_Implementation,
+    //   constructorArguments: [],
+    // },
+    // {
+    //   contract: InstanceName.NestRaiseUpgradeable,
+    //   saveAlias: AliasDeployedContracts.NestRaiseUpgradeable_Implementation,
+    //   constructorArguments: [],
+    // },
+    // {
+    //   contract: InstanceName.VeNestDistributorUpgradeable,
+    //   saveAlias: AliasDeployedContracts.VeNestDistributorUpgradeable_Implementation,
+    //   constructorArguments: [],
+    // },
+    // {
+    //   contract: InstanceName.VeNestSplitMerklAidropUpgradeable,
+    //   saveAlias: AliasDeployedContracts.VeNestSplitMerklAidropUpgradeable_Implementation,
+    //   constructorArguments: [],
+    // },
     {
       contract: InstanceName.VoterUpgradeable,
       saveAlias: AliasDeployedContracts.VoterUpgradeable_Implementation,
@@ -165,7 +165,7 @@ async function main() {
       deployer: deployer,
       constructorArguments: task.constructorArguments,
       saveAlias: task.saveAlias,
-      verify: false,
+      verify: true,
     });
   }
 }

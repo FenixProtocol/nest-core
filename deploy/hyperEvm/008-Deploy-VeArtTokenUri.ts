@@ -21,11 +21,6 @@ async function main() {
     DeployedContracts[AliasDeployedContracts.VotingEscrowUpgradeable_Proxy],
   );
 
-  const VoterUpgradeable_Proxy = await ethers.getContractAt(
-    InstanceName.VoterUpgradeable,
-    DeployedContracts[AliasDeployedContracts.VoterUpgradeable_Proxy],
-  );
-
   const ManagedNFTManagerUpgradeable_Proxy = await ethers.getContractAt(
     InstanceName.ManagedNFTManagerUpgradeable,
     DeployedContracts[AliasDeployedContracts.ManagedNFTManagerUpgradeable_Proxy],

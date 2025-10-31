@@ -19,7 +19,7 @@ async function main() {
       saveAlias: AliasDeployedContracts.RouterV2,
       constructorArguments: [
         DeployedContracts[AliasDeployedContracts.PairFactoryUpgradeable_Proxy],
-        '0x4200000000000000000000000000000000000006',
+        '0x5555555555555555555555555555555555555555',
       ],
     },
     {
@@ -27,7 +27,7 @@ async function main() {
       saveAlias: AliasDeployedContracts.UniswapV2PartialRouter,
       constructorArguments: [
         DeployedContracts[AliasDeployedContracts.PairFactoryUpgradeable_Proxy],
-        '0x4200000000000000000000000000000000000006',
+        '0x5555555555555555555555555555555555555555',
       ],
     },
   ];
