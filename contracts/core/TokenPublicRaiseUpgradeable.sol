@@ -141,8 +141,6 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
      * @param treasury_ Destination address for collected native funds.
      */
     function initialize(uint256 startTimestamp_, uint256 endTimestamp_, uint256 minDepositAmount_, uint256 maxDepositAmount_, uint256 totalDepositCap_, uint256 tokenPricePerOneNative_, address treasury_) external initializer {
-        _revertIfZero(tokenPricePerOneNative_);
-
         __Ownable_init();
         __Ownable2Step_init();
         __ReentrancyGuard_init();
@@ -150,9 +148,7 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
         _setTreasury(treasury_);
         _setDepositLimits(minDepositAmount_, maxDepositAmount_, totalDepositCap_);
         _setRaiseWindow(startTimestamp_, endTimestamp_);
-
-        tokenPricePerOneNative = tokenPricePerOneNative_;
-        emit ExchangeRateUpdated(tokenPricePerOneNative_);
+        _setTokenPricePerOneNative(tokenPricePerOneNative_);
     }
 
     /**
@@ -194,6 +190,24 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
         if (!ok) revert NativeTransferFailed();
 
         emit TreasuryWithdrawn(treasury, amount);
+    }
+
+    /**
+     * @notice Updates the fixed exchange rate (tokens per 1e18 native units).
+     * @dev
+     * Requirements:
+     * - Caller must be the owner.
+     * - `tokenPricePerOneNative_` must be non-zero.
+     *
+     * Emits:
+     * - {ExchangeRateUpdated}.
+     *
+     * Reverts:
+     * - {AmountZero} if `tokenPricePerOneNative_` is zero.
+     * @param tokenPricePerOneNative_ New price (tokens per 1e18 native units).
+     */
+    function setTokenPricePerOneNative(uint256 tokenPricePerOneNative_) external onlyOwner {
+        _setTokenPricePerOneNative(tokenPricePerOneNative_);
     }
 
     /**
@@ -374,6 +388,25 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
         totalDepositCap = totalDepositCap_;
 
         emit DepositLimitsUpdated(minDepositAmount_, maxDepositAmount_, totalDepositCap_);
+    }
+
+    /**
+     * @dev Internal setter for the exchange rate (tokens per 1e18 native units).
+     *
+     * Requirements:
+     * - `tokenPricePerOneNative_` must be non-zero.
+     *
+     * Emits:
+     * - {ExchangeRateUpdated}.
+     *
+     * Reverts:
+     * - {AmountZero} if `tokenPricePerOneNative_ == 0`.
+     * @param tokenPricePerOneNative_ New price to set.
+     */
+    function _setTokenPricePerOneNative(uint256 tokenPricePerOneNative_) internal {
+        _revertIfZero(tokenPricePerOneNative_);
+        tokenPricePerOneNative = tokenPricePerOneNative_;
+        emit ExchangeRateUpdated(tokenPricePerOneNative_);
     }
 
     /**

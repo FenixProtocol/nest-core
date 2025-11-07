@@ -219,7 +219,7 @@ describe('TokenPublicRaise Contract', function () {
   });
 
   describe('Access control', function () {
-    it('only owner can withdrawToTreasury/ setRaiseWindow / setDepositLimits / setTreasury', async function () {
+    it('only owner can withdrawToTreasury/ setRaiseWindow / setDepositLimits / setTreasury / setTokenPricePerOneNative', async function () {
       await expect(proxy.connect(user1).setRaiseWindow(0, 0)).to.be.revertedWith(
         'Ownable: caller is not the owner',
       );
@@ -232,6 +232,10 @@ describe('TokenPublicRaise Contract', function () {
       await expect(proxy.connect(user1).withdrawToTreasury()).to.be.revertedWith(
         'Ownable: caller is not the owner',
       );
+      await expect(proxy.connect(user1).setTokenPricePerOneNative(1)).to.be.revertedWith(
+        'Ownable: caller is not the owner',
+      );
+      
     });
 
     describe("#withdrawToTreasury", async() => {
@@ -245,6 +249,19 @@ describe('TokenPublicRaise Contract', function () {
       it("revert if try withdraw zero", async() => {
         await time.increaseTo(DEFAULT_END_TIMESTAMP + 1)
         await expect(proxy.withdrawToTreasury()).to.be.revertedWithCustomError(proxy, "AmountZero");
+      })
+    })
+
+    describe("#setTokenPricePerOneNative", async() => {
+      it("revert if try setup zero", async() => {
+        await expect(proxy.setTokenPricePerOneNative(0)).to.be.revertedWithCustomError(proxy, "AmountZero");
+      })
+      it("success update price", async() => {
+        expect(await proxy.tokenPricePerOneNative()).to.be.eq(DEFAULT_PRICE_PER_ONE_NATIVE_COIN);
+        await expect(proxy.setTokenPricePerOneNative(1)).to.be.emit(proxy, 'ExchangeRateUpdated').withArgs(1);
+        expect(await proxy.tokenPricePerOneNative()).to.be.eq(1);
+        await expect(proxy.setTokenPricePerOneNative(ethers.parseEther('123.4567'))).to.be.emit(proxy, 'ExchangeRateUpdated').withArgs(ethers.parseEther('123.4567'));
+        expect(await proxy.tokenPricePerOneNative()).to.be.eq(ethers.parseEther('123.4567'));
       })
     })
 

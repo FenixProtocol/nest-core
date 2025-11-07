@@ -64,6 +64,27 @@ All setters emit respective events for observability.
   - Transfers the **entire** native balance of the contract to `treasury`.
   - Emits `TreasuryWithdrawn(treasury, amount)`.
   - Reverts with `RaiseNotEnded` if called before end, or `NativeTransferFailed` on low‑level transfer failure.
+---
+
+## 6) Exchange Rate (Price) Management
+
+**Method:** `setTokenPricePerOneNative(uint256 price)` (owner‑only)
+
+- **Definition:** `price` is the number of sale tokens received **per 1e18 native units**.  
+  Example: if 1 ETH should buy 1,000 tokens (18 decimals), set `price = 1000e18`.
+
+- **Emits:** `ExchangeRateUpdated(price)`  
+- **Reverts:** `AmountZero` if `price == 0`.
+
+**Effects & Guarantees**
+- The **new price applies only to future deposits**. Previously accounted allocations (`userTokensAllocated`) **are not retroactively changed**.
+- `tokensOut` is computed as `amount * price / 1e18` and must be **non‑zero**; extremely small amounts or prices can cause `AmountZero` to revert on deposit.
+- Changing price **does not** affect caps or totals other than how many tokens are accounted per unit of native going forward.
+- Front‑ends should read `getInfo(user).price` to display the current price to users.
+
+**Operational Guidance**
+- Prefer fixing price before opening the window. If mid‑raise changes are necessary (e.g., peg shift), **announce publicly** to avoid user confusion.
+- Consider grace periods or pausing UI deposits during the update, then resume once the new price is indexed by front‑ends.
 
 ---
 

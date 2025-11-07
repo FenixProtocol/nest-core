@@ -149,7 +149,9 @@ export const deploy = async (options: BaseDeployOptions) => {
     if (options.verify || false) {
       await verify(address, constructorArguments);
     }
-  }catch {}
+  }catch {
+    console.log("Error verification...")
+  }
   return instance;
 };
 

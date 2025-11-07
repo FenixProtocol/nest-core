@@ -84,6 +84,12 @@ interface ITokenPublicRaise {
     function withdrawToTreasury() external;
 
     /**
+     * @notice Updates the fixed exchange rate (tokens per 1e18 native units).
+     * @param tokenPricePerOneNative_ New price (tokens per 1e18 native units).
+     */
+    function setTokenPricePerOneNative(uint256 tokenPricePerOneNative_) external;
+
+    /**
      * @notice Updates the treasury address.
      * @param treasury_ New treasury address.
      */
