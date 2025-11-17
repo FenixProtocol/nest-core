@@ -1,5 +1,127 @@
 # Nest Core Access Control Overview
 
+## Overview
+Nest Core's access model combines upgradeable proxies, role-based contracts, ownership based contracts This document aggregates every privileged surface.
+
+## Table of Contents
+- [Operational Recovery Guidelines](#operational-recovery-guidelines)
+- **Core**
+  - [ProxyAdmin](#proxyadmin)
+  - [VoterUpgradeableV2](#voterupgradeablev2)
+  - [VotingEscrowUpgradeableV2](#votingescrowupgradeablev2)
+  - [VeNestSplitMerklAidropUpgradeable](#venestsplitmerklaidropupgradeable)
+  - [Blaze GaugeRewarder](#blaze-gaugerewarder)
+  - [MinterUpgradeable](#minterupgradeable)
+  - [BribeFactoryUpgradeable](#bribefactoryupgradeable)
+  - [BribeUpgradeable](#bribeupgradeable)
+  - [TokenPublicRaiseUpgradeable](#tokenpublicraiseupgradeable)
+  - [GaugeUpgradeable](#gaugeupgradeable)
+  - [GaugeFactoryUpgradeable](#gaugefactoryupgradeable)
+  - [FeesVaultFactoryUpgradeable](#feesvaultfactoryupgradeable)
+  - [FeesVaultUpgradeable](#feesvaultupgradeable)
+  - [CompoundEmissionExtensionUpgradeable](#compoundemissionextensionupgradeable)
+  - [BribeVeNESTRewardToken](#bribevenestrewardtoken)
+  - [CustomBribeRewardRouter](#custombriberewardrouter)
+
+- **Dex V2**
+  - [Pair](#pair)
+  - [PairFactoryUpgradeable](#pairfactoryupgradeable)
+  - [VolatileDynamicFeeOnePool](#volatiledynamicfeeonepool)
+
+- **Dex V3**
+  - [AlgebraFactoryUpgradeable](#algebrafactoryupgradeable)
+  - [AlgebraPool](#algebrapool)
+  - [AlgebraBasePluginV1](#algebrabasepluginv1)
+
+- **Nest Strategies**
+  - [BaseManagedNFTStrategyUpgradeable (abstract)](#basemanagednftstrategyupgradeable-abstract)
+  - [ManagedNFTManagerUpgradeable](#managednftmanagerupgradeable)
+  - [CompoundVeNESTManagedNFTStrategyFactoryUpgradeable](#compoundvenestmanagednftstrategyfactoryupgradeable)
+  - [CompoundVeNESTManagedNFTStrategyUpgradeable](#compoundvenestmanagednftstrategyupgradeable)
+  - [RouterV2PathProviderUpgradeable](#routerv2pathproviderupgradeable)
+
+- **Utils**
+  - [VeNFTAPIUpgradeable](#venftapiupgradeable)
+  - [GetInformationAggregatorUpgradeable](#getinformationaggregatorupgradeable)
+  - [PairAPIUpgradeable](#pairapiupgradeable)
+  - [RewardAPIUpgradeable](#rewardapiupgradeable)
+
+- **Other**
+  - [NestRaiseUpgradeable](#nestraiseupgradeable)
+  - [RNest](#rnest)
+  - [VeBoostUpgradeable](#veboostupgradeable)
+  - [VeNestDistributorUpgradeable](#venestdistributorupgradeable)
+  - [PerpetualsGaugeUpgradeable](#perpetualsgaugeupgradeable)
+  - [PerpetualsTradersRewarderUpgradeable](#perpetualstradersrewarderupgradeable)
+  - [ManualNESTPriceProvider](#manualnestpriceprovider)
+  - [MerklGaugeMiddleman](#merklgaugemiddleman)
+  - [OpenOceanVeNftDirectBuyer](#openoceanvenftdirectbuyer)
+  - [MinimalLinearVestingUpgradeable](#minimallinearvestingupgradeable)
+
+## Operational Recovery Guidelines
+
+This section provides high-level recommended actions for incident recovery depending on the severity of compromise and the upgradeability of the affected contract. It applies to all privileged roles and key-controlled components of the protocol.
+
+### 1. Key Compromised but Access Still Available
+If a privileged wallet is suspected to be compromised **but you still control it**:
+
+**Recommended actions**
+- Immediately transfer the role/ownership to a new secure multisig or governance wallet.
+- Rotate all related operational keys (signers, keepers, relayers, distributors).
+- Inspect configuration modified by the compromised key:
+  - Validate integrations, fee settings, distribution flows, and addresses.
+  - Restore correct configuration where needed.
+- Review on-chain actions executed by the compromised key and assess impact.
+
+---
+
+### 2. Key Compromised AND Malicious User Has Already Transfer Control
+If  privileged key was compromised **and the malicious user has already transferred roles/ownership** to themselves:
+
+**Recommended actions**
+- Use a **higher-privilege authority** to override the attacker:
+  - For role-based systems: use a parent role (e.g., `DEFAULT_ADMIN_ROLE`, governance) to revoke attacker’s access.
+  - For Ownable proxies: use `ProxyAdmin` or governance-controlled admin to force-transfer ownership.
+- Reassign the correct roles/ownership to a secured multisig.
+- Revert or fix any malicious configuration:
+  - Suspicious new gauges, bribes, fee modules, plugin addresses, vaults or reward routes.
+  - Changed treasury or distribution addresses.
+- For contracts with emergency modes, consider enabling them temporarily until full restoration is complete.
+
+---
+
+### 3. Full Loss of Access but Contract Is Upgradeable
+If all privileged keys for a contract are lost **but the contract is upgradeable**:
+
+**Recommended actions**
+- Use `ProxyAdmin` (or equivalent upgrade owner) to:
+  - Deploy a new implementation that restores governance control.
+  - Strip or reset broken/incorrect admin/role references inside the contract.
+- After regaining control:
+  - Reassign correct roles and ownership.
+  - Validate all integrations and restore safe parameters.
+  - Optionally migrate to a new contract if the upgrade path is unreliable.
+
+---
+
+### 4. Full Loss of Access AND Contract Is Not Upgradeable
+If a non-upgradeable contract has lost all admin keys:
+
+**Recommended actions**
+- If the contract exposes any **emergency shut-off functions**, activate them to mitigate further damage.
+- Immediately isolate the contract from the protocol:
+  - Remove it from factories, registries, routing logic, or distribution flows.
+  - Disable front-end interactions.
+- Prepare a **migration plan**:
+  - Deploy a replacement contract under secure governance.
+  - Provide a migration path for users (withdraw, re-stake, migrate positions).
+- For DEX pairs or gauges:
+  - Encourage users to withdraw liquidity or claim rewards.
+  - Front-end should treat the contract as deprecated.
+
+This section can be reused for all roles and components described in the access-control overview.
+
+
 ## ProxyAdmin
 
 Top-level owner of upgradeable proxies, able to change implementations and proxy admins for every protocol contract.
@@ -22,7 +144,6 @@ Top-level owner of upgradeable proxies, able to change implementations and proxy
 
 Central coordination point for creating gauges, receiving user votes, and distributing emissions.
 
----
 
 ### DEFAULT_ADMIN_ROLE
 
@@ -39,7 +160,7 @@ Super-administrator with full control over access in the Voter.
 **Emergency actions**
 - If this key is compromised:
   - Use governance / ProxyAdmin to upgrade `VoterUpgradeableV2` with a fresh admin.
-  - If access remains to the admin wallet, remove the roles from it and transfer it to a new wallet (Review other roles holders, and revoke/grants actions are also needed)
+  - If access remains to the admin wallet, remove the roles from it and transfer it to a new wallet (Review other roles holders, and revoke/grants actions are also needed).
     ```solidity
     // called by DEFAULT_ADMIN_ROLE on VoterUpgradeableV2
     grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
@@ -109,14 +230,12 @@ Operational role that maintains external integrations and voting window configur
 
 Manages veNFT locks, boosts, permanent locks, managed-NFT attachments, and voting power accounting.
 
----
-
 ### Owner (Ownable2Step)
 
 Primary administrator controlling external integrations used by the VotingEscrow.
 
 **Capabilities**
-- Set art proxy, boost contract (`veBoost`), managed NFT manager, Voter, and custom bribe reward router.
+- Set art proxy, boost contract, managed NFT manager, Voter, and custom bribe reward router.
 - Redirect these integrations to new deployments.
 
 **Assign To**
@@ -141,8 +260,6 @@ Primary administrator controlling external integrations used by the VotingEscrow
 ## VeNestSplitMerklAidropUpgradeable
 
 Manages a Merkle-based airdrop that can pay users in pure tokens or veNFT locks.
-
----
 
 ### Owner (Ownable2Step)
 
@@ -177,7 +294,6 @@ Admin for airdrop configuration and pause control.
 Auxiliary module that compounds claimed emissions into veNFT locks and/or bribe pools.  
 Controlled fully via roles defined in the `Voter` contract.
 
----
 
 ### COMPOUND_EMISSION_EXTENSION_ADMINISTRATOR_ROLE
 
@@ -227,8 +343,6 @@ Execution role for batch-compounding user emissions.
 ## Blaze GaugeRewarder
 
 Distributes a reward token across epochs and gauges and handles user claims via EIP-712 signatures.
-
----
 
 ### DEFAULT_ADMIN_ROLE
 
@@ -1871,8 +1985,6 @@ Not a direct role, but the manager and `getStrategyFlags` govern the behaviour s
 Manages curated routes for Router V2, including allowed input tokens and per-token route definitions.  
 This contract does **not** hold funds.
 
----
-
 ### Owner (Ownable2StepUpgradeable)
 
 Sole admin controlling routes, factory, and router addresses.
@@ -2024,8 +2136,6 @@ Factory owner; also synchronized with DEFAULT_ADMIN_ROLE via `_transferOwnership
 Concentrated-liquidity pool contract for swaps, liquidity and fee accrual.  
 Has no internal AccessControl; uses the factory and plugin for privileged operations.
 
----
-
 ### Pool Administrator (via AlgebraFactory.POOLS_ADMINISTRATOR_ROLE)
 
 Admin is determined via `IAlgebraFactory(factory).hasRoleOrOwner(POOLS_ADMINISTRATOR_ROLE, msg.sender)`.
@@ -2084,8 +2194,6 @@ External contract plugged into the pool to handle dynamic fees and hooks.
 ## AlgebraBasePluginV1
 
 Default Algebra plugin providing volatility oracle, TWAP, adaptive fee logic and integration with farming incentives.
-
----
 
 ### ALGEBRA_BASE_PLUGIN_MANAGER (via AlgebraFactory.hasRoleOrOwner)
 
