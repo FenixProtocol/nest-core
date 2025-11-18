@@ -5,6 +5,18 @@ import { Nest, MinterUpgradeable, VoterEscrowMock, VoterMock } from '../../typec
 import { ERRORS, ONE, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import { SignersList, deployFenixToken, deployMinter, getSigners } from '../utils/coreFixture';
 
+/*
+  #### Minter:
+  Inflation Period Count: 12
+  Inflation Rate: 150  // 1.5%
+  Decay Rate: 100 // 1%
+  Team Rate: 500 // 5%
+  Start Emission: 20_000_000e18
+
+  E1 Emissions: 20,000,000 (2% of initial supply) 
+  Increase: +1.5% each epoch for 12 epochs (2-13) 
+  Decay: -1% each epoch forever after that starting epoch 14
+*/
 describe('MinterUpgradeable Contract', function () {
   let minter: MinterUpgradeable;
   let signers: SignersList;
@@ -55,6 +67,7 @@ describe('MinterUpgradeable Contract', function () {
       expect(await minter.weekly()).to.be.eq(ethers.parseEther('20000000'));
       expect(await minter.lastInflationPeriod()).to.be.eq(ZERO);
       expect(await minter.TAIL_EMISSION()).to.be.eq(20);
+      expect(await minter.epochEmissionAdjustmentBps()).to.be.eq(0);
     });
     it('Should set avtive_period in two weeks', async () => {
       let inTwoPeriod = ((BigInt(await time.latest()) + BigInt(2) * WEEK) / WEEK) * WEEK;
@@ -156,6 +169,32 @@ describe('MinterUpgradeable Contract', function () {
         expect(await minter.inflationRate()).to.be.eq(506);
       });
     });
+    describe('#setEpochEmissionAdjustmentBps', async function () {
+      it('Should fail if caller not owner', async () => {
+        await expect(minter.connect(signers.otherUser1).setEpochEmissionAdjustmentBps(100)).to.be.revertedWith(ERRORS.Ownable.NotOwner);
+        await expect(minter.connect(signers.otherUser1).setEpochEmissionAdjustmentBps(-100)).to.be.revertedWith(ERRORS.Ownable.NotOwner);
+      });
+      it('Should fail if try set more > 10% or less 10%', async () => {
+        await minter.setEpochEmissionAdjustmentBps(2500);
+        await minter.setEpochEmissionAdjustmentBps(0);
+        await minter.setEpochEmissionAdjustmentBps(-2500);
+        await expect(minter.setEpochEmissionAdjustmentBps(2501)).to.be.revertedWith('adjustment bps out of range');
+        await expect(minter.setEpochEmissionAdjustmentBps(-2501)).to.be.revertedWith('adjustment bps out of range');
+      });
+
+      it('Should success set epoch emission adjustment bps', async () => {
+        expect(await minter.epochEmissionAdjustmentBps()).to.be.eq(0);
+        await expect(minter.setEpochEmissionAdjustmentBps(-123)).to.be.emit(minter, "SetEpochEmissionAdjustmentBps").withArgs(-123);
+        expect(await minter.epochEmissionAdjustmentBps()).to.be.eq(-123);
+
+        await expect(minter.setEpochEmissionAdjustmentBps(456)).to.be.emit(minter, "SetEpochEmissionAdjustmentBps").withArgs(456);
+        expect(await minter.epochEmissionAdjustmentBps()).to.be.eq(456);
+
+        await expect(minter.setEpochEmissionAdjustmentBps(0)).to.be.emit(minter, "SetEpochEmissionAdjustmentBps").withArgs(0);
+        expect(await minter.epochEmissionAdjustmentBps()).to.be.eq(0);
+
+      });
+    });
   });
 
   describe('#check', async () => {
@@ -255,9 +294,9 @@ describe('MinterUpgradeable Contract', function () {
       await minter.update_period();
 
       expect(await minter.weekly()).to.be.eq(WEEKLY);
-      expect(await fenix.balanceOf(voterMock.target)).to.be.eq(WEEKLY - ethers.parseEther('11250'));
+      expect(await fenix.balanceOf(voterMock.target)).to.be.eq(WEEKLY - ethers.parseEther('1000000'));
       expect(await fenix.balanceOf(minter.target)).to.be.eq(ZERO);
-      expect(await fenix.balanceOf(signers.deployer)).to.be.eq(balanceOwnerBefore + ethers.parseEther('11250')); // 5% from WEEKLY
+      expect(await fenix.balanceOf(signers.deployer)).to.be.eq(balanceOwnerBefore + ethers.parseEther('1000000')); // 5% from WEEKLY
 
       expect(await minter.active_period()).to.be.eq(periodBefore + WEEK);
 
@@ -331,52 +370,209 @@ describe('MinterUpgradeable Contract', function () {
       await time.increase(WEEK);
       await minter.update_period();
 
-      expect(await minter.weekly()).to.be.eq(ethers.parseEther('228375'));
+      expect(await minter.weekly()).to.be.eq(ethers.parseEther('20300000'));
 
       await time.increase(WEEK);
       await minter.update_period();
 
-      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('231801'), ethers.parseEther('1'));
+      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('20604500'), ethers.parseEther('1'));
 
       await minter.setInflationRate(200); // from 1.5% to 2%
 
       await time.increase(WEEK);
       await minter.update_period();
-      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('236437.02'), ethers.parseEther('1'));
+      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('21016590'), ethers.parseEther('1'));
 
       await time.increase(WEEK);
       await minter.update_period();
-      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('241165.76'), ethers.parseEther('1'));
+      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('21436921.8'), ethers.parseEther('1'));
     });
+
+    it('Clear spreedshet test', async () => {
+      console.log(await fenix.totalSupply());
+      await minter.update_period();
+      console.log(await fenix.totalSupply());
+      let before = await fenix.totalSupply();
+      for (let index = 0; index < 30; index++) {
+        await time.increase(WEEK);
+        await minter.update_period();
+        let after = await fenix.totalSupply();
+        console.log(await fenix.totalSupply(), ethers.formatEther(after - before));
+        before = after;
+      }
+    });
+
     it('Should corect work after change decay rate beetwen epoch', async () => {
       while ((await minter.period()) <= (await minter.lastInflationPeriod())) {
         await time.increase(WEEK);
         await minter.update_period();
+        console.log(await fenix.totalSupply());
       }
-      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('247218'), ethers.parseEther('1'));
+      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('23323388.96'), ethers.parseEther('1'));
       await time.increase(WEEK);
       await minter.update_period();
-      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('244746'), ethers.parseEther('1'));
+      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('23090155.07'), ethers.parseEther('1'));
       await minter.setDecayRate(321); // from 1% to 3.21%
       await time.increase(WEEK);
       await minter.update_period();
-      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('236889.653'), ethers.parseEther('1'));
+      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('22348961.1'), ethers.parseEther('1'));
       await time.increase(WEEK);
       await minter.update_period();
-      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('229285.495'), ethers.parseEther('1'));
+      expect(await minter.weekly()).to.be.closeTo(ethers.parseEther('21631559.4'), ethers.parseEther('1'));
+    });
+  });
+
+  describe('Emission adjustments', async () => {
+    describe('after start', async () => {
+      beforeEach(async () => {
+        await minter.start();
+      });
+
+      it('Should apply positive boost for the upcoming epoch and emit details', async () => {
+        const boost = BigInt(500);
+        await minter.setEpochEmissionAdjustmentBps(boost);
+
+        const baseWeekly = await minter.weekly();
+        const ownerBalanceBefore = await fenix.balanceOf(signers.deployer.address);
+        const voterBalanceBefore = await fenix.balanceOf(voterMock.target);
+
+        await time.increase(WEEK);
+        const epoch = await minter.period();
+        const adjustedWeekly = (baseWeekly * (BigInt(10000) + boost)) / BigInt(10000);
+        const teamRate = await minter.teamRate();
+        const expectedTeam = (adjustedWeekly * teamRate) / BigInt(10000);
+        const expectedGauge = adjustedWeekly - expectedTeam;
+
+        await expect(minter.update_period())
+          .to.emit(minter, 'Emission')
+          .withArgs(epoch, boost, baseWeekly, adjustedWeekly, expectedTeam, expectedGauge);
+
+        expect(await fenix.balanceOf(signers.deployer.address)).to.be.eq(ownerBalanceBefore + expectedTeam);
+        expect(await fenix.balanceOf(voterMock.target)).to.be.eq(voterBalanceBefore + expectedGauge);
+        expect(await minter.epochEmissionAdjustmentBps()).to.be.eq(ZERO);
+      });
+
+      it('Should apply negative adjustment and reset after execution', async () => {
+        const boost = BigInt(-500);
+        await minter.setEpochEmissionAdjustmentBps(boost);
+
+        const baseWeekly = await minter.weekly();
+        await time.increase(WEEK);
+        const epoch = await minter.period();
+        const adjustedWeekly = (baseWeekly * (BigInt(10000) + boost)) / BigInt(10000);
+        const teamRate = await minter.teamRate();
+        const expectedTeam = (adjustedWeekly * teamRate) / BigInt(10000);
+        const expectedGauge = adjustedWeekly - expectedTeam;
+
+        await expect(minter.update_period())
+          .to.emit(minter, 'Emission')
+          .withArgs(epoch, boost, baseWeekly, adjustedWeekly, expectedTeam, expectedGauge);
+
+        expect(await minter.epochEmissionAdjustmentBps()).to.be.eq(ZERO);
+        expect(await fenix.balanceOf(voterMock.target)).to.be.eq(expectedGauge);
+        expect(await fenix.balanceOf(signers.deployer.address)).to.be.eq(INITIAL_TOKEN_SUPPLY + expectedTeam);
+      });
+    });
+    describe('calculateEmissionWithAdjustment', () => {
+      const PRECISION = 10_000n;
+
+      it('returns same amount when adjustmentBps is 0', async () => {
+        const amount = ethers.parseEther('100');
+
+        const result = await minter.calculateEmissionWithAdjustment(amount, 0);
+
+        expect(result).to.equal(amount);
+        expect(result).to.equal(ethers.parseEther('100'));
+
+      });
+
+      it('applies positive adjustment (e.g. +5%) correctly', async () => {
+        const amount = ethers.parseEther('100');
+        const adjustmentBps = 500; // +5%
+
+        const result = await minter.calculateEmissionWithAdjustment(amount, adjustmentBps);
+
+        const expected =
+          (amount * (PRECISION + BigInt(adjustmentBps))) / PRECISION; // 100 * 1.05
+
+        expect(result).to.equal(expected);
+        expect(result).to.equal(ethers.parseEther('105'));
+
+      });
+
+      it('applies negative adjustment (e.g. -5%) correctly', async () => {
+        const amount = ethers.parseEther('100');
+        const adjustmentBps = -500; // -5%
+
+        const result = await minter.calculateEmissionWithAdjustment(amount, adjustmentBps);
+
+        const expected =
+          (amount * (PRECISION + BigInt(adjustmentBps))) / PRECISION; // 100 * 0.95
+
+        expect(result).to.equal(expected);
+        expect(result).to.equal(ethers.parseEther('95'));
+      });
+
+      it('never returns negative emission; clamps to 0 if adjusted < 0', async () => {
+        const amount = ethers.parseEther('1'); 
+        const adjustmentBps = -20_000;
+
+        const result = await minter.calculateEmissionWithAdjustment(amount, adjustmentBps);
+
+        expect(result).to.equal(0n);
+        expect(result).to.equal(0n);
+      });
+
+      it('handles large amounts without overflow and with correct math', async () => {
+        const amount = ethers.parseEther('1000000000');
+        const adjustmentBps = 250;
+
+        const result = await minter.calculateEmissionWithAdjustment(amount, adjustmentBps);
+
+        const expected =
+          (amount * (PRECISION + BigInt(adjustmentBps))) / PRECISION;
+
+        expect(result).to.equal(expected);
+        expect(result).to.equal(ethers.parseEther('1025000000'));
+      });
     });
   });
 
   describe('Should eq to spreedsheet', async () => {
-    it(`check epoch from 0 to 52 basic on spreedsheet`, async () => {
+    function formatEpochDate(epochTs: bigint | number): string {
+      const date = new Date(Number(epochTs) * 1000);
+
+      const dd = String(date.getUTCDate()).padStart(2, '0');
+      const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const yyyy = date.getUTCFullYear();
+
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    it(`check epoch from 0 to 18 basic on spreedsheet`, async () => {
       expect(await fenix.totalSupply()).to.be.eq(INITIAL_TOKEN_SUPPLY);
 
       await minter.start();
       let emissions = [
-        0, 225000, 228375, 231801, 235278, 238807, 242389, 246025, 249715, 247218, 244746, 242298, 239875, 237477, 235102, 232751, 230423,
-        228119, 225838, 223579, 221344, 219130, 216939, 214770, 212622, 210496, 208391, 206307, 204244, 202201, 200179, 198177, 196196,
-        194234, 192291, 190368, 188465, 186580, 184714, 182867, 181039, 179228, 177436, 175662, 173905, 172166, 170444, 168740, 167052,
-        165382, 163728, 162091, 160470,
+        0,
+        20000000.00,
+        20300000.00,
+        20604500.00,
+        20913567.50,
+        21227271.01,
+        21545680.08,
+        21868865.28,
+        22196898.26,
+        22529851.73,
+        22867799.51,
+        23210816.50,
+        23558978.75,
+        23323388.96,
+        23090155.07,
+        22859253.52,
+        22630660.99,
+        22404354.38,
+        22180310.83
       ];
       let lastTotalSupply: bigint = await fenix.totalSupply();
       let changeBefore: bigint = BigInt(0);
@@ -384,14 +580,21 @@ describe('MinterUpgradeable Contract', function () {
       for (let index = 0; index < emissions.length; index++) {
         lastTotalSupply = await fenix.totalSupply();
         await minter.update_period();
+        const activePeriod = await minter.active_period();
+        const dateStr = formatEpochDate(activePeriod);
+
         await time.increase(WEEK);
         let change = (await fenix.totalSupply()) - lastTotalSupply;
-        console.log(`${index} ${ethers.formatEther(await fenix.totalSupply())} ${ethers.formatEther(change)}`);
+        console.log(
+          `${index} ${dateStr} ` +
+          `${ethers.formatEther(await fenix.totalSupply())} ` +
+          `${ethers.formatEther(change)}`
+        );        
         expect(change).to.be.closeTo(ethers.parseEther(emissions[index].toString()), ethers.parseEther('1'));
         changeBefore = change;
       }
 
-      expect(await fenix.totalSupply()).to.be.closeTo(ethers.parseEther('18232672'), ethers.parseEther('1'));
+      expect(await fenix.totalSupply()).to.be.closeTo(ethers.parseEther('1397312352.36'), ethers.parseEther('1'));
     });
   });
 

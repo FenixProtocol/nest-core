@@ -16,6 +16,7 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
     uint256 public constant MAX_TEAM_RATE = 500; // 500 bips =  5%
     uint256 public constant WEEK = 86400 * 7; // allows minting once per week (reset every Thursday 00:00 UTC)
     uint256 public constant TAIL_EMISSION = 20; // 0.2%
+    uint256 public constant MAX_EMISSION_ADJUSTMENT = 2_500; // +/- 25% bounds expressed in bips
 
     bool public isFirstMint;
     bool public isStarted;
@@ -34,6 +35,7 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
     IVotingEscrow public ve;
 
     uint256 public startEmissionDistributionTimestamp;
+    int256 public epochEmissionAdjustmentBps;
 
     constructor() {
         _disableInitializers();
@@ -92,6 +94,16 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
         inflationRate = _inflationRate;
     }
 
+    function setEpochEmissionAdjustmentBps(int256 adjustmentBps) external onlyOwner {
+        require(
+            adjustmentBps >= -int256(MAX_EMISSION_ADJUSTMENT) && adjustmentBps <= int256(MAX_EMISSION_ADJUSTMENT),
+            "adjustment bps out of range"
+        );
+
+        epochEmissionAdjustmentBps = adjustmentBps;
+        emit SetEpochEmissionAdjustmentBps(adjustmentBps);
+    }
+
     // calculate circulating supply as total token supply - locked supply
     function circulating_supply() public view returns (uint256) {
         return nest.totalSupply() - nest.balanceOf(address(ve));
@@ -136,21 +148,27 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
                 }
 
                 uint256 weeklyCache = weekly;
-                uint256 teamEmissions = (weeklyCache * teamRate) / PRECISION;
-
-                uint256 gauge = weeklyCache - teamEmissions;
+                int256 epochEmissionAdjustmentBpsCache = epochEmissionAdjustmentBps;
+                uint256 adjustedWeekly = calculateEmissionWithAdjustment(weeklyCache, epochEmissionAdjustmentBpsCache);
+                uint256 teamEmissions = (adjustedWeekly * teamRate) / PRECISION;
+                uint256 gauge = adjustedWeekly - teamEmissions;
 
                 uint256 currentBalance = nest.balanceOf(address(this));
-                if (currentBalance < weeklyCache) {
-                    nest.mint(address(this), weeklyCache - currentBalance);
+                if (currentBalance < adjustedWeekly) {
+                    nest.mint(address(this), adjustedWeekly - currentBalance);
                 }
 
-                require(nest.transfer(owner(), teamEmissions));
+                if(teamEmissions > 0) {
+                    require(nest.transfer(owner(), teamEmissions));
+                }
 
                 nest.approve(address(voter), gauge);
                 voter.notifyRewardAmount(gauge);
+                
+                epochEmissionAdjustmentBps = 0;
 
-                emit Mint(msg.sender, weeklyCache, circulating_supply());
+                emit Mint(msg.sender, adjustedWeekly, circulating_supply());
+                emit Emission(_period, epochEmissionAdjustmentBpsCache, weeklyCache, adjustedWeekly, teamEmissions, gauge);
             }
         }
         return _period;
@@ -163,6 +181,19 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
 
     function period() external view returns (uint256) {
         return (block.timestamp / WEEK) * WEEK;
+    }
+
+    function calculateEmissionWithAdjustment(uint256 amount, int256 adjustmentBps) public pure returns (uint256) {
+        if (adjustmentBps == 0) {
+            return amount;
+        }
+
+        int256 precision = int256(PRECISION);
+        int256 adjusted = (int256(amount) * (precision + adjustmentBps)) / precision;
+        if(adjusted < 0) {
+            return 0;
+        }
+        return uint256(adjusted);
     }
 
     /**
