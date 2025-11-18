@@ -761,3 +761,89 @@ Wait 10 seconds before tx...
 Wait 10 seconds before tx...
         Called Contract(0x843d31e601b38F7207864457f0fB38E14441E792).setAuthorizedUser(managedTokenId_: "1", authorizedUser_: "0x0E07A5efa3bAeBf2E569243760D8358E3FF20482")
         Transaction hash: 0x72c513d297a970293b8d632f18e12ecceb2e8b97bae7d98d3370a99ce42b86e6
+
+
+WARNING: You are currently using Node.js v24.11.1, which is not supported by Hardhat. This can lead to unexpected behavior. See https://hardhat.org/nodejs-versions
+
+
+[WHYPE-USDT0] Pool already exists at 0x20e6E73C91a29d21BdE672562a4B16649D66623E, skipping createPool
+[WHYPE-USDT0] Final pool address: 0x20e6E73C91a29d21BdE672562a4B16649D66623E
+--------------------------------------------------
+[WHYPE-USDT0]   Pool already initialized, current price: 494548110501181502234888
+[WHYPE-USDT0]    Tick spacing try setup tickSpacing:10
+
+
+[WHYPE-USDT0] Pool already exists at 0x20e6E73C91a29d21BdE672562a4B16649D66623E, skipping createPool
+[WHYPE-USDT0] Final pool address: 0x20e6E73C91a29d21BdE672562a4B16649D66623E
+--------------------------------------------------
+[WHYPE-USDT0]   Pool already initialized, current price: 494548110501181502234888
+[WHYPE-USDT0]  Tick spacing already setuped to: 10
+[WHYPE-UETH] Pool already exists at 0x998007a512531d9081e116F85605C40d41Abd4f1, skipping createPool
+[WHYPE-UETH] Final pool address: 0x998007a512531d9081e116F85605C40d41Abd4f1
+--------------------------------------------------
+[WHYPE-UETH]     call initialize pools initialPrice:8821373321405790891351278881 ...
+[WHYPE-UETH]     Tick spacing try setup tickSpacing:5
+[WHYPE-UBTC] Pool already exists at 0xCd238eAfAdB112515910f8D09D94A90AC8C180Fe, skipping createPool
+[WHYPE-UBTC] Final pool address: 0xCd238eAfAdB112515910f8D09D94A90AC8C180Fe
+--------------------------------------------------
+[WHYPE-UBTC]     call initialize pools initialPrice:16200996169029282985070 ...
+[WHYPE-UBTC]     Tick spacing try setup tickSpacing:5
+[WHYPE-UPUMP] Pool already exists at 0xcE17208bDa21f2d84E1A410f8704ac56038a179d, skipping createPool
+[WHYPE-UPUMP] Final pool address: 0xcE17208bDa21f2d84E1A410f8704ac56038a179d
+--------------------------------------------------
+[WHYPE-UPUMP]    call initialize pools initialPrice:714614041148765528372691726650663 ...
+[WHYPE-UPUMP]    Tick spacing try setup tickSpacing:50
+[kHYPE-USDH] Pool already exists at 0xC0578D20762FD5F4BA6F09124993709ffAa029aB, skipping createPool
+[kHYPE-USDH] Final pool address: 0xC0578D20762FD5F4BA6F09124993709ffAa029aB
+--------------------------------------------------
+[kHYPE-USDH]     call initialize pools initialPrice:12654359712195301195602427786128022 ...
+[kHYPE-USDH]     Tick spacing try setup tickSpacing:10
+[kHYPE-WHYPE] Pool already exists at 0xA83D60b1a9CA6Dd1d0D2d9275c700114F2F3a8d6, skipping createPool
+[kHYPE-WHYPE] Final pool address: 0xA83D60b1a9CA6Dd1d0D2d9275c700114F2F3a8d6
+--------------------------------------------------
+[kHYPE-WHYPE]    call initialize pools initialPrice:79047628369227806803799553742 ...
+[kHYPE-WHYPE]    Tick spacing try setup tickSpacing:1
+[WHYPE-USDH] Pool already exists at 0x45FbF9786cDBDE9E940620F4Af0eb42B76848d17, skipping createPool
+[WHYPE-USDH] Final pool address: 0x45FbF9786cDBDE9E940620F4Af0eb42B76848d17
+--------------------------------------------------
+[WHYPE-USDH]     call initialize pools initialPrice:12687170211802350829082029102368532 ...
+[WHYPE-USDH]     Tick spacing try setup tickSpacing:10
+[USDH-USDT0] Pool already exists at 0xb09a299E9f7D333420d347EEBE0456Cb0f8545d5, skipping createPool
+[USDH-USDT0] Final pool address: 0xb09a299E9f7D333420d347EEBE0456Cb0f8545d5
+--------------------------------------------------
+[USDH-USDT0]     call initialize pools initialPrice:79253345673609279319744059764 ...
+[USDH-USDT0]     Tick spacing try setup tickSpacing:1
+[USDH-USDC] Pool already exists at 0xc08fEc05f656690E2658EF8082F909E8d6EDC727, skipping createPool
+[USDH-USDC] Final pool address: 0xc08fEc05f656690E2658EF8082F909E8d6EDC727
+--------------------------------------------------
+[USDH-USDC]      call initialize pools initialPrice:79229901358118123593641909142 ...
+[USDH-USDC]      Tick spacing try setup tickSpacing:1
+
+
+
+Wait 10 seconds before tx...
+        Called Contract(0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901).createV3Gauge(pool_: "0x20e6E73C91a29d21BdE672562a4B16649D66623E")
+        Transaction hash: 0x99ffb8ddae9e469cdf36ce08906d33533707b3ed4eb3a91eb7fc230089f46949
+Wait 10 seconds before tx...
+        Called Contract(0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901).createV3Gauge(pool_: "0x998007a512531d9081e116F85605C40d41Abd4f1")
+        Transaction hash: 0x72bac13ec293c4e412db244d1e61c227230b6142223a26759aa5f221c52bc2fb
+Wait 10 seconds before tx...
+        Called Contract(0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901).createV3Gauge(pool_: "0xCd238eAfAdB112515910f8D09D94A90AC8C180Fe")
+        Transaction hash: 0x7cb51ec889953a5ed661241ef2c003654ad4efe157cc32c0be44c0a202ce3d2f
+Wait 10 seconds before tx...
+        Called Contract(0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901).createV3Gauge(pool_: "0xcE17208bDa21f2d84E1A410f8704ac56038a179d")
+        Transaction hash: 0x220c20e262bca4c3d05c9c164f47669c881616a2bd33e79f8af9c26164ecf48a
+Wait 10 seconds before tx...
+        Called Contract(0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901).createV3Gauge(pool_: "0xC0578D20762FD5F4BA6F09124993709ffAa029aB")
+        Transaction hash: 0x988c99fa88461042dfe650942111a6fb17937f2eee0fafbe1dbcaf786b44b7d8
+Wait 10 seconds before tx...
+        Called Contract(0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901).createV3Gauge(pool_: "0xA83D60b1a9CA6Dd1d0D2d9275c700114F2F3a8d6")
+        Transaction hash: 0x74e7c88049ae38d21b8b5038dc7f4b4b062af7328acb8489af4206b2c50c6c16
+Wait 10 seconds before tx...
+        Called Contract(0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901).createV3Gauge(pool_: "0x45FbF9786cDBDE9E940620F4Af0eb42B76848d17")
+        Transaction hash: 0xeca7b00a23fc6c1b7eab5eacf3c2526c371532dc5192570da19832563090f06d
+Wait 10 seconds before tx...
+        Called Contract(0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901).createV3Gauge(pool_: "0xb09a299E9f7D333420d347EEBE0456Cb0f8545d5")
+        Transaction hash: 0x27d9e35fe9911eb9555cbfc8a9f3e9343284986c7fdd3c153a91b54128d2f107
+Wait 10 seconds before tx...
+        Called Contract(0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901).createV3Gauge(pool_: "0xc08fEc05f656690E2658EF8082F909E8d6EDC727")
