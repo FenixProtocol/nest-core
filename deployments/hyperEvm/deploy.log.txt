@@ -710,3 +710,54 @@ Default rewards tokens list: Result(14) [
   '0x02c6a2fA58cC01A18B8D9E00eA48d65E4dF26c70',
   '0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34'
 ]
+
+[WHYPE-USDT0] Pool already exists at 0x20e6E73C91a29d21BdE672562a4B16649D66623E, skipping createPool
+[WHYPE-USDT0] Final pool address: 0x20e6E73C91a29d21BdE672562a4B16649D66623E
+--------------------------------------------------
+[WHYPE-UETH] Pool already exists at 0x998007a512531d9081e116F85605C40d41Abd4f1, skipping createPool
+[WHYPE-UETH] Final pool address: 0x998007a512531d9081e116F85605C40d41Abd4f1
+--------------------------------------------------
+[WHYPE-UBTC] Pool already exists at 0xCd238eAfAdB112515910f8D09D94A90AC8C180Fe, skipping createPool
+[WHYPE-UBTC] Final pool address: 0xCd238eAfAdB112515910f8D09D94A90AC8C180Fe
+--------------------------------------------------
+[WHYPE-UPUMP] Pool does not exist yet. Creating...
+[WHYPE-UPUMP] createPool tx sent: 0xf8e291c0eae7b7a3b3bbd8ff51cec6005bb93131c7eadd2831941e81554766a4
+[WHYPE-UPUMP] Pool created in block 19532804 (gas used: 5043839)
+[WHYPE-UPUMP] Final pool address: 0xcE17208bDa21f2d84E1A410f8704ac56038a179d
+--------------------------------------------------
+[kHYPE-USDH] Pool already exists at 0xC0578D20762FD5F4BA6F09124993709ffAa029aB, skipping createPool
+[kHYPE-USDH] Final pool address: 0xC0578D20762FD5F4BA6F09124993709ffAa029aB
+--------------------------------------------------
+[kHYPE-WHYPE] Pool already exists at 0xA83D60b1a9CA6Dd1d0D2d9275c700114F2F3a8d6, skipping createPool
+[kHYPE-WHYPE] Final pool address: 0xA83D60b1a9CA6Dd1d0D2d9275c700114F2F3a8d6
+--------------------------------------------------
+[WHYPE-USDH] Pool already exists at 0x45FbF9786cDBDE9E940620F4Af0eb42B76848d17, skipping createPool
+[WHYPE-USDH] Final pool address: 0x45FbF9786cDBDE9E940620F4Af0eb42B76848d17
+--------------------------------------------------
+[USDH-USDT0] Pool already exists at 0xb09a299E9f7D333420d347EEBE0456Cb0f8545d5, skipping createPool
+[USDH-USDT0] Final pool address: 0xb09a299E9f7D333420d347EEBE0456Cb0f8545d5
+--------------------------------------------------
+[USDH-USDC] Pool already exists at 0xc08fEc05f656690E2658EF8082F909E8d6EDC727, skipping createPool
+[USDH-USDC] Final pool address: 0xc08fEc05f656690E2658EF8082F909E8d6EDC727
+--------------------------------------------------
+
+
+
+Wait 10 seconds before tx...
+        Called Contract(0x98fe2510DFcAdb52431C2A651E1ecfC46196fa87).createStrategy(name_: "HYPE Engine Vault")
+        Transaction hash: 0x630385c9dd0203d4c9fa34283bd9a384c0f548ded78be11be74b422a501107cd
+Wait 10 seconds before tx...
+        Called Contract(0x96F7b8BA7580d3E510B0Fb3F0E135a743d8eb17a).setCreator(creator_: "nest")
+        Transaction hash: 0x4025d067e592ea3edcea632477ff160ea29136b883ade8b1b90ca0dd01751145
+Wait 10 seconds before tx...
+        Called Contract(0x96F7b8BA7580d3E510B0Fb3F0E135a743d8eb17a).setDescription(description_: "This vault compounds 100% of fees into veNEST and receives exclusive MEGAHYPE rewards.")
+        Transaction hash: 0x0d900dffc211eca8f00861d08bddb01525e6d997fc7000be83d268d94f6e03cc
+Wait 10 seconds before tx...
+        Called Contract(0x843d31e601b38F7207864457f0fB38E14441E792).createManagedNFT(strategy_: "0x96F7b8BA7580d3E510B0Fb3F0E135a743d8eb17a")
+        Transaction hash: 0xcbc5b1d853324aadc2d8ac6a43ef764b40119dc75e9b1dc6d35f859b42487b6b
+Wait 10 seconds before tx...
+        Called Contract(0x96F7b8BA7580d3E510B0Fb3F0E135a743d8eb17a).setDetachmentLockDuration(newDuration_: "345600")
+        Transaction hash: 0xbb19a195bcb1fc1a6af6df964f351a49daefc38580f9ff807f27e9845fc7a643
+Wait 10 seconds before tx...
+        Called Contract(0x843d31e601b38F7207864457f0fB38E14441E792).setAuthorizedUser(managedTokenId_: "1", authorizedUser_: "0x0E07A5efa3bAeBf2E569243760D8358E3FF20482")
+        Transaction hash: 0x72c513d297a970293b8d632f18e12ecceb2e8b97bae7d98d3370a99ce42b86e6
