@@ -71,9 +71,19 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
+      etherscan: `${process.env.ETHERSCAN_API_KEY}`,
+      hyperEvm:  `${process.env.ETHERSCAN_API_KEY}`,
       baseSepolia: `${process.env.ETHERSCAN_API_KEY}`,
     },
     customChains: [
+      {
+        network: 'hyperEvm',
+        chainId: 999,
+        urls: {
+          apiURL: 'https://api.etherscan.io/v2/api?chainid=999',
+          browserURL: 'https://hyperevmscan.io/',
+        },
+      },
       {
         network: 'baseSepolia',
         chainId: 84532,
@@ -85,6 +95,18 @@ const config: HardhatUserConfig = {
     ],
   },
   networks: {
+    hyperEvm: {
+      url: `https://rpc.hyperliquid.xyz/evm`,
+      chainId: 999,
+      gasPrice: 2e9,
+      accounts: {
+        mnemonic: `${process.env.HYPER_EVM_MAINNET_MNEMONIC}`,
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 20,
+        passphrase: '',
+      },
+    },
     baseSepolia: {
       url: `${process.env.BASE_SEPOLIA_RPC || 'https://sepolia.base.org'}`,
       chainId: 84532,
