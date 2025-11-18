@@ -578,3 +578,135 @@ Error verification...
 Wait 10 seconds before tx...
         Called Contract(0xb688d5e73777DfaaDbD7c5Fe98Aee6F35CF20124).upgrade(proxy: "0x574f6865140e6929bDed24596D78a8D9c07E356d", implementation: "0x13369f61c13bD809984855Ad26B1Bf7780Da8fB8")
         Transaction hash: 0xa220362192fa8dbd677a65bc8baa2e9f47479e507f2e01b0eab780318f9394db
+
+
+BribeFactoryUpgradeable_Implementation (0xb63363E5C71148f4f6cc75d4EE1b7dcfc997a1CB): Match with artifact BribeFactoryUpgradeable
+BribeUpgradeable_Implementation (0xd073c875AC73C5b93ec142675bB6A40134C3Cc64): Match with artifact BribeUpgradeable
+GaugeFactoryUpgradeable_Implementation (0x9Eb42a8596836A68F47c014B74e5239d5BdB55Df): Match with artifact GaugeFactoryUpgradeable
+MinterUpgradeable_Implementation (0x13369f61c13bD809984855Ad26B1Bf7780Da8fB8): Match with artifact MinterUpgradeable
+NestRaiseUpgradeable_Implementation (0x891ACb9f28985a40687d12d24F711824D00E98A5): Match with artifact NestRaiseUpgradeable
+VeNestDistributorUpgradeable_Implementation (0x6D87bAD7b75499b84e3e28E618B43840F56ACd9A): Match with artifact VeNestDistributorUpgradeable
+VeNestSplitMerklAidropUpgradeable_Implementation (0x84daBa9c04733da41b9ff3b44F14CFa9C18d567D): Match with artifact VeNestSplitMerklAidropUpgradeable
+VoterUpgradeable_Implementation (0xc5A2F1A950dD3E383132fc89a4EBD3CFe66c2799): Match with artifact VoterUpgradeableV2
+VotingEscrowUpgradeable_Implementation (0xAB7517EEd99B3e4Ae640FFe997236A92ca18D968): Match with artifact VotingEscrowUpgradeableV2
+Pair_Implementation (0xc8e091a600Da73E27B1101F319A760e2C0740082): Match with artifact Pair
+SingelTokenVirtualRewarderUpgradeable_Implementation (0xAF24Cf0Dd121B89DF98b9FAD2E05821bd08069DF): Match with artifact SingelTokenVirtualRewarderUpgradeable
+CompoundVeNESTManagedNFTStrategyUpgradeable_Implementation (0xb3B7F4f4B380ce53259170654Eed32c89B3BF5B5): Match with artifact CompoundVeNESTManagedNFTStrategyUpgradeable
+CompoundVeNESTManagedNFTStrategyFactoryUpgradeable_Implementation (0xC3fF1e8E73559f07C269031DC239f6eE42b6bBe4): Match with artifact CompoundVeNESTManagedNFTStrategyFactoryUpgradeable
+RouterV2PathProviderUpgradeable_Implementation (0x6d3cD36518c6800F6aa9d1Fd54276b5dd0Fee1c0): Match with artifact RouterV2PathProviderUpgradeable
+ManagedNFTManagerUpgradeable_Implementation (0x481f9d30a70A90F6b50E4D1052323A8e79802972): Match with artifact ManagedNFTManagerUpgradeable
+PairAPIUpgradeable_Implementation (0x4f0EC8880749F6F080515F1907964312220D97E3): Match with artifact PairAPIUpgradeable
+RewardAPIUpgradeable_Implementation (0xbfa705DbF2a72077F6C66230C901f54A3788BC7D): Match with artifact RewardAPIUpgradeable
+VeNFTAPIUpgradeable_Implementation (0x862B14C353fE6789492de96ee2c42c31BF92a774): Match with artifact VeNFTAPIUpgradeable
+UtilsUpgradeable_Implementation (0x29290C57C883156f972f35D8b110613680a27D60): Match with artifact UtilsUpgradeable
+BribeVeNESTRewardToken_Implementation (0xa2E33F280d93621d967d273e33998Da4935104BC): Match with artifact BribeVeNESTRewardToken
+CustomBribeRewardRouter_Implementation (0x6e18a9B2fDB7915eCE11ef61aB59D43E611E7Eb5): Match with artifact CustomBribeRewardRouter
+GetInformationAggregatorUpgradeable_Implementation (0x39B16A40263c68Bd25401281E8e9FE9e1D68e12A): No match found
+PairFactoryUpgradeable_Implementation (0xBa717129344552D510B392E947c45915807301aC): Match with artifact PairFactoryUpgradeable
+FeesVaultFactoryUpgradeable_Implementation (0x798561d239A46991377b934da48DDA0cF985aBbF): Match with artifact FeesVaultFactoryUpgradeable
+FeesVaultUpgradeable_Implementation (0x7B12E8Ed9740d9d190b498A9AAc3584D81C7cf03): Match with artifact FeesVaultUpgradeable
+GaugeUpgradeable_V2Pools_Implementation (0x90ec77Ad5cC0E723ee502c9cb54C3652D9d7636E): No match found
+GaugeUpgradeable_V3Pools_Implementation (0x0EF3aa4F8E509d580ee0A1fd0E14c4B66A72655F): No match found
+GaugeRewader_Implementation (0x4158958Bf30C818491b36020f4b709404ce645Ee): Match with artifact GaugeRewarder
+CompoundEmissionExtensionUpgradeable_Implementation (0x550040864D272392D7c14Ab9bCFF4159952F881a): Match with artifact CompoundEmissionExtensionUpgradeable
+ProxyAdmin (0xb688d5e73777DfaaDbD7c5Fe98Aee6F35CF20124): Match with artifact ProxyAdmin
+BribeFactoryUpgradeable_Proxy (0x638e382300Ee2ece790164DAfAF7a9f16045621b): Match with artifact TransparentUpgradeableProxy
+GaugeFactory_V2Pools_Proxy (0x15eb3987A7edC464e5A4d3bC3A9b8E84b8ceE2C7): Match with artifact TransparentUpgradeableProxy
+GaugeFactory_V3Pools_Proxy (0x09D1A533032319557196F87dFf831FF46204c49d): Match with artifact TransparentUpgradeableProxy
+MinterUpgradeable_Proxy (0x574f6865140e6929bDed24596D78a8D9c07E356d): Match with artifact TransparentUpgradeableProxy
+NestRaiseUpgradeable_Proxy (0xcd78D1A27320FeE9A03860172649b92A10aA3867): Match with artifact TransparentUpgradeableProxy
+VeNestDistributorUpgradeable_Proxy (0x22350F14c6ee70992f1bbc7498e4C291B8B7682f): Match with artifact TransparentUpgradeableProxy
+VeNestSplitMerklAidropUpgradeable_Proxy (0xB97B9217B55F322F7105f34777Af9F63B3b720A6): Match with artifact TransparentUpgradeableProxy
+VoterUpgradeable_Proxy (0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901): Match with artifact TransparentUpgradeableProxy
+VotingEscrowUpgradeable_Proxy (0x2f2Ae07e3cc3391A2E27825652BA8DcdD5412074): Match with artifact TransparentUpgradeableProxy
+CompoundVeNESTManagedNFTStrategyFactoryUpgradeable_Proxy (0x98fe2510DFcAdb52431C2A651E1ecfC46196fa87): Match with artifact TransparentUpgradeableProxy
+RouterV2PathProviderUpgradeable_Proxy (0xFF5a9613C6bcfF56da96d068326A9Bb998A67c9B): Match with artifact TransparentUpgradeableProxy
+ManagedNFTManagerUpgradeable_Proxy (0x843d31e601b38F7207864457f0fB38E14441E792): Match with artifact TransparentUpgradeableProxy
+PairAPIUpgradeable_Proxy (0x7D01900dE6101F842b01F5301910Dc401FbDcb79): Match with artifact TransparentUpgradeableProxy
+RewardAPIUpgradeable_Proxy (0xf822375D86F74a147a3a4b2661E68376cD1EC677): Match with artifact TransparentUpgradeableProxy
+VeNFTAPIUpgradeable_Proxy (0x0cCbeFa11FfF9A37c8a14914F548B0664dD22b19): Match with artifact TransparentUpgradeableProxy
+BribeVeNESTRewardToken_Proxy (0x224240310337462bdE7fEE244A6e07E35a231f47): Match with artifact TransparentUpgradeableProxy
+CustomBribeRewardRouter_Proxy (0x1Eb78Fb533e480436a2e10CA01F5e828A28b3DFb): Match with artifact TransparentUpgradeableProxy
+GetInformationAggregatorUpgradeable_Proxy (0xa6857656500eEf32D434F1a6c11C08B290672b98): Match with artifact TransparentUpgradeableProxy
+UtilsUpgradeable_Proxy (0xf9159f2e75163436e52986878B65a16b3eA8Cf81): Match with artifact TransparentUpgradeableProxy
+PairFactoryUpgradeable_Proxy (0x889Fd0aDA8453C7619cD7f11E9029a1f0848Fdf5): Match with artifact TransparentUpgradeableProxy
+FeesVaultFactoryUpgradeable_Proxy (0x705C76e29977Ed52cd93d390A7BBcC61189724C0): Match with artifact TransparentUpgradeableProxy
+GaugeRewader_Proxy (0xfF0124cf664240e5573282511042d7033C3f22eA): Match with artifact TransparentUpgradeableProxy
+CompoundEmissionExtensionUpgradeable_Proxy (0x1c925056A1a657a4cb70D677D8C21028233cA05D): Match with artifact TransparentUpgradeableProxy
+Nest (0x07c57E32a3C29D5659bda1d3EFC2E7BF004E3035): Match with artifact Nest
+RouterV2 (0xfDb34624506e9A0624AF60F85ebd9E44A0FD2a17): No match found
+UniswapV2PartialRouter (0x3aED39FcD5742c3044faE2fdf0C307D2F205636F): No match found
+VeArtProxyStatic (0xBB3EB334412a8a7e8336cCBA98bdce5694708cE0): Match with artifact VeArtProxyStatic
+VeArtProxy (0xF00037084e1C359f2Be067016C5E00CB945C494d): Match with artifact VeArtProxy
+TokenPublicRaiseUpgradeable_Implementation (0x61434e92CfF4bee37794477453D211ed3224F520): Match with artifact TokenPublicRaiseUpgradeable
+TokenPublicRaiseUpgradeable_Proxy (0x91CF98773C15a785998A7EDb802B283Ca5A61DDB): Match with artifact TransparentUpgradeableProxy
+
+Try add Nest 18n
+Try add Wrapped HYPE 18n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0x5555555555555555555555555555555555555555")
+        Transaction hash: 0x53ae9f51703472f068286162b84e2b663e278874ed4ab83c8aa16a811bdbe88a
+Try add Kinetiq Staked HYPE 18n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0xfD739d4e423301CE9385c1fb8850539D657C296D")
+        Transaction hash: 0x70f388056495833d8a3828f056e6f8a9a59ae14aa2950918185d1419708332ad
+Try add Unit Ethereum 18n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0xBe6727B535545C67d5cAa73dEa54865B92CF7907")
+        Transaction hash: 0xfa9e74330dbdfd4537f7bb8cd9029fa12cb39b78b3ea150eb1f5e3f22463c8e9
+Try add Unit Bitcoin 8n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0x9FDBdA0A5e284c32744D2f17Ee5c74B284993463")
+        Transaction hash: 0x78ac9e7826b103db7bdb63cef61e4504587555ad537967d057305f599a1d79cc
+Try add Unit Solana 9n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0x068f321Fa8Fb9f0D135f290Ef6a3e2813e1c8A29")
+        Transaction hash: 0xcdad0f675bae2a72598534e9aa944ec7ef13d4339c3a4b90cb77eb2d10e0fd85
+Try add Unit Pump 6n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0x27eC642013bcB3D80CA3706599D3cdA04F6f4452")
+        Transaction hash: 0x8d21b84e0d008c953111e43ef7802ad85317b13d434b4fa5de4c30bf6b67a2ea
+Try add USD₮0 6n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb")
+        Transaction hash: 0xfa105551329c44a72149068f3330ab03840f754bd0162904302cf1f532a732d0
+Try add USDC 6n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0xb88339CB7199b77E23DB6E890353E22632Ba630f")
+        Transaction hash: 0xda174b3e235d75b165f5ab81e66e6d93b499c4bbfb9935d8819a8f44939c395d
+Try add USDH 6n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0x111111a1a0667d36bD57c0A9f569b98057111111")
+        Transaction hash: 0x7fd1343ec559b55c7a1c44d765439690827009b89cd0da9603212410eb5010f6
+Try add Unit Plasma 18n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0x33Af3c2540Ba72054e044EFe504867B39aE421f5")
+        Transaction hash: 0x5fea8753f4728e4e51df077cb3f2d979a28a3531a92a30a8ee464562a3eec777
+Try add Purr 18n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0x9b498C3c8A0b8CD8BA1D9851d40D186F1872b44E")
+        Transaction hash: 0x528fa5b6486b281ef92eee60a38ef3367f96aa16eb814d7a39da0eccb3a34de6
+Try add feUSD 18n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0x02c6a2fA58cC01A18B8D9E00eA48d65E4dF26c70")
+        Transaction hash: 0x3fe6d06fa954d9a534c102e6fefbc0c718f2c2f39d866d24a9a106bd22f6271d
+Try add USDeOFT 18n
+Wait 10 seconds before tx...
+        Called Contract(0x638e382300Ee2ece790164DAfAF7a9f16045621b).pushDefaultRewardToken(_token: "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34")
+        Transaction hash: 0x848f7b11afe4f0fda11ce2459e62102b5ef09be2a4a1549d62b7464cacca0573
+Default rewards tokens list: Result(14) [
+  '0x07c57E32a3C29D5659bda1d3EFC2E7BF004E3035',
+  '0x5555555555555555555555555555555555555555',
+  '0xfD739d4e423301CE9385c1fb8850539D657C296D',
+  '0xBe6727B535545C67d5cAa73dEa54865B92CF7907',
+  '0x9FDBdA0A5e284c32744D2f17Ee5c74B284993463',
+  '0x068f321Fa8Fb9f0D135f290Ef6a3e2813e1c8A29',
+  '0x27eC642013bcB3D80CA3706599D3cdA04F6f4452',
+  '0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb',
+  '0xb88339CB7199b77E23DB6E890353E22632Ba630f',
+  '0x111111a1a0667d36bD57c0A9f569b98057111111',
+  '0x33Af3c2540Ba72054e044EFe504867B39aE421f5',
+  '0x9b498C3c8A0b8CD8BA1D9851d40D186F1872b44E',
+  '0x02c6a2fA58cC01A18B8D9E00eA48d65E4dF26c70',
+  '0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34'
+]
