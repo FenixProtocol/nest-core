@@ -2,7 +2,7 @@
   "BribeFactoryUpgradeable_Implementation": "0xb63363E5C71148f4f6cc75d4EE1b7dcfc997a1CB",
   "BribeUpgradeable_Implementation": "0xd073c875AC73C5b93ec142675bB6A40134C3Cc64",
   "GaugeFactoryUpgradeable_Implementation": "0x9Eb42a8596836A68F47c014B74e5239d5BdB55Df",
-  "MinterUpgradeable_Implementation": "0xEaAA90ba5A9229F7dB273abb3CcaE33a50eC5FFC",
+  "MinterUpgradeable_Implementation": "0x13369f61c13bD809984855Ad26B1Bf7780Da8fB8",
   "NestRaiseUpgradeable_Implementation": "0x891ACb9f28985a40687d12d24F711824D00E98A5",
   "VeNestDistributorUpgradeable_Implementation": "0x6D87bAD7b75499b84e3e28E618B43840F56ACd9A",
   "VeNestSplitMerklAidropUpgradeable_Implementation": "0x84daBa9c04733da41b9ff3b44F14CFa9C18d567D",
