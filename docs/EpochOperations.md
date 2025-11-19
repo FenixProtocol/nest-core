@@ -23,12 +23,11 @@
 timeline
     title Nest Epoch Operations (UTC)
     Monday–Wednesday : During epoch — post LP fees to internal bribes (`Voter.distributeFees`) as needed
-    Wednesday 23:00–23:59 : Strategies vote (managed veNFT only) to lock final allocations
-    Thursday 00:00:01 : Flip epoch & distribute emissions (`Voter.distribute*`) — batch on Hyper EVM
-    Thursday 00:00–01:00 : Strategy claim → convert to NEST → `compound()` (credit lockers)
-    After 00:01 : `Voter.reset(managedTokenId)` (clean UI/UX), optional `poke`
+    Wednesday 23_00–23_59 : Strategies vote (managed veNFT only) to lock final allocations
+    Thursday 00_00-00_01 : Flip epoch & distribute emissions (`Voter.distribute*`) — batch on Hyper EVM
+    Thursday 00_01–01_00 : Strategy claim → convert to NEST → `compound()` (credit lockers)
+    After 00_01 : `Voter.reset(managedTokenId)` (clean UI/UX), optional `poke`
 ```
-
 
 ## Timeline
 
