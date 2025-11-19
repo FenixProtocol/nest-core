@@ -22,7 +22,7 @@
 ```mermaid
 timeline
     title Nest Epoch Operations (UTC)
-    Monday–Wednesday : During epoch — post LP fees to internal bribes (`Voter.distributeFees`) as needed
+    Thursday–Wednesday : During epoch — post LP fees to internal bribes (`Voter.distributeFees`) as needed
     Wednesday 23_00–23_59 : Strategies vote (managed veNFT only) to lock final allocations
     Thursday 00_00-00_01 : Flip epoch & distribute emissions (`Voter.distribute*`) — batch on Hyper EVM
     Thursday 00_01–01_00 : Strategy claim → convert to NEST → `compound()` (credit lockers)
