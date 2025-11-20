@@ -76,7 +76,8 @@ export enum AliasDeployedContracts {
   CompoundEmissionExtensionUpgradeable_Implementation = 'CompoundEmissionExtensionUpgradeable_Implementation',
   TokenPublicRaiseUpgradeable_Implementation = 'TokenPublicRaiseUpgradeable_Implementation',
   TokenPublicRaiseUpgradeable_Proxy = 'TokenPublicRaiseUpgradeable_Proxy',
-
+  VolatileDynamicFeeOnePool_Proxy = 'VolatileDynamicFeeOnePool_Proxy',
+  VolatileDynamicFeeOnePool_Implementation = 'VolatileDynamicFeeOnePool_Implementation'
 }
 
 enum ContractsInstanceName {
