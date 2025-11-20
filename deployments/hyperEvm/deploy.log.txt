@@ -896,3 +896,20 @@ Wait 10 seconds before tx...
 Wait 10 seconds before tx...
         Called Contract(0xB97B9217B55F322F7105f34777Af9F63B3b720A6).unpause()
         Transaction hash: 0x372423412f0ca2671d21ce6f7185499c3f04477263661f486991873bb3acac6c
+
+
+Starting deployment of TransparentUpgradeableProxy...
+        Logic address: 0xE13Dd2b0CF20435228896D8814140C5C2e78bE9D
+        Admin address: 0xb688d5e73777DfaaDbD7c5Fe98Aee6F35CF20124
+        Data: 0x
+TransparentUpgradeableProxy deployed at 0xFb665b755EFae4679aB018cFDa0cC643Ca06E790
+Save to deploys.json deployed address of VolatileDynamicFeeOnePool_Proxy:0xFb665b755EFae4679aB018cFDa0cC643Ca06E790
+Warning: Address for VolatileDynamicFeeOnePool_Proxy is already in the list. It will be replaced.
+        Existing address: 0x8B6CE3610732C8237fC0D1781e56d513a29ca05c
+        New address: 0xFb665b755EFae4679aB018cFDa0cC643Ca06E790
+Wait 10 seconds before tx...
+        Called Contract(0xFb665b755EFae4679aB018cFDa0cC643Ca06E790).initialize(pair_: "0x9AA281B23341cE69d4b1500367a43CFc42005538", startTimestamp_: "1763654400", startFeePercentage_: "5000", finalFeePercentage_: "200", decreaseInterval_: "60", decreaseStepBps_: "100")
+        Transaction hash: 0x3ed91d455b0313050582ba70bba8607daccd1c25e646ec37eb3e185857132732
+Wait 10 seconds before tx...
+        Called Contract(0x889Fd0aDA8453C7619cD7f11E9029a1f0848Fdf5).setCustomVolatileDynamicFeeModule(pair_: "0x9AA281B23341cE69d4b1500367a43CFc42005538", module_: "0xFb665b755EFae4679aB018cFDa0cC643Ca06E790")
+        Transaction hash: 0x919533d0c9d094778bf84f5498bbce25fdac084f23ec6588d5f8d72a05411b88

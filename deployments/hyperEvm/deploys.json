@@ -60,5 +60,5 @@
   "TokenPublicRaiseUpgradeable_Implementation": "0x61434e92CfF4bee37794477453D211ed3224F520",
   "TokenPublicRaiseUpgradeable_Proxy": "0x91CF98773C15a785998A7EDb802B283Ca5A61DDB",
   "VolatileDynamicFeeOnePool_Implementation": "0xE13Dd2b0CF20435228896D8814140C5C2e78bE9D",
-  "VolatileDynamicFeeOnePool_Proxy": "0x8B6CE3610732C8237fC0D1781e56d513a29ca05c"
+  "VolatileDynamicFeeOnePool_Proxy": "0xFb665b755EFae4679aB018cFDa0cC643Ca06E790"
 }
