@@ -913,3 +913,83 @@ Wait 10 seconds before tx...
 Wait 10 seconds before tx...
         Called Contract(0x889Fd0aDA8453C7619cD7f11E9029a1f0848Fdf5).setCustomVolatileDynamicFeeModule(pair_: "0x9AA281B23341cE69d4b1500367a43CFc42005538", module_: "0xFb665b755EFae4679aB018cFDa0cC643Ca06E790")
         Transaction hash: 0x919533d0c9d094778bf84f5498bbce25fdac084f23ec6588d5f8d72a05411b88
+
+
+
+[WHYPE-USDT0] (0x20e6E73C91a29d21BdE672562a4B16649D66623E):
+         token0: Wrapped HYPE (0x5555555555555555555555555555555555555555)
+         token1: USD₮0 (0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb)
+         getFee(): 1594
+         tickSpacing: 10
+         price: 495099368636193475173214
+         tick: -239674
+--------------------------------------------------
+[WHYPE-UETH] (0x998007a512531d9081e116F85605C40d41Abd4f1):
+         token0: Wrapped HYPE (0x5555555555555555555555555555555555555555)
+         token1: Unit Ethereum (0xBe6727B535545C67d5cAa73dEa54865B92CF7907)
+         getFee(): 1104
+         tickSpacing: 5
+         price: 8821373321405790891351278881
+         tick: -43906
+--------------------------------------------------
+[WHYPE-UBTC] (0xCd238eAfAdB112515910f8D09D94A90AC8C180Fe):
+         token0: Wrapped HYPE (0x5555555555555555555555555555555555555555)
+         token1: Unit Bitcoin (0x9FDBdA0A5e284c32744D2f17Ee5c74B284993463)
+         getFee(): 2200
+         tickSpacing: 5
+         price: 16200996169029282985070
+         tick: -308071
+--------------------------------------------------
+[WHYPE-UPUMP] (0xcE17208bDa21f2d84E1A410f8704ac56038a179d):
+         token0: Wrapped HYPE (0x5555555555555555555555555555555555555555)
+         token1: Unit Pump (0x27eC642013bcB3D80CA3706599D3cdA04F6f4452)
+         getFee(): 2500
+         tickSpacing: 50
+         price: 714614041148765528372691726650663
+         tick: 182152
+--------------------------------------------------
+[kHYPE-USDH] (0xC0578D20762FD5F4BA6F09124993709ffAa029aB):
+         token0: Kinetiq Staked HYPE (0xfD739d4e423301CE9385c1fb8850539D657C296D)
+         token1: USDH (0x111111a1a0667d36bD57c0A9f569b98057111111)
+         getFee(): 2200
+         tickSpacing: 10
+         price: 12654359712195301195602427786128022
+         tick: 239635
+--------------------------------------------------
+[kHYPE-WHYPE] (0xA83D60b1a9CA6Dd1d0D2d9275c700114F2F3a8d6):
+         token0: Kinetiq Staked HYPE (0xfD739d4e423301CE9385c1fb8850539D657C296D)
+         token1: Wrapped HYPE (0x5555555555555555555555555555555555555555)
+         getFee(): 50
+         tickSpacing: 1
+         price: 79047628369227806803799553742
+         tick: -46
+--------------------------------------------------
+[WHYPE-USDH] (0x45FbF9786cDBDE9E940620F4Af0eb42B76848d17):
+         token0: Wrapped HYPE (0x5555555555555555555555555555555555555555)
+         token1: USDH (0x111111a1a0667d36bD57c0A9f569b98057111111)
+         getFee(): 1000
+         tickSpacing: 10
+         price: 12687170211802350829082029102368532
+         tick: 239687
+--------------------------------------------------
+[USDH-USDT0] (0xb09a299E9f7D333420d347EEBE0456Cb0f8545d5):
+         token0: USDH (0x111111a1a0667d36bD57c0A9f569b98057111111)
+         token1: USD₮0 (0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb)
+         getFee(): 20
+         tickSpacing: 1
+         price: 79253345673609279319744059764
+         tick: 6
+--------------------------------------------------
+[USDH-USDC] (0xc08fEc05f656690E2658EF8082F909E8d6EDC727):
+         token0: USDH (0x111111a1a0667d36bD57c0A9f569b98057111111)
+         token1: USDC (0xb88339CB7199b77E23DB6E890353E22632Ba630f)
+         getFee(): 20
+         tickSpacing: 1
+         price: 79229901358118123593641909142
+         tick: 0
+--------------------------------------------------
+
+
+Wait 10 seconds before tx...
+        Called Contract(0x705C76e29977Ed52cd93d390A7BBcC61189724C0).setDistributionConfigForCreator(creator_: "0xF77Bd082c627aA54591cF2f2EaA811fd1AB3b1F3", config_: "9700,0xe8c4C070baa6117eB3186F8AE6ccEB7406707ea7,300")
+        Transaction hash: 0x6a389253a077679649c2ad13a20bccda13bc9e0025ca8a10776f10f7633d63ce
