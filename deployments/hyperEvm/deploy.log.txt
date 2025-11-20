@@ -884,3 +884,15 @@ Wait 10 seconds before tx...
 Wait 10 seconds before tx...
         Called Contract(0x705C76e29977Ed52cd93d390A7BBcC61189724C0).setCustomDistributionConfig(feesVault_: "0xaf8F8ca04193FF402284112BdBFFC5eDdc63aE51", config_: "0,0xdB180c83029577A1Cb323542EC796Fa4cC7b8F51,10000")
         Transaction hash: 0x0717fbf26e4ef82531c53be9e31bc1e9ab03a6b0854e207d0a2ef82d6f1ddeb3
+
+
+Merkle Tree Root: 0xf596283557fa888f0c7ede54332fe3aacf4c98b78ae6ec08061f284de32f0f3f
+Merkle Tree and proofs have been generated and saved to output.json
+
+
+Wait 10 seconds before tx...
+        Called Contract(0xB97B9217B55F322F7105f34777Af9F63B3b720A6).setMerklRoot(merklRoot_: "0xf596283557fa888f0c7ede54332fe3aacf4c98b78ae6ec08061f284de32f0f3f")
+        Transaction hash: 0x0bc0426bbd14949bedfacd275f1c1bcaf3f63b037b76d29ced12e39435d8bcfd
+Wait 10 seconds before tx...
+        Called Contract(0xB97B9217B55F322F7105f34777Af9F63B3b720A6).unpause()
+        Transaction hash: 0x372423412f0ca2671d21ce6f7185499c3f04477263661f486991873bb3acac6c
