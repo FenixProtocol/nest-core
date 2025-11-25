@@ -1056,3 +1056,113 @@ Done: investors veNEST distribution.
 Wait 10 seconds before tx...
         Called Contract(0x574f6865140e6929bDed24596D78a8D9c07E356d).transferOwnership(newOwner: "0x8CE4d7F93f8A55E6d120F302C0BcCE502B640827")
         Transaction hash: 0x3de6179815f01c5681ed8a93c329d165a2a39d48fbcb915d9fa50da6e9b63b23
+
+
+
+		√ Confirm deploy to network hyperEvm (999)? ... yes
+Hardhat Ignition 🚀
+
+Resuming existing deployment from .\ignition\deployments\chain-999
+
+Deploying [ AlgebraDefaultPluginFactory ]
+
+Batch #1
+  Executed AlgebraDefaultPluginFactory#AlgebraDefaultPluginFactory.setFarmingAddress
+  Executed AlgebraDefaultPluginFactory#AlgebraDefaultPluginFactory.setSecurityRegistry
+
+[ AlgebraDefaultPluginFactory ] successfully deployed 🚀
+
+Deployed Addresses
+
+AlgebraDefaultPluginFactory#AlgebraDefaultPluginFactory - 0xe165ee23a9de18f7287DDE6e1C57737a6b1634Ad
+AlgebraDefaultPluginFactory#SecurityRegistry - 0x47f2d9058fe32da17a0f253F70266D9Dcd585879
+plugins-monorepo\packages\default-plugin> npx hardhat ignition verify chain-999 --include-unrelated-contracts         
+Verifying contract "contracts/AlgebraDefaultPluginFactory.sol:AlgebraDefaultPluginFactory" for network hyperEvm...
+Successfully verified contract "contracts/AlgebraDefaultPluginFactory.sol:AlgebraDefaultPluginFactory" for network hyperEvm:
+  - https://hyperevmscan.io//address/0xe165ee23a9de18f7287DDE6e1C57737a6b1634Ad#code
+
+Verifying contract "@cryptoalgebra/safety-switch-plugin/contracts/SecurityRegistry.sol:SecurityRegistry" for network hyperEvm...
+Successfully verified contract "@cryptoalgebra/safety-switch-plugin/contracts/SecurityRegistry.sol:SecurityRegistry" for network hyperEvm:
+  - https://hyperevmscan.io//address/0x47f2d9058fe32da17a0f253F70266D9Dcd585879#code
+
+
+saetConfigId(0x257d50aa88376b643708b4dce202e769a30f410ea437d62512d6d26d81c8ac5f)
+
+https://hyperevmscan.io/address/0xe165ee23a9de18f7287dde6e1c57737a6b1634ad#writeContract
+
+
+create plugin for WHYPE-USDT0
+[WHYPE-USDT0] createPluginForExistingPool tx sent: 0x080ee2c59fa9c53a0648bfe84210ffc2759ac8a77593e2d455b648dda5b396de
+[WHYPE-USDT0] Plugin created in block 20157719 (gas used: 3346057)
+create plugin for WHYPE-UETH
+[WHYPE-UETH] createPluginForExistingPool tx sent: 0x381041e537d1c6944a9c2098bdbc6ebbecba2e89ca14ab7e86e21c7b4285bd2b
+[WHYPE-UETH] Plugin created in block 20157780 (gas used: 3346057)
+create plugin for WHYPE-UBTC
+[WHYPE-UBTC] createPluginForExistingPool tx sent: 0x6d664b7a2268ba668f48ea65b99b0ddf41aeb1b1d6ae87d48b2edac55875e40a
+[WHYPE-UBTC] Plugin created in block 20157841 (gas used: 3346057)
+create plugin for WHYPE-UPUMP
+[WHYPE-UPUMP] createPluginForExistingPool tx sent: 0x0afa1efe238c2762af9b88103fee1cc74aee3c7c517a2c6de359a849a3a1e936
+[WHYPE-UPUMP] Plugin created in block 20157902 (gas used: 3346057)
+create plugin for kHYPE-USDH
+[kHYPE-USDH] createPluginForExistingPool tx sent: 0x7ab110b54cb12aec40ca7be7c9b1df9dcaf1b0ac57a90f37d3cf718f1966b99d
+[kHYPE-USDH] Plugin created in block 20157963 (gas used: 3346057)
+create plugin for WHYPE-USDH
+[WHYPE-USDH] createPluginForExistingPool tx sent: 0x18dcff7430da256c7829844640197871d645803930ef4897b7259214da79211d
+[WHYPE-USDH] Plugin created in block 20158024 (gas used: 3346057)
+
+
+
+try setup for: WHYPE-USDT0
+Setup plugin for:  WHYPE-USDT0  new plugin  0xA200002f3a77e204ab74B1415F4631b3B3503F07
+Setup plugin config:  WHYPE-USDT0  new plugin config  215
+Initialize plugin WHYPE-USDT0
+Setup fee configuration WHYPE-USDT0
+
+
+try setup for: WHYPE-UETH
+Setup plugin for:  WHYPE-UETH  new plugin  0xB55647CE92D182c207CbFD9EcD8071Da607219FE
+Setup plugin config:  WHYPE-UETH  new plugin config  215
+Initialize plugin WHYPE-UETH
+Setup fee configuration WHYPE-UETH
+try setup for: WHYPE-UBTC
+Setup plugin for:  WHYPE-UBTC  new plugin  0x9fb8DBc1F913dEe0d1aAd7d67EA015daD9E7818D
+Setup plugin config:  WHYPE-UBTC  new plugin config  215
+Initialize plugin WHYPE-UBTC
+Setup fee configuration WHYPE-UBTC
+try setup for: WHYPE-UPUMP
+Setup plugin for:  WHYPE-UPUMP  new plugin  0xc2038cE800e837568a28805947E87CA1316b74a2
+Setup plugin config:  WHYPE-UPUMP  new plugin config  215
+Initialize plugin WHYPE-UPUMP
+Setup fee configuration WHYPE-UPUMP
+try setup for: kHYPE-USDH
+Setup plugin for:  kHYPE-USDH  new plugin  0xF4DcB1f5b2235F044fF3e7b7325fdE6A472E1929
+Setup plugin config:  kHYPE-USDH  new plugin config  215
+Initialize plugin kHYPE-USDH
+Setup fee configuration kHYPE-USDH
+
+
+try setup for: WHYPE-UETH
+Setup plugin for:  WHYPE-UETH  new plugin  0xB55647CE92D182c207CbFD9EcD8071Da607219FE
+Setup plugin config:  WHYPE-UETH  new plugin config  215
+Initialize plugin WHYPE-UETH
+Setup fee configuration WHYPE-UETH
+try setup for: WHYPE-UBTC
+Setup plugin for:  WHYPE-UBTC  new plugin  0x9fb8DBc1F913dEe0d1aAd7d67EA015daD9E7818D
+Setup plugin config:  WHYPE-UBTC  new plugin config  215
+Initialize plugin WHYPE-UBTC
+Setup fee configuration WHYPE-UBTC
+try setup for: WHYPE-UPUMP
+Setup plugin for:  WHYPE-UPUMP  new plugin  0xc2038cE800e837568a28805947E87CA1316b74a2
+Setup plugin config:  WHYPE-UPUMP  new plugin config  215
+Initialize plugin WHYPE-UPUMP
+Setup fee configuration WHYPE-UPUMP
+try setup for: kHYPE-USDH
+Setup plugin for:  kHYPE-USDH  new plugin  0xF4DcB1f5b2235F044fF3e7b7325fdE6A472E1929
+Setup plugin config:  kHYPE-USDH  new plugin config  215
+Initialize plugin kHYPE-USDH
+Setup fee configuration kHYPE-USDH
+try setup for: WHYPE-USDH
+Setup plugin for:  WHYPE-USDH  new plugin  0x7EE14A953049459dB6ba1E62b675AfB3FE569aB3
+Setup plugin config:  WHYPE-USDH  new plugin config  215
+Initialize plugin WHYPE-USDH
+Setup fee configuration WHYPE-USDH
