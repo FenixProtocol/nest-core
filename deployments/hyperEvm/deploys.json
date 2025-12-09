@@ -7,7 +7,7 @@
   "VeNestDistributorUpgradeable_Implementation": "0x6D87bAD7b75499b84e3e28E618B43840F56ACd9A",
   "VeNestSplitMerklAidropUpgradeable_Implementation": "0x84daBa9c04733da41b9ff3b44F14CFa9C18d567D",
   "VoterUpgradeable_Implementation": "0xc5A2F1A950dD3E383132fc89a4EBD3CFe66c2799",
-  "VotingEscrowUpgradeable_Implementation": "0xAB7517EEd99B3e4Ae640FFe997236A92ca18D968",
+  "VotingEscrowUpgradeable_Implementation": "0x218af7c32cAEBff93196E2475aced8e51254DF60",
   "Pair_Implementation": "0xc8e091a600Da73E27B1101F319A760e2C0740082",
   "SingelTokenVirtualRewarderUpgradeable_Implementation": "0xAF24Cf0Dd121B89DF98b9FAD2E05821bd08069DF",
   "CompoundVeNESTManagedNFTStrategyUpgradeable_Implementation": "0xb3B7F4f4B380ce53259170654Eed32c89B3BF5B5",

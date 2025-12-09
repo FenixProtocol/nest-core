@@ -264,9 +264,9 @@ contract VotingEscrowUpgradeableV2 is
 
         _dettachIfAttached(tokenFromId_);
 
-        uint256 mergeAmount = _withdrawClearNftInfo(tokenFromId_);
-
         uint256 fromLockedEnd = nftStates[tokenFromId_].locked.end;
+
+        uint256 mergeAmount = _withdrawClearNftInfo(tokenFromId_);
 
         uint256 attachedManagedTokenId = _dettachIfAttached(tokenToId_);
 
