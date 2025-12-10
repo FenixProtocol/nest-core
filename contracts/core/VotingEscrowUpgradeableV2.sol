@@ -902,11 +902,11 @@ contract VotingEscrowUpgradeableV2 is
                 last_point.slope += d_slope;
                 if (last_point.bias < 0) {
                     // This can happen
-                    last_point.bias;
+                    last_point.bias = 0;
                 }
                 if (last_point.slope < 0) {
                     // This cannot happen - just in case
-                    last_point.slope;
+                    last_point.slope = 0;
                 }
                 last_checkpoint = t_i;
                 last_point.ts = t_i;
@@ -927,10 +927,10 @@ contract VotingEscrowUpgradeableV2 is
             last_point.slope += (u_new.slope - u_old.slope);
             last_point.bias += (u_new.bias - u_old.bias);
             if (last_point.slope < 0) {
-                last_point.slope;
+                last_point.slope = 0;
             }
             if (last_point.bias < 0) {
-                last_point.bias;
+                last_point.bias = 0;
             }
         }
         last_point.permanent = LibVotingEscrowUtils.toInt128(permanentTotalSupply);
