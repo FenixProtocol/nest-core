@@ -759,6 +759,133 @@ describe('VotingEscrowV2 Contract', function () {
         expect(await strategy.balanceOf(nft2)).to.be.eq(ethers.parseEther('3'));
         expect(await strategy.totalSupply()).to.be.eq(ethers.parseEther('3'));
       });
+
+      it('correct merge {default(short) -> default(long)}: unlock time should stay max(toEnd, fromEnd)', async () => {
+        await votingEscrow.createLockFor(
+          ethers.parseEther('1'),
+          91 * 86400,
+          signers.otherUser1.address,
+          false,
+          false,
+          0,
+        );
+        const shortId = await votingEscrow.lastMintedTokenId();
+
+        await votingEscrow.createLockFor(
+          ethers.parseEther('2'),
+          182 * 86400,
+          signers.otherUser1.address,
+          false,
+          false,
+          0,
+        );
+        const longId = await votingEscrow.lastMintedTokenId();
+
+        await mine();
+
+        const shortStateBefore = await votingEscrow.nftStates(shortId);
+        const longStateBefore = await votingEscrow.nftStates(longId);
+
+        const shortEnd = shortStateBefore.locked.end;
+        const longEnd = longStateBefore.locked.end;
+
+        expect(shortEnd).to.be.lt(longEnd);
+
+        expect(await votingEscrow.permanentTotalSupply()).to.be.eq(0);
+        expect(await votingEscrow.supply()).to.be.eq(ethers.parseEther('3'));
+
+        const tx = await votingEscrow.connect(signers.otherUser1).merge(shortId, longId);
+
+        await expect(tx).to.be.emit(votingEscrow, 'MergeInit').withArgs(shortId, longId);
+        await expect(tx).to.be.emit(votingEscrow, 'Merge').withArgs(
+          signers.otherUser1.address,
+          shortId,
+          longId,
+        );
+        await expect(votingEscrow.ownerOf(shortId)).to.be.reverted;
+        await checkNftState(shortId, {
+          amount: 0n,
+          end: 0,
+          isAttached: false,
+          isPermanentLocked: false,
+          isVoted: false,
+        });
+
+        const longStateAfter = await votingEscrow.nftStates(longId);
+        expect(longStateAfter.locked.amount).to.be.eq(ethers.parseEther('3'));
+        expect(longStateAfter.locked.isPermanentLocked).to.be.false;
+        expect(longStateAfter.locked.end).to.be.eq(longEnd);
+        expect(longStateAfter.locked.end).to.be.greaterThan(shortStateBefore.locked.end);
+        expect(longStateAfter.locked.end).to.be.greaterThanOrEqual(longStateBefore.locked.end);
+
+        expect(await votingEscrow.permanentTotalSupply()).to.be.eq(0);
+        expect(await votingEscrow.supply()).to.be.eq(ethers.parseEther('3'));
+      });
+
+      it('correct merge {default(long) -> default(short)}: unlock time of receiver should extend to max(fromEnd, toEnd)', async () => {
+        await votingEscrow.createLockFor(
+          ethers.parseEther('1'),
+          91 * 86400,
+          signers.otherUser1.address,
+          false,
+          false,
+          0,
+        );
+        const shortId = await votingEscrow.lastMintedTokenId();
+
+        await votingEscrow.createLockFor(
+          ethers.parseEther('2'),
+          182 * 86400,
+          signers.otherUser1.address,
+          false,
+          false,
+          0,
+        );
+        const longId = await votingEscrow.lastMintedTokenId();
+
+        await mine();
+
+        const shortStateBefore = await votingEscrow.nftStates(shortId);
+        const longStateBefore = await votingEscrow.nftStates(longId);
+
+        const shortEnd = shortStateBefore.locked.end;
+        const longEnd = longStateBefore.locked.end;
+
+        expect(shortEnd).to.be.lt(longEnd);
+
+        expect(await votingEscrow.permanentTotalSupply()).to.be.eq(0);
+        expect(await votingEscrow.supply()).to.be.eq(ethers.parseEther('3'));
+
+        const tx = await votingEscrow.connect(signers.otherUser1).merge(longId, shortId);
+
+        await expect(tx).to.be.emit(votingEscrow, 'MergeInit').withArgs(longId, shortId);
+        await expect(tx).to.be.emit(votingEscrow, 'Merge').withArgs(
+          signers.otherUser1.address,
+          longId,
+          shortId,
+        );
+
+        await expect(votingEscrow.ownerOf(longId)).to.be.reverted;
+        await checkNftState(longId, {
+          amount: 0n,
+          end: 0,
+          isAttached: false,
+          isPermanentLocked: false,
+          isVoted: false,
+        });
+
+        const shortStateAfter = await votingEscrow.nftStates(shortId);
+        expect(shortStateAfter.locked.amount).to.be.eq(ethers.parseEther('3'));
+        expect(shortStateAfter.locked.isPermanentLocked).to.be.false;
+        expect(shortStateAfter.locked.end).to.be.eq(longEnd);
+        expect(shortStateAfter.locked.end).to.be.greaterThan(shortStateBefore.locked.end);
+        expect(shortStateAfter.locked.end).to.be.greaterThanOrEqual(longStateBefore.locked.end);
+
+        expect(await votingEscrow.permanentTotalSupply()).to.be.eq(0);
+        expect(await votingEscrow.supply()).to.be.eq(ethers.parseEther('3'));
+      });
+
+
       it('correct merge and changes balances {default -> default, same unlock timestamp}', async () => {
         await votingEscrow.createLockFor(ethers.parseEther('1'), 182 * 86400, signers.otherUser1.address, false, false, 0);
         let nft1 = await votingEscrow.lastMintedTokenId();
