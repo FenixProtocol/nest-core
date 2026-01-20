@@ -1,3 +1,3 @@
 [submodule "lib/nest-algebra"]
 	path = lib/nest-algebra
-	url = https://github.com/FenixProtocol/nest-algebra
+	url = git@github.com:FenixProtocol/nest-algebra.git

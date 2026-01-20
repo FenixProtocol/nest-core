@@ -546,7 +546,7 @@ contract RouterV2 {
                 (uint reserve0, uint reserve1, ) = pair.getReserves();
                 (uint reserveInput, ) = input == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
                 amountInput = erc20(input).balanceOf(address(pair)).sub(reserveInput);
-                (amountOutput, ) = getAmountOut(amountInput, input, output);
+                amountOutput = pair.getAmountOut(amountInput, input);
             }
             (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOutput) : (amountOutput, uint(0));
             address to = i < routes.length - 1 ? pairFor(routes[i + 1].from, routes[i + 1].to, routes[i + 1].stable) : _to;
