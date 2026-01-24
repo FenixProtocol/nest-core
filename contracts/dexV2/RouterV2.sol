@@ -23,6 +23,8 @@ interface IBaseV1Pair {
 
     function mint(address to) external returns (uint liquidity);
 
+    function skim(address to) external;
+
     function getReserves() external view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast);
 
     function getAmountOut(uint, address) external view returns (uint);
@@ -264,6 +266,8 @@ contract RouterV2 {
     ) public ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, stable, amountADesired, amountBDesired, amountAMin, amountBMin);
         address pair = pairFor(tokenA, tokenB, stable);
+        // to prevent mint of intial liquidity of a stable pair with invalid token balances 
+        if(erc20(pair).totalSupply() == 0 && stable) IBaseV1Pair(pair).skim(0x000000000000000000000000000000000000dEaD);
         _safeTransferFrom(tokenA, msg.sender, pair, amountA);
         _safeTransferFrom(tokenB, msg.sender, pair, amountB);
         liquidity = IBaseV1Pair(pair).mint(to);
@@ -280,6 +284,8 @@ contract RouterV2 {
     ) public payable ensure(deadline) returns (uint amountToken, uint amountETH, uint liquidity) {
         (amountToken, amountETH) = _addLiquidity(token, address(wETH), stable, amountTokenDesired, msg.value, amountTokenMin, amountETHMin);
         address pair = pairFor(token, address(wETH), stable);
+        // to prevent mint of intial liquidity of a stable pair with invalid token balances
+        if(erc20(pair).totalSupply() == 0 && stable) IBaseV1Pair(pair).skim(0x000000000000000000000000000000000000dEaD);
         _safeTransferFrom(token, msg.sender, pair, amountToken);
         wETH.deposit{value: amountETH}();
         assert(wETH.transfer(pair, amountETH));
