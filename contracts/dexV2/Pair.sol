@@ -433,6 +433,7 @@ contract Pair is IPair {
 
     // force reserves to match balances
     function sync() external lock {
+        require(totalSupply > 0, "Pair: zero total supply");
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), reserve0, reserve1);
     }
 
