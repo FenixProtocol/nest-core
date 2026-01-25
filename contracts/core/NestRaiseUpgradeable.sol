@@ -265,8 +265,6 @@ contract NestRaiseUpgradeable is INestRaise, Ownable2StepUpgradeable {
             revert TotalDepositCap();
         }
 
-        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
-
         if (isWhitelistPhaseCache) {
             userDepositsWhitelistPhase[_msgSender()] += amount_;
         }
@@ -274,6 +272,8 @@ contract NestRaiseUpgradeable is INestRaise, Ownable2StepUpgradeable {
         userDeposited[_msgSender()] += amount_;
 
         totalDeposited += amount_;
+
+        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
 
         emit Deposit(_msgSender(), amount_);
     }
