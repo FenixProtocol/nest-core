@@ -276,11 +276,11 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
         for (uint256 i = 0; i < tokens.length; i++) {
             address _rewardToken = tokens[i];
             (reward, _userLastTime) = earnedWithTimestamp(_owner, _rewardToken);
+            userTimestamp[_owner][_rewardToken] = _userLastTime;
             if (reward > 0) {
                 IERC20Upgradeable(_rewardToken).safeTransfer(_owner, reward);
                 emit RewardPaid(_owner, _rewardToken, reward);
             }
-            userTimestamp[_owner][_rewardToken] = _userLastTime;
         }
     }
 
