@@ -94,12 +94,7 @@ contract Pair is IPair {
         _unlocked = 1;
     }
 
-    function initialize(
-        address _token0,
-        address _token1,
-        bool _stable,
-        address _communityVault
-    ) external {
+    function initialize(address _token0, address _token1, bool _stable, address _communityVault) external {
         require(factory == address(0), "Initialized");
 
         factory = msg.sender;
@@ -462,7 +457,7 @@ contract Pair is IPair {
                         // We found the correct answer. Return y
                         return y;
                     }
-                    if (_k(x0, y + 1) > xy) {
+                    if (_f(x0, y + 1) > xy) {
                         // If _k(x0, y + 1) > xy, then we are close to the correct answer.
                         // There's no closer answer than y + 1
                         return y + 1;
