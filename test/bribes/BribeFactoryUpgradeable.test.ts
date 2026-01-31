@@ -107,9 +107,9 @@ describe('BribeFactoryUpgradeable Contract', function () {
       it('Deployed bribe should get implementation from factory implementation slot', async function () {
         expect(
           '0x' +
-            (
-              await ethers.provider.getStorage(deployedBribeAddress, '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc')
-            ).substring(26),
+          (
+            await ethers.provider.getStorage(deployedBribeAddress, '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc')
+          ).substring(26),
         ).to.be.equal((await bribeFactory.bribeImplementation()).toLowerCase());
       });
       it('Deployed bribe should be added to bribe list', async function () {
@@ -341,7 +341,7 @@ describe('BribeFactoryUpgradeable Contract', function () {
       it('#createBribe - Should fail if call from not owner or vote', async () => {
         await expect(
           bribeFactory.connect(signers.otherUser1).createBribe(await token18.getAddress(), await token9.getAddress(), 'Type'),
-        ).to.be.revertedWith('only voter or voter');
+        ).to.be.revertedWith('only voter or owner');
       });
       it('#createBribe - Should success called from owner or vote', async () => {
         await expect(bribeFactory.createBribe(ZERO_ADDRESS, ZERO_ADDRESS, 'Typed')).to.be.not.reverted;

@@ -31,7 +31,7 @@ contract BribeFactoryUpgradeable is IBribeFactory, OwnableUpgradeable {
     }
 
     function createBribe(address _token0, address _token1, string memory _type) external returns (address) {
-        require(msg.sender == voter || msg.sender == owner(), "only voter or voter");
+        require(msg.sender == voter || msg.sender == owner(), "only voter or owner");
 
         address newLastBribe = address(new BribeProxy());
 
