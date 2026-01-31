@@ -58,8 +58,6 @@ contract BribeFactoryUpgradeable is IBribeFactory, OwnableUpgradeable {
 
     function changeImplementation(address _implementation) external onlyOwner {
         _checkAddressZero(_implementation);
-
-        require(_implementation != address(0));
         emit bribeImplementationChanged(bribeImplementation, _implementation);
         bribeImplementation = _implementation;
     }
