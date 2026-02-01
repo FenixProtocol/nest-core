@@ -8,7 +8,7 @@ library NumberFormatter {
     function formatNumber(uint256 number, uint8 decimals, uint8 limitFractionNumbers) internal pure returns (string memory) {
         uint256 integerPart = number / 10 ** decimals;
         uint256 fractionalPart = number % 10 ** decimals;
-        if (decimals == 0) {
+        if (decimals == 0 || limitFractionNumbers == 0) {
             return withThousandSeparators(integerPart);
         }
         return

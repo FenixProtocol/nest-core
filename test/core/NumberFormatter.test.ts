@@ -80,7 +80,7 @@ describe('NumberFormmater Contract', function () {
 
   describe('#formatNumber', async () => {
     it('check limitFactionNumbers', async () => {
-      expect(await numberFormmater.formatNumber(ethers.parseEther('123456789.876543210'), 18, 0)).to.be.eq('123,456,789.');
+      expect(await numberFormmater.formatNumber(ethers.parseEther('123456789.876543210'), 18, 0)).to.be.eq('123,456,789');
       expect(await numberFormmater.formatNumber(ethers.parseEther('123456789.876543210'), 18, 2)).to.be.eq('123,456,789.87');
       expect(await numberFormmater.formatNumber(ethers.parseEther('123456789.87'), 18, 1)).to.be.eq('123,456,789.8');
       expect(await numberFormmater.formatNumber(ethers.parseEther('123456789.87'), 18, 3)).to.be.eq('123,456,789.870');
