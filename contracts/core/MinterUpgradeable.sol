@@ -43,7 +43,8 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
 
     function initialize(
         address voter_, // the voting & distribution system
-        address ve_
+        address ve_,
+        uint256 startEmissionDistributionTimestamp_
     ) external initializer {
         __Ownable2Step_init();
 
@@ -56,7 +57,7 @@ contract MinterUpgradeable is IMinter, Ownable2StepUpgradeable {
 
         active_period = ((block.timestamp + (2 * WEEK)) / WEEK) * WEEK;
         weekly = 20_000_000 * 1e18; // represents a starting weekly emission of 20_000_000 Nest (2% from 1_000_000_000) (Nest has 18 decimals)
-
+        startEmissionDistributionTimestamp = startEmissionDistributionTimestamp_;
         nest = INest(IVotingEscrow(ve_).token());
         voter = IVoter(voter_);
         ve = IVotingEscrow(ve_);
