@@ -232,7 +232,7 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
         rewardPerEpoch[epoch] += amount_;
         rewardPerGaugePerEpoch[epoch][gauge_] += amount_;
 
-        emit NotifyReward(_msgSender(), gauge_, IMinter(minter).active_period(), amount_);
+        emit NotifyReward(_msgSender(), gauge_, epoch, amount_);
     }
 
     /**
