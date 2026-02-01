@@ -427,7 +427,7 @@
         "type": "tuple"
       }
     ],
-    "name": "compoundEmisisonClaim",
+    "name": "compoundEmissionClaim",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

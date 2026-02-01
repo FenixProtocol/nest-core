@@ -1407,7 +1407,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
       describe('Should fail if', async () => {
         it('caller setup target address not eq caller', async () => {
           await expect(
-            CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
+            CompoundEmissionExtension.connect(signers.otherUser1).compoundEmissionClaim({
               target: signers.otherUser2,
               gauges: [],
               blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
@@ -1415,7 +1415,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
           ).to.be.revertedWithCustomError(CompoundEmissionExtension, 'AccessDenied');
 
           await expect(
-            CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
+            CompoundEmissionExtension.connect(signers.otherUser1).compoundEmissionClaim({
               target: signers.otherUser1,
               gauges: [],
               blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },

@@ -236,7 +236,7 @@ The keeper typically calls this for multiple users in one transaction, automatin
 You can claim for yourself by calling:
 
 ```solidity
-compoundEmisisonClaim(ClaimParams calldata claimParams_);
+compoundEmissionClaim(ClaimParams calldata claimParams_);
 ```
 
 - Must be called by the user themself (`claimParams_.target == msg.sender`).
@@ -280,7 +280,7 @@ setCompoundEmissionConfig(UpdateCompoundEmissionConfigParams {...});
 
 3. To actually compound (i.e., claim and distribute tokens):
    - The keeper might batch claim for you using `compoundEmissionClaimBatch(...)`, or
-   - You manually claim via `compoundEmisisonClaim(...)`.
+   - You manually claim via `compoundEmissionClaim(...)`.
 
 4. *(Optional)* If you merged/transferred veNFTs, you or the Voter can call `changeEmissionTargetLockId(...)` to update references.
 

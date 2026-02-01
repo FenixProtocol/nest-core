@@ -233,7 +233,7 @@ interface ICompoundEmissionExtension {
      *  - `gauges`: gauges to claim from.
      *  - `merkl`: optional merkle claim data.
      */
-    function compoundEmisisonClaim(ClaimParams calldata claimParams_) external;
+    function compoundEmissionClaim(ClaimParams calldata claimParams_) external;
 
     /**
      * @notice Updates occurrences of `targetTokenId_` in a user's `TargetLock[]` to `newTokenId_`.

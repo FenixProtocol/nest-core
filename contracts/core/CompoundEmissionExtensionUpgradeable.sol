@@ -432,7 +432,7 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Ree
      *   - `gauges`: The array of gauge addresses to claim from.
      *   - `blaze`:  Optional data for blaze-based claims.
      */
-    function compoundEmisisonClaim(ClaimParams calldata claimParams_) external nonReentrant {
+    function compoundEmissionClaim(ClaimParams calldata claimParams_) external nonReentrant {
         _checkSender(claimParams_.target);
         _compoundEmissionClaim(claimParams_);
     }
