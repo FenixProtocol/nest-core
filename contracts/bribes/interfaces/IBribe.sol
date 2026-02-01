@@ -52,7 +52,5 @@ interface IBribe {
 
     function balanceOfAt(uint256 tokenId, uint256 _timestamp) external view returns (uint256);
 
-    function balanceOf(uint256 tokenId) external view returns (uint256);
-
     function getNextEpochStart() external view returns (uint256);
 }

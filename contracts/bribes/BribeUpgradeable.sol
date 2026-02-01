@@ -105,19 +105,6 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
         return _balances[_owner][_timestamp];
     }
 
-    /// @notice get last deposit available given a tokenID
-    function balanceOf(uint256 tokenId) public view returns (uint256) {
-        uint256 _timestamp = getNextEpochStart();
-        address _owner = IVotingEscrow(ve).ownerOf(tokenId);
-        return _balances[_owner][_timestamp];
-    }
-
-    /// @notice get the balance of an owner in the current epoch
-    function balanceOfOwner(address _owner) public view returns (uint256) {
-        uint256 _timestamp = getNextEpochStart();
-        return _balances[_owner][_timestamp];
-    }
-
     /// @notice get the balance of an owner given a timestamp
     function balanceOfOwnerAt(address _owner, uint256 _timestamp) public view returns (uint256) {
         return _balances[_owner][_timestamp];
