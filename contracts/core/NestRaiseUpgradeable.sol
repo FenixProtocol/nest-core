@@ -306,7 +306,7 @@ contract NestRaiseUpgradeable is INestRaise, Ownable2StepUpgradeable {
         IERC20Upgradeable rewardTokenCache = IERC20Upgradeable(rewardToken);
         if (toVeNftAmount > 0) {
             IVotingEscrow veCache = IVotingEscrow(votingEscrow);
-            rewardTokenCache.safeApprove(address(veCache), toVeNftAmount);
+            rewardTokenCache.forceApprove(address(veCache), toVeNftAmount);
             tokenId = veCache.createLockFor(toVeNftAmount, _LOCK_DURATION, _msgSender(), false, false, 0);
         }
 

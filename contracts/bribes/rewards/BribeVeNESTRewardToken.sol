@@ -115,7 +115,7 @@ contract BribeVeNESTRewardToken is IBribeVeNESTRewardToken, ERC20Upgradeable, Ac
         _burn(to_, amount_);
 
         IVotingEscrow votingEscrowCache = IVotingEscrow(votingEscrow);
-        IERC20Upgradeable(underlyingToken).safeApprove(address(votingEscrowCache), amount_);
+        IERC20Upgradeable(underlyingToken).forceApprove(address(votingEscrowCache), amount_);
 
         CreateLockParams memory createLockParamsCache = createLockParams;
         votingEscrowCache.createLockFor(

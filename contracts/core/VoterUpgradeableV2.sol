@@ -687,7 +687,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         uint256 total = toTargetLocks + toTargetBribePools;
         if (total > 0) {
             tokenCache.safeTransferFrom(target_, address(this), total);
-            tokenCache.safeApprove(address(compoundEmissionExtensionCache), total);
+            tokenCache.forceApprove(address(compoundEmissionExtensionCache), total);
         }
     }
 
@@ -750,7 +750,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             if (amount > 0) {
                 IVotingEscrow votingEscrowCache = IVotingEscrow(votingEscrow);
                 tokenCache.safeTransferFrom(_msgSender(), address(this), amount);
-                tokenCache.safeApprove(address(votingEscrowCache), amount);
+                tokenCache.forceApprove(address(votingEscrowCache), amount);
                 votingEscrowCache.createLockFor(
                     amount,
                     aggregateCreateLock_.lockDuration,

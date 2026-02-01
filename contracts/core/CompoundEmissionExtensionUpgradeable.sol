@@ -515,7 +515,7 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Ree
         tokenCache.safeTransferFrom(address(voterCache), address(this), toTargetLocks + toTargetBribePools);
 
         if (toTargetLocks > 0) {
-            tokenCache.safeApprove(address(votingEscrowCache), toTargetLocks);
+            tokenCache.forceApprove(address(votingEscrowCache), toTargetLocks);
 
             TargetLock[] memory targetLocks = _usersCompoundEmissionTargetLocks[claimParams_.target];
             uint256 length = targetLocks.length;
@@ -556,11 +556,11 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Ree
 
                 if (voterCache.isAlive(gauge)) {
                     address externalBribe = voterCache.getGaugeState(gauge).externalBribe;
-                    tokenCache.safeApprove(externalBribe, amount);
+                    tokenCache.forceApprove(externalBribe, amount);
                     IBribe(externalBribe).notifyRewardAmount(address(tokenCache), amount);
                     emit CompoundEmissionToBribePool(claimParams_.target, targetPool.pool, amount);
                 } else {
-                    tokenCache.safeApprove(address(votingEscrowCache), amount);
+                    tokenCache.forceApprove(address(votingEscrowCache), amount);
                     uint256 tokenId = votingEscrowCache.createLockFor(
                         amount,
                         userCreateLockConfig.lockDuration,

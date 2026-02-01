@@ -299,7 +299,7 @@ contract VeNestSplitMerklAidropUpgradeable is
         } else {
             toVeNFTAmount = claimAmount;
             IVotingEscrow veCache = IVotingEscrow(votingEscrow);
-            tokenCache.safeApprove(address(veCache), toVeNFTAmount);
+            tokenCache.forceApprove(address(veCache), toVeNFTAmount);
             tokenId = veCache.createLockFor(toVeNFTAmount, _LOCK_DURATION, target_, false, withPermanentLock_, managedTokenIdForAttach_);
         }
 

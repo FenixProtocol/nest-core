@@ -296,7 +296,7 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
         uint256 currentBalance = nestCache.balanceOf(address(this));
         if (currentBalance > 0) {
             address votingEscrowCache = votingEscrow;
-            nestCache.safeApprove(votingEscrowCache, currentBalance);
+            nestCache.forceApprove(votingEscrowCache, currentBalance);
             IVotingEscrow(votingEscrowCache).depositFor(managedTokenId, currentBalance, false, false);
             ISingelTokenVirtualRewarder(virtualRewarder).notifyRewardAmount(currentBalance);
             emit Compound(msg.sender, currentBalance);

@@ -96,7 +96,7 @@ contract PerpetualsGaugeUpgradeable is IPerpetualsGauge, OwnableUpgradeable, Ree
 
         IRewardReciever rewarderCache = IRewardReciever(rewarder);
 
-        IERC20Upgradeable(token).safeApprove(address(rewarderCache), rewardAmount_);
+        IERC20Upgradeable(token).forceApprove(address(rewarderCache), rewardAmount_);
 
         rewarderCache.notifyRewardAmount(token_, rewardAmount_);
         emit RewardAdded(rewardAmount_);

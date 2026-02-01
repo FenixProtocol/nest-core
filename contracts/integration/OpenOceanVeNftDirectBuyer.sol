@@ -115,7 +115,7 @@ contract OpenOceanVeNftDirectBuyer is IOpenOceanVeNftDirectBuyer, Ownable {
                 revert PermitNotSupported();
             }
             desc_.srcToken.safeTransferFrom(_msgSender(), address(this), desc_.amount);
-            desc_.srcToken.safeApprove(address(openOceanExchangeCache), desc_.amount);
+            desc_.srcToken.forceApprove(address(openOceanExchangeCache), desc_.amount);
         }
 
         uint256 dstTokenInitialBalance = tokenCache.balanceOf(address(this));
