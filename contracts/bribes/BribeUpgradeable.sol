@@ -47,13 +47,6 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
         _;
     }
 
-    modifier whenRewardClaimPaused() {
-        if (!IBribeFactory(bribeFactory).isRewardClaimPause()) {
-            revert RewardClaimNotPaused();
-        }
-        _;
-    }
-
     /* ========== CONSTRUCTOR ========== */
 
     constructor() {
