@@ -11,7 +11,7 @@ import {INest} from "./interfaces/INest.sol";
  * @author The Nest Protocol team
  * @dev This contract extends the ERC20Burnable, and Ownable contracts from OpenZeppelin,
  * providing a comprehensive implementation of a standard ERC20 token with burnable and minting features.
- * The Nest token allows for minting of new tokens, which can only be initiated by the {EmmisionManager}
+ * The Nest token allows for minting of new tokens, which can only be initiated by the {MinterUpgradeable}
  * contract in standard use.
  */
 contract Nest is INest, ERC20Burnable, Ownable {
