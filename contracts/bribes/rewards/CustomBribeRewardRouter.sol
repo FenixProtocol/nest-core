@@ -148,11 +148,7 @@ contract CustomBribeRewardRouter is
         votingEscrow.safeTransferFrom(_msgSender(), address(this), tokenId_, "");
 
         uint256 balanceBefore = token.balanceOf(address(this));
-
-        if (votingEscrow.getNftState(tokenId_).locked.isPermanentLocked) {
-            votingEscrow.unlockPermanent(tokenId_);
-        }
-
+        
         votingEscrow.burnToBribes(tokenId_);
         uint256 amount = token.balanceOf(address(this)) - balanceBefore;
 
