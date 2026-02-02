@@ -9,7 +9,7 @@ import {
   Pair,
   PairFactoryUpgradeable,
   VeBoostUpgradeable,
-  VeNestSplitMerklAidropUpgradeable,
+  VeNestSplitMerklAirdropUpgradeable,
   VoterUpgradeableV2,
   VotingEscrowUpgradeableV2,
 } from '../typechain-types';
@@ -596,7 +596,7 @@ export type VeNestSplitMerklAidropState = {
   merklRoot: string;
   isPaused: boolean;
 };
-export async function getVeNestSplitMerklAidropState(veNestSplit: VeNestSplitMerklAidropUpgradeable): Promise<VeNestSplitMerklAidropState> {
+export async function getVeNestSplitMerklAidropState(veNestSplit: VeNestSplitMerklAirdropUpgradeable): Promise<VeNestSplitMerklAidropState> {
   const [owner, token, votingEscrow, isPaused, merklRoot] = await Promise.all([
     veNestSplit.owner(),
     veNestSplit.token(),
@@ -607,7 +607,7 @@ export async function getVeNestSplitMerklAidropState(veNestSplit: VeNestSplitMer
   let pureTokensRate = 0n;
   try {
     pureTokensRate = await veNestSplit.pureTokensRate();
-  } catch {}
+  } catch { }
 
   return {
     address: veNestSplit.target.toString(),
@@ -792,7 +792,7 @@ export async function getGaugeFactoryState(
   try {
     let Contract = await hre.ethers.getContractAt(['function gaugeType() view returns (uint8)'], gaugeImplementation);
     gaugeImplementationType = await Contract.gaugeType();
-  } catch {}
+  } catch { }
 
   return {
     address: gaugeFactory.target.toString(),

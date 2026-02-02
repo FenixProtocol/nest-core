@@ -1,9 +1,9 @@
-## VeNestSplitMerklAidropUpgradeable Integrate
+## VeNestSplitMerklAirdropUpgradeable Integrate
 
 ### Integration Guide
 
 #### Overview
-The `VeNestSplitMerklAidropUpgradeable` contract allows users to claim their allocated tokens either entirely as veNFT tokens or as pure tokens at a specified rate. The contract supports pausing and unpausing by the owner and integrates with a Voting Escrow contract to lock the claimed tokens as veNFT if chosen.
+The `VeNestSplitMerklAirdropUpgradeable` contract allows users to claim their allocated tokens either entirely as veNFT tokens or as pure tokens at a specified rate. The contract supports pausing and unpausing by the owner and integrates with a Voting Escrow contract to lock the claimed tokens as veNFT if chosen.
 
 #### Claiming Tokens
 To claim your allocated tokens, follow these steps:

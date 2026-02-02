@@ -22,10 +22,10 @@ Starting deployment of VeNestDistributorUpgradeable...
 	Constructor arguments: []
 VeNestDistributorUpgradeable deployed at 0x899Cdf1eef724289B1Caa1d0404b6Dc4D6E3B0A9
 Save to deploys.json deployed address of VeNestDistributorUpgradeable_Implementation:0x899Cdf1eef724289B1Caa1d0404b6Dc4D6E3B0A9
-Starting deployment of VeNestSplitMerklAidropUpgradeable...
+Starting deployment of VeNestSplitMerklAirdropUpgradeable...
 	Constructor arguments: []
-VeNestSplitMerklAidropUpgradeable deployed at 0xd736ca882424a40b42D5CCF60502617B32Abf664
-Save to deploys.json deployed address of VeNestSplitMerklAidropUpgradeable_Implementation:0xd736ca882424a40b42D5CCF60502617B32Abf664
+VeNestSplitMerklAirdropUpgradeable deployed at 0xd736ca882424a40b42D5CCF60502617B32Abf664
+Save to deploys.json deployed address of VeNestSplitMerklAirdropUpgradeable_Implementation:0xd736ca882424a40b42D5CCF60502617B32Abf664
 Starting deployment of VoterUpgradeableV2...
 	Constructor arguments: []
 VoterUpgradeableV2 deployed at 0xb0d16e6EE45acDCDA1Ccab720C280073A6bcd1e0
@@ -166,7 +166,7 @@ Starting deployment of TransparentUpgradeableProxy...
 	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33
 	Data: 0x
 TransparentUpgradeableProxy deployed at 0xA1ff4dDDdf3BD330F7636EA29Be69B03f9BdC1c8
-Save to deploys.json deployed address of VeNestSplitMerklAidropUpgradeable_Proxy:0xA1ff4dDDdf3BD330F7636EA29Be69B03f9BdC1c8
+Save to deploys.json deployed address of VeNestSplitMerklAirdropUpgradeable_Proxy:0xA1ff4dDDdf3BD330F7636EA29Be69B03f9BdC1c8
 Starting deployment of TransparentUpgradeableProxy...
 	Logic address: 0xb0d16e6EE45acDCDA1Ccab720C280073A6bcd1e0
 	Admin address: 0x613F1CdA0515B3728306c57749e916B61Bc3cD33

@@ -1,9 +1,9 @@
-## VeNestSplitMerklAidropUpgradeable Manage
+## VeNestSplitMerklAirdropUpgradeable Manage
 
 ### Management Guide
 
 #### Overview
-The `VeNestSplitMerklAidropUpgradeable` contract provides several functions for the owner to manage the contract. These include initializing the contract, pausing and unpausing operations, setting the Merkle root, and adjusting the pure tokens rate.
+The `VeNestSplitMerklAirdropUpgradeable` contract provides several functions for the owner to manage the contract. These include initializing the contract, pausing and unpausing operations, setting the Merkle root, and adjusting the pure tokens rate.
 
 #### Functions Available During Pause State
 - `setMerklRoot(bytes32 merklRoot_)` - Allows the owner to set a new Merkle root.

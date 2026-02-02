@@ -52,9 +52,9 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
       InstanceName.BribeFactoryUpgradeable,
       deployData[AliasDeployedContracts.BribeFactoryUpgradeable_Proxy],
     );
-    const VeNestSplitMerklAidropUpgradeable = await hre.ethers.getContractAt(
-      InstanceName.VeNestSplitMerklAidropUpgradeable,
-      deployData[AliasDeployedContracts.VeNestSplitMerklAidropUpgradeable_Proxy],
+    const VeNestSplitMerklAirdropUpgradeable = await hre.ethers.getContractAt(
+      InstanceName.VeNestSplitMerklAirdropUpgradeable,
+      deployData[AliasDeployedContracts.VeNestSplitMerklAirdropUpgradeable_Proxy],
     );
     const VoterUpgradeable = await hre.ethers.getContractAt(
       InstanceName.VoterUpgradeable,
@@ -83,7 +83,7 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
     console.log('getVoterState data....');
 
     const voterState = await getVoterState(VoterUpgradeable);
-    const veNestSplitMerklAidropState = await getVeNestSplitMerklAidropState(VeNestSplitMerklAidropUpgradeable);
+    const veNestSplitMerklAidropState = await getVeNestSplitMerklAidropState(VeNestSplitMerklAirdropUpgradeable);
 
     const veBoostState = await getVeBoostState(hre, VeBoostUpgradeable);
 
@@ -103,7 +103,7 @@ task('get-state', 'Get all relevant state information including PairFactory, pai
         deployData[AliasDeployedContracts.MinimalLinearVestingUpgradeable_Proxy],
       );
       minimalLinearVestingState = await getMinimalLinearVestingState(MinimalLinearVestingUpgradeable);
-    } catch {}
+    } catch { }
 
     console.log('getMinterState data....');
 

@@ -194,7 +194,7 @@ This comprehensive aggregation allows users to perform multiple reward and bribe
     - `bool withPermanentLock`: Specifies if the veNFT lock should be permanent (applicable only when claiming as veNFT).
     - `uint256 managedTokenIdForAttach`: ID of the managed NFT to attach if required (0 if not attaching to any NFT).
     - `bytes32[] proofs`: The array of Merkle proofs.
-- **Equivalent Call**: `IVeNestSplitMerklAidrop(veNesatMerklAidrop).claim(inPureTokens, amount, withPermanentLock, managedTokenIdForAttach, proofs)`
+- **Equivalent Call**: `IVeNestSplitMerklAirdrop(veNesatMerklAidrop).claim(inPureTokens, amount, withPermanentLock, managedTokenIdForAttach, proofs)`
 - **Details**: This parameter is used to claim the VeNest Merkl airdrop.
 
 ### `aggregateCreateLock_`

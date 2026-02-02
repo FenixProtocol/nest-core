@@ -5,7 +5,7 @@ import {
   ManagedNFTManagerUpgradeable,
   RouterV2,
   RouterV2PathProviderUpgradeable,
-  VeNestSplitMerklAidropUpgradeable,
+  VeNestSplitMerklAirdropUpgradeable,
   VoterUpgradeableV2,
 } from '../../typechain-types';
 import completeFixture, { CoreFixtureDeployed, deployTransaperntUpgradeableProxy, SignersList } from '../utils/coreFixture';
@@ -17,7 +17,7 @@ describe('Voter change governance/admin functionality', function () {
   let deployed: CoreFixtureDeployed;
   let signers: SignersList;
   let voter: VoterUpgradeableV2;
-  let VeNestSplitMerklAidropUpgradeable: VeNestSplitMerklAidropUpgradeable;
+  let VeNestSplitMerklAirdropUpgradeable: VeNestSplitMerklAirdropUpgradeable;
   let strategyFactory: CompoundVeNESTManagedNFTStrategyFactoryUpgradeable;
   let routerV2: RouterV2;
   let routerV2PathProvider: RouterV2PathProviderUpgradeable;
@@ -75,17 +75,17 @@ describe('Voter change governance/admin functionality', function () {
     signers = deployed.signers;
     voter = deployed.voter;
 
-    const implementation = await ethers.deployContract('VeNestSplitMerklAidropUpgradeable', []);
-    VeNestSplitMerklAidropUpgradeable = await ethers.getContractAt(
-      'VeNestSplitMerklAidropUpgradeable',
+    const implementation = await ethers.deployContract('VeNestSplitMerklAirdropUpgradeable', []);
+    VeNestSplitMerklAirdropUpgradeable = await ethers.getContractAt(
+      'VeNestSplitMerklAirdropUpgradeable',
       (
         await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, signers.proxyAdmin.address, '0x'])
       ).target,
     );
 
-    await VeNestSplitMerklAidropUpgradeable.initialize(deployed.fenix.target, deployed.votingEscrow.target, ethers.parseEther('0.4'));
+    await VeNestSplitMerklAirdropUpgradeable.initialize(deployed.fenix.target, deployed.votingEscrow.target, ethers.parseEther('0.4'));
 
-    await VeNestSplitMerklAidropUpgradeable.setIsAllowedClaimOperator(voter.target, true);
+    await VeNestSplitMerklAirdropUpgradeable.setIsAllowedClaimOperator(voter.target, true);
 
     managedNFTManager = deployed.managedNFTManager;
 
@@ -161,7 +161,7 @@ describe('Voter change governance/admin functionality', function () {
         await snap.restore();
       });
       it('success claim merkl aidrop in veNft form', async () => {
-        await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAidropUpgradeable.target);
+        await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAirdropUpgradeable.target);
 
         const tree = StandardMerkleTree.of(
           [
@@ -170,16 +170,16 @@ describe('Voter change governance/admin functionality', function () {
           ],
           ['address', 'uint256'],
         );
-        await VeNestSplitMerklAidropUpgradeable.setMerklRoot(tree.root);
-        await VeNestSplitMerklAidropUpgradeable.unpause();
-        await deployed.fenix.transfer(VeNestSplitMerklAidropUpgradeable.target, ethers.parseEther('200'));
+        await VeNestSplitMerklAirdropUpgradeable.setMerklRoot(tree.root);
+        await VeNestSplitMerklAirdropUpgradeable.unpause();
+        await deployed.fenix.transfer(VeNestSplitMerklAirdropUpgradeable.target, ethers.parseEther('200'));
         expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(0);
         expect(await deployed.votingEscrow.supply()).to.be.eq(0);
         expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(0);
@@ -205,23 +205,23 @@ describe('Voter change governance/admin functionality', function () {
             managedTokenIdForAttach: 0,
           },
         );
-        await VeNestSplitMerklAidropUpgradeable.pause();
-        await VeNestSplitMerklAidropUpgradeable.setPureTokensRate(ethers.parseEther('0.25'));
-        await VeNestSplitMerklAidropUpgradeable.unpause();
+        await VeNestSplitMerklAirdropUpgradeable.pause();
+        await VeNestSplitMerklAirdropUpgradeable.setPureTokensRate(ethers.parseEther('0.25'));
+        await VeNestSplitMerklAirdropUpgradeable.unpause();
         await expect(tx)
-          .to.be.emit(VeNestSplitMerklAidropUpgradeable, 'Claim')
+          .to.be.emit(VeNestSplitMerklAirdropUpgradeable, 'Claim')
           .withArgs(signers.otherUser1.address, ethers.parseEther('1'), 0, ethers.parseEther('1'), 1);
         await expect(tx)
           .to.be.emit(deployed.fenix, 'Transfer')
-          .withArgs(VeNestSplitMerklAidropUpgradeable.target, deployed.votingEscrow.target, ethers.parseEther('1'));
+          .withArgs(VeNestSplitMerklAirdropUpgradeable.target, deployed.votingEscrow.target, ethers.parseEther('1'));
 
         expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('199'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('1'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('199'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('1'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(ethers.parseEther('1'));
         expect(await deployed.votingEscrow.supply()).to.be.eq(ethers.parseEther('1'));
         expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(1);
@@ -230,7 +230,7 @@ describe('Voter change governance/admin functionality', function () {
       });
 
       it('success claim merkl aidrop in pure tokens', async () => {
-        await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAidropUpgradeable.target);
+        await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAirdropUpgradeable.target);
 
         const tree = StandardMerkleTree.of(
           [
@@ -239,22 +239,22 @@ describe('Voter change governance/admin functionality', function () {
           ],
           ['address', 'uint256'],
         );
-        await VeNestSplitMerklAidropUpgradeable.setMerklRoot(tree.root);
-        await VeNestSplitMerklAidropUpgradeable.unpause();
-        await deployed.fenix.transfer(VeNestSplitMerklAidropUpgradeable.target, ethers.parseEther('200'));
+        await VeNestSplitMerklAirdropUpgradeable.setMerklRoot(tree.root);
+        await VeNestSplitMerklAirdropUpgradeable.unpause();
+        await deployed.fenix.transfer(VeNestSplitMerklAirdropUpgradeable.target, ethers.parseEther('200'));
         expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(0);
         expect(await deployed.votingEscrow.supply()).to.be.eq(0);
         expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(0);
-        await VeNestSplitMerklAidropUpgradeable.pause();
-        await VeNestSplitMerklAidropUpgradeable.setPureTokensRate(ethers.parseEther('0.2'));
-        await VeNestSplitMerklAidropUpgradeable.unpause();
+        await VeNestSplitMerklAirdropUpgradeable.pause();
+        await VeNestSplitMerklAirdropUpgradeable.setPureTokensRate(ethers.parseEther('0.2'));
+        await VeNestSplitMerklAirdropUpgradeable.unpause();
         let tx = await voter.connect(signers.otherUser1).aggregateClaim(
           [],
           { bribes: [], tokens: [] },
@@ -278,19 +278,19 @@ describe('Voter change governance/admin functionality', function () {
         );
 
         await expect(tx)
-          .to.be.emit(VeNestSplitMerklAidropUpgradeable, 'Claim')
+          .to.be.emit(VeNestSplitMerklAirdropUpgradeable, 'Claim')
           .withArgs(signers.otherUser1.address, ethers.parseEther('1'), ethers.parseEther('0.2'), 0, 0);
         await expect(tx)
           .to.be.emit(deployed.fenix, 'Transfer')
-          .withArgs(VeNestSplitMerklAidropUpgradeable.target, signers.otherUser1.address, ethers.parseEther('0.2'));
+          .withArgs(VeNestSplitMerklAirdropUpgradeable.target, signers.otherUser1.address, ethers.parseEther('0.2'));
 
         expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(ethers.parseEther('0.2'));
         expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('199.8'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('1'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('199.8'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('1'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(0);
         expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(0);
       });
@@ -299,7 +299,7 @@ describe('Voter change governance/admin functionality', function () {
         let tree: StandardMerkleTree<(string | bigint)[]>;
 
         beforeEach(async () => {
-          await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAidropUpgradeable.target);
+          await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAirdropUpgradeable.target);
 
           tree = StandardMerkleTree.of(
             [
@@ -308,22 +308,22 @@ describe('Voter change governance/admin functionality', function () {
             ],
             ['address', 'uint256'],
           );
-          await VeNestSplitMerklAidropUpgradeable.setMerklRoot(tree.root);
-          await VeNestSplitMerklAidropUpgradeable.unpause();
-          await deployed.fenix.transfer(VeNestSplitMerklAidropUpgradeable.target, ethers.parseEther('200'));
+          await VeNestSplitMerklAirdropUpgradeable.setMerklRoot(tree.root);
+          await VeNestSplitMerklAirdropUpgradeable.unpause();
+          await deployed.fenix.transfer(VeNestSplitMerklAirdropUpgradeable.target, ethers.parseEther('200'));
           expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-          expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+          expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(0);
           expect(await deployed.votingEscrow.supply()).to.be.eq(0);
           expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(0);
-          await VeNestSplitMerklAidropUpgradeable.pause();
-          await VeNestSplitMerklAidropUpgradeable.setPureTokensRate(ethers.parseEther('1'));
-          await VeNestSplitMerklAidropUpgradeable.unpause();
+          await VeNestSplitMerklAirdropUpgradeable.pause();
+          await VeNestSplitMerklAirdropUpgradeable.setPureTokensRate(ethers.parseEther('1'));
+          await VeNestSplitMerklAirdropUpgradeable.unpause();
         });
         it('should fail if user not approve tokens before claim with aggregate to lock', async () => {
           await expect(
@@ -380,11 +380,11 @@ describe('Voter change governance/admin functionality', function () {
             },
           );
           await expect(tx)
-            .to.be.emit(VeNestSplitMerklAidropUpgradeable, 'Claim')
+            .to.be.emit(VeNestSplitMerklAirdropUpgradeable, 'Claim')
             .withArgs(signers.otherUser1.address, ethers.parseEther('100'), ethers.parseEther('100'), 0, 0);
           await expect(tx)
             .to.be.emit(deployed.fenix, 'Transfer')
-            .withArgs(VeNestSplitMerklAidropUpgradeable.target, signers.otherUser1.address, ethers.parseEther('100'));
+            .withArgs(VeNestSplitMerklAirdropUpgradeable.target, signers.otherUser1.address, ethers.parseEther('100'));
           await expect(tx)
             .to.be.emit(deployed.fenix, 'Transfer')
             .withArgs(signers.otherUser1.address, voter.target, ethers.parseEther('100'));
@@ -398,10 +398,10 @@ describe('Voter change governance/admin functionality', function () {
           expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-          expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('100'));
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('100'));
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+          expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('100'));
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('100'));
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(ethers.parseEther('100'));
           expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(1);
           expect(await deployed.votingEscrow.ownerOf(1)).to.be.eq(signers.otherUser1.address);
@@ -439,11 +439,11 @@ describe('Voter change governance/admin functionality', function () {
             },
           );
           await expect(tx)
-            .to.be.emit(VeNestSplitMerklAidropUpgradeable, 'Claim')
+            .to.be.emit(VeNestSplitMerklAirdropUpgradeable, 'Claim')
             .withArgs(signers.otherUser1.address, ethers.parseEther('100'), ethers.parseEther('100'), 0, 0);
           await expect(tx)
             .to.be.emit(deployed.fenix, 'Transfer')
-            .withArgs(VeNestSplitMerklAidropUpgradeable.target, signers.otherUser1.address, ethers.parseEther('100'));
+            .withArgs(VeNestSplitMerklAirdropUpgradeable.target, signers.otherUser1.address, ethers.parseEther('100'));
           await expect(tx)
             .to.be.emit(deployed.fenix, 'Transfer')
             .withArgs(signers.otherUser1.address, voter.target, ethers.parseEther('60'));
@@ -457,10 +457,10 @@ describe('Voter change governance/admin functionality', function () {
           expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(ethers.parseEther('40'));
           expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-          expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('100'));
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('100'));
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+          expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('100'));
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('100'));
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(ethers.parseEther('60'));
           expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(1);
           expect(await deployed.votingEscrow.ownerOf(1)).to.be.eq(signers.otherUser2.address);
@@ -509,11 +509,11 @@ describe('Voter change governance/admin functionality', function () {
             },
           );
           await expect(tx)
-            .to.be.emit(VeNestSplitMerklAidropUpgradeable, 'Claim')
+            .to.be.emit(VeNestSplitMerklAirdropUpgradeable, 'Claim')
             .withArgs(signers.otherUser1.address, ethers.parseEther('100'), ethers.parseEther('100'), 0, 0);
           await expect(tx)
             .to.be.emit(deployed.fenix, 'Transfer')
-            .withArgs(VeNestSplitMerklAidropUpgradeable.target, signers.otherUser1.address, ethers.parseEther('100'));
+            .withArgs(VeNestSplitMerklAirdropUpgradeable.target, signers.otherUser1.address, ethers.parseEther('100'));
           await expect(tx)
             .to.be.emit(deployed.fenix, 'Transfer')
             .withArgs(signers.otherUser1.address, voter.target, ethers.parseEther('10'));
@@ -527,10 +527,10 @@ describe('Voter change governance/admin functionality', function () {
           expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(ethers.parseEther('90'));
           expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-          expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('100'));
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('100'));
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-          expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+          expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('100'));
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('100'));
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+          expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
           expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(ethers.parseEther('10'));
           expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(userTokenId_1);
           expect(await deployed.votingEscrow.ownerOf(userTokenId_1)).to.be.eq(signers.otherUser1.address);
@@ -557,7 +557,7 @@ describe('Voter change governance/admin functionality', function () {
 
       it('success claim merkl aidrop in veNft form with permanent  lock = true', async () => {
         let snap = await takeSnapshot();
-        await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAidropUpgradeable.target);
+        await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAirdropUpgradeable.target);
 
         const tree = StandardMerkleTree.of(
           [
@@ -566,16 +566,16 @@ describe('Voter change governance/admin functionality', function () {
           ],
           ['address', 'uint256'],
         );
-        await VeNestSplitMerklAidropUpgradeable.setMerklRoot(tree.root);
-        await VeNestSplitMerklAidropUpgradeable.unpause();
-        await deployed.fenix.transfer(VeNestSplitMerklAidropUpgradeable.target, ethers.parseEther('200'));
+        await VeNestSplitMerklAirdropUpgradeable.setMerklRoot(tree.root);
+        await VeNestSplitMerklAirdropUpgradeable.unpause();
+        await deployed.fenix.transfer(VeNestSplitMerklAirdropUpgradeable.target, ethers.parseEther('200'));
         expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(0);
         expect(await deployed.votingEscrow.supply()).to.be.eq(0);
         expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(0);
@@ -601,24 +601,24 @@ describe('Voter change governance/admin functionality', function () {
             managedTokenIdForAttach: 0,
           },
         );
-        await VeNestSplitMerklAidropUpgradeable.pause();
-        await VeNestSplitMerklAidropUpgradeable.setPureTokensRate(ethers.parseEther('0.25'));
-        await VeNestSplitMerklAidropUpgradeable.unpause();
+        await VeNestSplitMerklAirdropUpgradeable.pause();
+        await VeNestSplitMerklAirdropUpgradeable.setPureTokensRate(ethers.parseEther('0.25'));
+        await VeNestSplitMerklAirdropUpgradeable.unpause();
         await expect(tx)
-          .to.be.emit(VeNestSplitMerklAidropUpgradeable, 'Claim')
+          .to.be.emit(VeNestSplitMerklAirdropUpgradeable, 'Claim')
           .withArgs(signers.otherUser1.address, ethers.parseEther('1'), 0, ethers.parseEther('1'), 1);
         await expect(tx)
           .to.be.emit(deployed.fenix, 'Transfer')
-          .withArgs(VeNestSplitMerklAidropUpgradeable.target, deployed.votingEscrow.target, ethers.parseEther('1'));
-        await expect(tx).to.be.emit(deployed.votingEscrow, 'LockPermanent').withArgs(VeNestSplitMerklAidropUpgradeable.target, 1);
+          .withArgs(VeNestSplitMerklAirdropUpgradeable.target, deployed.votingEscrow.target, ethers.parseEther('1'));
+        await expect(tx).to.be.emit(deployed.votingEscrow, 'LockPermanent').withArgs(VeNestSplitMerklAirdropUpgradeable.target, 1);
 
         expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('199'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('1'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('199'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('1'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(ethers.parseEther('1'));
         expect(await deployed.votingEscrow.supply()).to.be.eq(ethers.parseEther('1'));
         expect(await deployed.votingEscrow.permanentTotalSupply()).to.be.eq(ethers.parseEther('1'));
@@ -643,7 +643,7 @@ describe('Voter change governance/admin functionality', function () {
         await managedNFTManager.createManagedNFT(strategy);
 
         let snap = await takeSnapshot();
-        await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAidropUpgradeable.target);
+        await voter.updateAddress('veNestMerklAidrop', VeNestSplitMerklAirdropUpgradeable.target);
 
         const tree = StandardMerkleTree.of(
           [
@@ -652,16 +652,16 @@ describe('Voter change governance/admin functionality', function () {
           ],
           ['address', 'uint256'],
         );
-        await VeNestSplitMerklAidropUpgradeable.setMerklRoot(tree.root);
-        await VeNestSplitMerklAidropUpgradeable.unpause();
-        await deployed.fenix.transfer(VeNestSplitMerklAidropUpgradeable.target, ethers.parseEther('200'));
+        await VeNestSplitMerklAirdropUpgradeable.setMerklRoot(tree.root);
+        await VeNestSplitMerklAirdropUpgradeable.unpause();
+        await deployed.fenix.transfer(VeNestSplitMerklAirdropUpgradeable.target, ethers.parseEther('200'));
         expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('200'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(0);
         expect(await deployed.votingEscrow.supply()).to.be.eq(0);
         expect(await deployed.votingEscrow.lastMintedTokenId()).to.be.eq(mVeNftId);
@@ -687,26 +687,26 @@ describe('Voter change governance/admin functionality', function () {
             managedTokenIdForAttach: 0,
           },
         );
-        await VeNestSplitMerklAidropUpgradeable.pause();
-        await VeNestSplitMerklAidropUpgradeable.setPureTokensRate(ethers.parseEther('0.25'));
-        await VeNestSplitMerklAidropUpgradeable.unpause();
+        await VeNestSplitMerklAirdropUpgradeable.pause();
+        await VeNestSplitMerklAirdropUpgradeable.setPureTokensRate(ethers.parseEther('0.25'));
+        await VeNestSplitMerklAirdropUpgradeable.unpause();
         await expect(tx)
-          .to.be.emit(VeNestSplitMerklAidropUpgradeable, 'Claim')
+          .to.be.emit(VeNestSplitMerklAirdropUpgradeable, 'Claim')
           .withArgs(signers.otherUser1.address, ethers.parseEther('1'), 0, ethers.parseEther('1'), userTokenId_1);
         await expect(tx)
           .to.be.emit(deployed.fenix, 'Transfer')
-          .withArgs(VeNestSplitMerklAidropUpgradeable.target, deployed.votingEscrow.target, ethers.parseEther('1'));
+          .withArgs(VeNestSplitMerklAirdropUpgradeable.target, deployed.votingEscrow.target, ethers.parseEther('1'));
         await expect(tx)
           .to.be.emit(deployed.votingEscrow, 'LockPermanent')
-          .withArgs(VeNestSplitMerklAidropUpgradeable.target, userTokenId_1);
+          .withArgs(VeNestSplitMerklAirdropUpgradeable.target, userTokenId_1);
         await expect(tx).to.be.emit(deployed.voter, 'AttachToManagedNFT').withArgs(userTokenId_1, mVeNftId);
         expect(await deployed.fenix.balanceOf(signers.otherUser1.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser2.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(signers.otherUser3.address)).to.be.eq(0);
-        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAidropUpgradeable.target)).to.be.eq(ethers.parseEther('199'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('1'));
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
-        expect(await VeNestSplitMerklAidropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
+        expect(await deployed.fenix.balanceOf(VeNestSplitMerklAirdropUpgradeable.target)).to.be.eq(ethers.parseEther('199'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('1'));
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser2.address)).to.be.eq(0);
+        expect(await VeNestSplitMerklAirdropUpgradeable.userClaimed(signers.otherUser3.address)).to.be.eq(0);
         expect(await deployed.fenix.balanceOf(deployed.votingEscrow.target)).to.be.eq(ethers.parseEther('1'));
         expect(await deployed.votingEscrow.supply()).to.be.eq(ethers.parseEther('1'));
         expect(await deployed.votingEscrow.permanentTotalSupply()).to.be.eq(ethers.parseEther('1'));

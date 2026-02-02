@@ -9,7 +9,7 @@ Nest Core's access model combines upgradeable proxies, role-based contracts, own
   - [ProxyAdmin](#proxyadmin)
   - [VoterUpgradeableV2](#voterupgradeablev2)
   - [VotingEscrowUpgradeableV2](#votingescrowupgradeablev2)
-  - [VeNestSplitMerklAidropUpgradeable](#venestsplitmerklaidropupgradeable)
+  - [VeNestSplitMerklAirdropUpgradeable](#venestsplitmerklaidropupgradeable)
   - [Blaze GaugeRewarder](#blaze-gaugerewarder)
   - [MinterUpgradeable](#minterupgradeable)
   - [BribeFactoryUpgradeable](#bribefactoryupgradeable)
@@ -257,7 +257,7 @@ Primary administrator controlling external integrations used by the VotingEscrow
 
 ---
 
-## VeNestSplitMerklAidropUpgradeable
+## VeNestSplitMerklAirdropUpgradeable
 
 Manages a Merkle-based airdrop that can pay users in pure tokens or veNFT locks.
 
@@ -279,11 +279,11 @@ Admin for airdrop configuration and pause control.
 - If this key is compromised:
   ```solidity
   // first, freeze operations
-  VeNestSplitMerklAidropUpgradeable.pause();
+  VeNestSplitMerklAirdropUpgradeable.pause();
   // then, from new secure owner after ownership change:
-  VeNestSplitMerklAidropUpgradeable.setIsAllowedClaimOperator(compromisedOperator, false);
-  VeNestSplitMerklAidropUpgradeable.setMerklRoot(bytes32(0));
-  VeNestSplitMerklAidropUpgradeable.setPureTokensRate(0);
+  VeNestSplitMerklAirdropUpgradeable.setIsAllowedClaimOperator(compromisedOperator, false);
+  VeNestSplitMerklAirdropUpgradeable.setMerklRoot(bytes32(0));
+  VeNestSplitMerklAirdropUpgradeable.setPureTokensRate(0);
   ```
 - Ownership itself should be moved to a new multisig via ProxyAdmin / governance.
 

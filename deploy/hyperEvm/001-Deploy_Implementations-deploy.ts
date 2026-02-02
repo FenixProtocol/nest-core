@@ -38,8 +38,8 @@ async function main() {
     //   constructorArguments: [],
     // },
     // {
-    //   contract: InstanceName.VeNestSplitMerklAidropUpgradeable,
-    //   saveAlias: AliasDeployedContracts.VeNestSplitMerklAidropUpgradeable_Implementation,
+    //   contract: InstanceName.VeNestSplitMerklAirdropUpgradeable,
+    //   saveAlias: AliasDeployedContracts.VeNestSplitMerklAirdropUpgradeable_Implementation,
     //   constructorArguments: [],
     // },
     {

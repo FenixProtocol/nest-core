@@ -34,8 +34,8 @@ async function main() {
       saveAlias: AliasDeployedContracts.VeNestDistributorUpgradeable_Proxy,
     },
     {
-      logic: DeployedContracts[AliasDeployedContracts.VeNestSplitMerklAidropUpgradeable_Implementation],
-      saveAlias: AliasDeployedContracts.VeNestSplitMerklAidropUpgradeable_Proxy,
+      logic: DeployedContracts[AliasDeployedContracts.VeNestSplitMerklAirdropUpgradeable_Implementation],
+      saveAlias: AliasDeployedContracts.VeNestSplitMerklAirdropUpgradeable_Proxy,
     },
     {
       logic: DeployedContracts[AliasDeployedContracts.VoterUpgradeable_Implementation],

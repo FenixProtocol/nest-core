@@ -1,4 +1,4 @@
-### VeNestSplitMerklAidropUpgradeable Events
+### VeNestSplitMerklAirdropUpgradeable Events
 
 #### Events
 

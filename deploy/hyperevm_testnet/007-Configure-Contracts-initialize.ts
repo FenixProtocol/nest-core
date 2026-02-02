@@ -112,9 +112,9 @@ async function main() {
     DeployedContracts[AliasDeployedContracts.VeNestDistributorUpgradeable_Proxy],
   );
 
-  const VeNestSplitMerklAidropUpgradeable_Proxy = await ethers.getContractAt(
-    InstanceName.VeNestSplitMerklAidropUpgradeable,
-    DeployedContracts[AliasDeployedContracts.VeNestSplitMerklAidropUpgradeable_Proxy],
+  const VeNestSplitMerklAirdropUpgradeable_Proxy = await ethers.getContractAt(
+    InstanceName.VeNestSplitMerklAirdropUpgradeable,
+    DeployedContracts[AliasDeployedContracts.VeNestSplitMerklAirdropUpgradeable_Proxy],
   );
 
   const NestRaiseUpgradeable_Proxy = await ethers.getContractAt(
@@ -155,7 +155,7 @@ async function main() {
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('minter', MinterUpgradeable_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('bribeFactory', BribeFactoryUpgradeable_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('merklDistributor', GaugeRewader_Proxy));
-  await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('veNestMerklAidrop', VeNestSplitMerklAidropUpgradeable_Proxy));
+  await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('veNestMerklAidrop', VeNestSplitMerklAirdropUpgradeable_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('managedNFTManager', ManagedNFTManagerUpgradeable_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('v2PoolFactory', PairFactoryUpgradeable_Proxy));
   await logTx(VoterUpgradeable_Proxy, VoterUpgradeable_Proxy.updateAddress('v3PoolFactory', '0x9F72Fdf5678289661DE009edCeFA1D255940Aa7b'));
@@ -284,13 +284,13 @@ async function main() {
   await logTx(VeNestDistributorUpgradeable_Proxy, VeNestDistributorUpgradeable_Proxy.grantRole(ethers.id('WITHDRAWER_ROLE'), deployer));
 
   await logTx(
-    VeNestSplitMerklAidropUpgradeable_Proxy,
-    VeNestSplitMerklAidropUpgradeable_Proxy.initialize(Nest, VotingEscrowUpgradeable_Proxy, ethers.parseEther('0.5')),
+    VeNestSplitMerklAirdropUpgradeable_Proxy,
+    VeNestSplitMerklAirdropUpgradeable_Proxy.initialize(Nest, VotingEscrowUpgradeable_Proxy, ethers.parseEther('0.5')),
   );
 
   await logTx(
-    VeNestSplitMerklAidropUpgradeable_Proxy,
-    VeNestSplitMerklAidropUpgradeable_Proxy.setIsAllowedClaimOperator(VoterUpgradeable_Proxy, true),
+    VeNestSplitMerklAirdropUpgradeable_Proxy,
+    VeNestSplitMerklAirdropUpgradeable_Proxy.setIsAllowedClaimOperator(VoterUpgradeable_Proxy, true),
   );
 
   await logTx(

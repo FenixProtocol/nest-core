@@ -12,7 +12,7 @@ import {IPairFactory} from "../dexV2/interfaces/IPairFactory.sol";
 import {IGaugeFactory} from "../gauges/interfaces/IGaugeFactory.sol";
 import {IBribeFactory} from "../bribes/interfaces/IBribeFactory.sol";
 import {IMinter} from "./interfaces/IMinter.sol";
-import {IVeNestSplitMerklAidrop} from "./interfaces/IVeNestSplitMerklAidrop.sol";
+import {IVeNestSplitMerklAirdrop} from "./interfaces/IVeNestSplitMerklAirdrop.sol";
 import {IGaugeRewarder} from "./interfaces/IGaugeRewarder.sol";
 import {IManagedNFTManager} from "../nest/interfaces/IManagedNFTManager.sol";
 import {IBribe} from "../bribes/interfaces/IBribe.sol";
@@ -732,7 +732,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             _claimBlazeRewardsFor(_msgSender(), blaze_);
 
             if (splitMerklAidrop_.amount > 0) {
-                IVeNestSplitMerklAidrop(veNestMerklAidrop).claimFor(
+                IVeNestSplitMerklAirdrop(veNestMerklAidrop).claimFor(
                     _msgSender(),
                     splitMerklAidrop_.inPureTokens,
                     splitMerklAidrop_.amount,

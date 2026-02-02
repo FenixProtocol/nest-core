@@ -9,7 +9,7 @@ import {
   ManagedNFTManagerUpgradeable,
   RouterV2,
   RouterV2PathProviderUpgradeable,
-  VeNestSplitMerklAidropUpgradeable,
+  VeNestSplitMerklAirdropUpgradeable,
   VotingEscrowUpgradeableV2,
 } from '../../typechain-types/index';
 import { ERRORS, ONE, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
@@ -25,12 +25,12 @@ function getProof(address: string, tree: any): string[] {
   return proof!;
 }
 
-describe('VeNestSplitMerklAidropUpgradeable Contract', function () {
+describe('VeNestSplitMerklAirdropUpgradeable Contract', function () {
   const TO_PURE_TOKESN_RATE = ethers.parseEther('0.25');
 
   let deployed: CoreFixtureDeployed;
-  let implementation: VeNestSplitMerklAidropUpgradeable;
-  let proxy: VeNestSplitMerklAidropUpgradeable;
+  let implementation: VeNestSplitMerklAirdropUpgradeable;
+  let proxy: VeNestSplitMerklAirdropUpgradeable;
   let fenix: Fenix;
   let votingEscrow: VotingEscrowUpgradeableV2;
   let signers: SignersList;
@@ -92,9 +92,9 @@ describe('VeNestSplitMerklAidropUpgradeable Contract', function () {
     signers = deployed.signers;
     fenix = deployed.fenix;
 
-    implementation = await ethers.deployContract('VeNestSplitMerklAidropUpgradeable', []);
+    implementation = await ethers.deployContract('VeNestSplitMerklAirdropUpgradeable', []);
     proxy = await ethers.getContractAt(
-      'VeNestSplitMerklAidropUpgradeable',
+      'VeNestSplitMerklAirdropUpgradeable',
       (
         await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, signers.proxyAdmin.address, '0x'])
       ).target,
@@ -120,7 +120,7 @@ describe('VeNestSplitMerklAidropUpgradeable Contract', function () {
     });
     it('fail if try set zero address', async () => {
       let uninitializedProxy = await ethers.getContractAt(
-        'VeNestSplitMerklAidropUpgradeable',
+        'VeNestSplitMerklAirdropUpgradeable',
         (
           await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, signers.proxyAdmin.address, '0x'])
         ).target,
@@ -137,7 +137,7 @@ describe('VeNestSplitMerklAidropUpgradeable Contract', function () {
     });
     it('fail if try set pure tokens rate more then 100%', async () => {
       let uninitializedProxy = await ethers.getContractAt(
-        'VeNestSplitMerklAidropUpgradeable',
+        'VeNestSplitMerklAirdropUpgradeable',
         (
           await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, signers.proxyAdmin.address, '0x'])
         ).target,
