@@ -22,14 +22,14 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     uint256 internal constant _PRECISION = 10_000;
 
     /**
-     * @dev Return precision for token calcualtions
+     * @dev Return precision for token calculations
      */
-    uint256 internal constant _NEST_PREICSION = 1e18;
+    uint256 internal constant _NEST_PRECISION = 1e18;
 
     /**
      * @dev Return maximum locking time in seconds (about 6 months)
      */
-    uint256 internal constant _MAXTIME = 182 * 86400;
+    uint256 internal constant _MAX_TIME = 182 * 86400;
 
     /**
      * @dev Return address of NEST token
@@ -62,7 +62,7 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     uint256 internal _boostNESTPercentage;
 
     /**
-     * @dev Stora set of addresses for reward tokens
+     * @dev Store set of addresses for reward tokens
      */
     EnumerableSetUpgradeable.AddressSet internal _rewardTokens;
 
@@ -138,7 +138,7 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
      * Only the contract owner can call this function. The time cannot exceed the predefined maximum.
      */
     function setMinLockedTime(uint256 minLockedTime_) external onlyOwner {
-        if (minLockedTime_ > _MAXTIME) {
+        if (minLockedTime_ > _MAX_TIME) {
             revert InvalidMinLockedTime();
         }
         _minLockedTime = minLockedTime_;
@@ -217,11 +217,11 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
         }
 
         if (paidBoostNESTAmount_ > 0) {
-            uint256 nestBoostToBalanceRation = (paidBoostNESTAmount_ * _NEST_PREICSION) / IERC20Upgradeable(nest).balanceOf(address(this));
+            uint256 nestBoostToBalanceRatio = (paidBoostNESTAmount_ * _NEST_PRECISION) / IERC20Upgradeable(nest).balanceOf(address(this));
 
             for (uint256 i; i < _rewardTokens.length(); ) {
                 IERC20Upgradeable rewardToken = IERC20Upgradeable(_rewardTokens.at(i));
-                uint256 rewardTokenBoostAmount = (nestBoostToBalanceRation * rewardToken.balanceOf(address(this))) / _NEST_PREICSION;
+                uint256 rewardTokenBoostAmount = (nestBoostToBalanceRatio * rewardToken.balanceOf(address(this))) / _NEST_PRECISION;
 
                 if (rewardTokenBoostAmount > 0) {
                     rewardToken.safeTransfer(tokenOwner_, rewardTokenBoostAmount);
@@ -295,7 +295,7 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
      * @return The calculated minimum amount of NEST tokens required for a boost, based on the current NEST to USD price.
      */
     function _getMinNESTAmountForBoost() internal view returns (uint256) {
-        return (IPriceProvider(priceProvider).getUsdToNESTPrice() * minUSDAmount) / _NEST_PREICSION;
+        return (IPriceProvider(priceProvider).getUsdToNESTPrice() * minUSDAmount) / _NEST_PRECISION;
     }
 
     /**
