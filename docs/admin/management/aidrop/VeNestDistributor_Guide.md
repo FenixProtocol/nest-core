@@ -62,11 +62,11 @@ The contract’s primary function is to **lock NEST tokens** in the Voting Escro
 #### Function: `distributeVeNest`
 - **Signature**:
   ```solidity
-  function distributeVeNest(string memory reason_, AidropRow[] calldata rows_) external
+  function distributeVeNest(string memory reason_, AirdropRow[] calldata rows_) external
   ```
 - **Parameters**:
   - `reason_ (string)`: A whitelisted string describing the purpose of this airdrop.
-  - `rows_ (AidropRow[])`: An array of `AidropRow` structs containing:
+  - `rows_ (AirdropRow[])`: An array of `AirdropRow` structs containing:
     - `recipient (address)`: The address receiving veNest.
     - `withPermanentLock (bool)`: Whether the veNest position is permanently locked.
     - `lockDuration (uint256)`: Duration (in seconds) for which NEST is locked.

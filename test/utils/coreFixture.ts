@@ -151,7 +151,7 @@ export async function deployMinter(
   const implementation = await factory.connect(deployer).deploy();
   const proxy = await deployTransaperntUpgradeableProxy(deployer, proxyAdmin, await implementation.getAddress());
   const attached = factory.attach(proxy.target) as any as MinterUpgradeable;
-  await attached.initialize(voter, votingEscrow);
+  await attached.initialize(voter, votingEscrow, 0n);
   return attached;
 }
 

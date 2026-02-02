@@ -15,7 +15,7 @@ interface IVeNestDistributor {
      * @param amount The amount of NEST tokens to be locked, which in turn mints veNest.
      * @param managedTokenIdForAttach The managed token ID to which veNest is attached, if applicable.
      */
-    struct AidropRow {
+    struct AirdropRow {
         address recipient;
         bool withPermanentLock;
         uint256 lockDuration;
@@ -91,5 +91,5 @@ interface IVeNestDistributor {
      * @param reason_ A whitelisted string describing the airdrop reason.
      * @param rows_ An array of AirdropRow structs that specify each recipient, lock duration, amount, etc.
      */
-    function distributeVeNest(string memory reason_, AidropRow[] calldata rows_) external;
+    function distributeVeNest(string memory reason_, AirdropRow[] calldata rows_) external;
 }

@@ -54,7 +54,7 @@ contract VeNestDistributorUpgradeable is IVeNestDistributor, AccessControlEnumer
     /// @notice Thrown if the provided reason is not whitelisted.
     error NotWhitelistedReason();
 
-    /// @notice Thrown if the provided arrayies with diff length.
+    /// @notice Thrown if the provided arrays with diff length.
     error ArrayLengthMismatch();
 
     error AddressZero();
@@ -122,7 +122,7 @@ contract VeNestDistributorUpgradeable is IVeNestDistributor, AccessControlEnumer
      * @param reason_ A whitelisted string describing the airdrop reason.
      * @param rows_ An array of AirdropRow structs that specify each recipient, lock duration, amount, etc.
      */
-    function distributeVeNest(string memory reason_, AidropRow[] calldata rows_) external override onlyRole(_DISTRIBUTOR_ROLE) {
+    function distributeVeNest(string memory reason_, AirdropRow[] calldata rows_) external override onlyRole(_DISTRIBUTOR_ROLE) {
         if (!isWhitelistedReason(reason_)) {
             revert NotWhitelistedReason();
         }
@@ -145,7 +145,7 @@ contract VeNestDistributorUpgradeable is IVeNestDistributor, AccessControlEnumer
 
         nestCache.forceApprove(address(veCache), totalDistributionSum);
         for (uint256 i; i < rows_.length; ) {
-            AidropRow memory row = rows_[i];
+            AirdropRow memory row = rows_[i];
             uint256 tokenId = veCache.createLockFor(
                 row.amount,
                 row.lockDuration,

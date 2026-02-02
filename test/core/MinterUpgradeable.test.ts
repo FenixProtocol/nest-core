@@ -80,7 +80,7 @@ describe('MinterUpgradeable Contract', function () {
       expect(await fenix.owner()).to.be.eq(minter.target);
     });
     it('Should fail if try call initialize second time', async () => {
-      await expect(minter.initialize(ZERO_ADDRESS, ZERO_ADDRESS)).to.be.revertedWith(ERRORS.Initializable.Initialized);
+      await expect(minter.initialize(ZERO_ADDRESS, ZERO_ADDRESS, 0)).to.be.revertedWith(ERRORS.Initializable.Initialized);
     });
   });
 
@@ -514,7 +514,7 @@ describe('MinterUpgradeable Contract', function () {
       });
 
       it('never returns negative emission; clamps to 0 if adjusted < 0', async () => {
-        const amount = ethers.parseEther('1'); 
+        const amount = ethers.parseEther('1');
         const adjustmentBps = -20_000;
 
         const result = await minter.calculateEmissionWithAdjustment(amount, adjustmentBps);
@@ -589,7 +589,7 @@ describe('MinterUpgradeable Contract', function () {
           `${index} ${dateStr} ` +
           `${ethers.formatEther(await fenix.totalSupply())} ` +
           `${ethers.formatEther(change)}`
-        );        
+        );
         expect(change).to.be.closeTo(ethers.parseEther(emissions[index].toString()), ethers.parseEther('1'));
         changeBefore = change;
       }

@@ -839,7 +839,7 @@ Role allowed to perform veNEST airdrops (i.e., lock NEST on behalf of recipients
 
 **Capabilities**
 - Execute airdrops:
-  - `distributeVeNest(reason, AidropRow[] rows)` which:
+  - `distributeVeNest(reason, AirdropRow[] rows)` which:
     - Locks NEST for each recipient in VotingEscrow via `createLockFor`.
     - Emits per-recipient and aggregate events.
 

@@ -128,7 +128,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct IVeNestDistributor.AidropRow[]",
+        "internalType": "struct IVeNestDistributor.AirdropRow[]",
         "name": "rows_",
         "type": "tuple[]"
       }
