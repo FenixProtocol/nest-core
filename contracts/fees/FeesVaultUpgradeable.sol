@@ -12,8 +12,8 @@ import {IFeesVaultFactory} from "./interfaces/IFeesVaultFactory.sol";
 import {UpgradeCall} from "../integration/UpgradeCall.sol";
 
 /**
- * @title Fees Vault Factory
- * @dev Factory contract for creating and managing fees vault instances.
+ * @title Fees Vault
+ * @dev Contract for managing fees distribution between pools and gauges.
  * Implements access control.
  */
 contract FeesVaultUpgradeable is IFeesVault, Initializable, UpgradeCall {
@@ -24,7 +24,7 @@ contract FeesVaultUpgradeable is IFeesVault, Initializable, UpgradeCall {
     address public override pool;
 
     error AddressZero();
-    
+
     /**
      * @dev Constructor that disables initialization on implementation.
      */
@@ -37,10 +37,7 @@ contract FeesVaultUpgradeable is IFeesVault, Initializable, UpgradeCall {
      * @param factory_ Factory address for this vault.
      * @param pool_ Address of the liquidity pool.
      */
-    function initialize(
-        address factory_,
-        address pool_
-    ) external virtual override initializer {
+    function initialize(address factory_, address pool_) external virtual override initializer {
         if (factory_ == address(0) || pool_ == address(0)) {
             revert AddressZero();
         }
