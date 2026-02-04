@@ -59,6 +59,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
     }
 
     function upgradePairImplementation(address implementation_) external onlyRole(DEFAULT_ADMIN_ROLE) reinitializer(2) {
+        _checkAddressZero(implementation_);
         implementation = implementation_;
     }
 
