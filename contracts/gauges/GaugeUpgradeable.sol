@@ -9,7 +9,6 @@ import {IGaugeFactory} from "./interfaces/IGaugeFactory.sol";
 import {IRewarder} from "./interfaces/IRewarder.sol";
 import {IMerklGaugeMiddleman} from "../integration/interfaces/IMerklGaugeMiddleman.sol";
 import {IPairIntegrationInfo} from "../integration/interfaces/IPairIntegrationInfo.sol";
-import {IPairInfo} from "../dexV2/interfaces/IPairInfo.sol";
 import {IPair} from "../dexV2/interfaces/IPair.sol";
 import {IBribe} from "../bribes/interfaces/IBribe.sol";
 import {IGauge} from "./interfaces/IGauge.sol";
