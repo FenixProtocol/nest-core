@@ -4,7 +4,7 @@ pragma solidity =0.8.19;
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {IRewardReciever} from "./interfaces/IRewardReciever.sol";
+import {IRewardReceiver} from "./interfaces/IRewardReceiver.sol";
 import {IPerpetualsGauge} from "./interfaces/IPerpetualsGauge.sol";
 
 /**
@@ -37,7 +37,7 @@ contract PerpetualsGaugeUpgradeable is IPerpetualsGauge, OwnableUpgradeable, Ree
     error AccessDenied();
 
     error AddressZero();
-    
+
     /**
      * @dev Modifier to check if the caller is the authorized voter.
      */
@@ -62,12 +62,7 @@ contract PerpetualsGaugeUpgradeable is IPerpetualsGauge, OwnableUpgradeable, Ree
      * @param rewarder_ The address of the reward receiver contract.
      * @param name_ The name of the gauge.
      */
-    function initialize(
-        address rewardToken_,
-        address voter_,
-        address rewarder_,
-        string memory name_
-    ) external initializer {
+    function initialize(address rewardToken_, address voter_, address rewarder_, string memory name_) external initializer {
         _checkAddressZero(rewardToken_);
         _checkAddressZero(voter_);
         _checkAddressZero(rewarder_);
@@ -94,7 +89,7 @@ contract PerpetualsGaugeUpgradeable is IPerpetualsGauge, OwnableUpgradeable, Ree
         IERC20Upgradeable token = IERC20Upgradeable(token_);
         IERC20Upgradeable(token).safeTransferFrom(DISTRIBUTION, address(this), rewardAmount_);
 
-        IRewardReciever rewarderCache = IRewardReciever(rewarder);
+        IRewardReceiver rewarderCache = IRewardReceiver(rewarder);
 
         IERC20Upgradeable(token).forceApprove(address(rewarderCache), rewardAmount_);
 

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.19;
 
-import {IRewardReciever} from "./IRewardReciever.sol";
+import {IRewardReceiver} from "./IRewardReceiver.sol";
 
 /**
  * @title IPerpetualsTradersRewarder
- * @dev Interface for rewarding perpetual traders. This interface extends the IRewardReciever
+ * @dev Interface for rewarding perpetual traders. This interface extends the IRewardReceiver
  *  interface and adds functionalities specific to perpetual traders rewards.
  */
-interface IPerpetualsTradersRewarder is IRewardReciever {
+interface IPerpetualsTradersRewarder is IRewardReceiver {
     /**
      * @dev Emitted when the signer address is set.
      * @param signer The address of the new signer.
