@@ -149,7 +149,7 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
     ///@notice set distribution address (should be GaugeProxyL2)
     function setIsDistributeEmissionToMerkle(bool _isDistributeEmissionToMerkle) external onlyOwner {
         if (_isDistributeEmissionToMerkle) {
-            require(merklGaugeMiddleman != address(0));
+            require(merklGaugeMiddleman != address(0), "not setup merklGaugeMiddleman");
         }
         isDistributeEmissionToMerkle = _isDistributeEmissionToMerkle;
     }
