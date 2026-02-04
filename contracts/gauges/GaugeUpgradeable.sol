@@ -60,7 +60,12 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
     event ClaimFees(address indexed from, uint256 claimed0, uint256 claimed1);
     event EmergencyActivated(address indexed gauge, uint256 timestamp);
     event EmergencyDeactivated(address indexed gauge, uint256 timestamp);
-
+    event MerklGaugeMiddlemanSet(address indexed merklGaugeMiddleman);
+    event DistributionSet(address indexed distribution);
+    event IsDistributeEmissionToMerkleSet(bool indexed isDistributeEmissionToMerkle);
+    event GaugeRewarderSet(address indexed gaugeRewarder);
+    event FeeVaultSet(address indexed feeVault);
+    event InternalBribeSet(address indexed internalBribe);
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
@@ -138,12 +143,14 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
         require(_distribution != address(0), "zero addr");
         require(_distribution != DISTRIBUTION, "same addr");
         DISTRIBUTION = _distribution;
+        emit DistributionSet(_distribution);
     }
 
     ///@notice set distribution address (should be GaugeProxyL2)
     function setMerklGaugeMiddleman(address _newMerklGaugeMiddleman) external onlyOwner {
         require(_newMerklGaugeMiddleman != address(0));
         merklGaugeMiddleman = _newMerklGaugeMiddleman;
+        emit MerklGaugeMiddlemanSet(_newMerklGaugeMiddleman);
     }
 
     ///@notice set distribution address (should be GaugeProxyL2)
@@ -152,12 +159,14 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
             require(merklGaugeMiddleman != address(0), "not setup merklGaugeMiddleman");
         }
         isDistributeEmissionToMerkle = _isDistributeEmissionToMerkle;
+        emit IsDistributeEmissionToMerkleSet(_isDistributeEmissionToMerkle);
     }
 
     ///@notice set gauge rewarder address
     function setGaugeRewarder(address _gaugeRewarder) external onlyOwner {
         require(_gaugeRewarder != gaugeRewarder, "same addr");
         gaugeRewarder = _gaugeRewarder;
+        emit GaugeRewarderSet(_gaugeRewarder);
     }
 
     ///@notice set feeVault address
@@ -165,12 +174,14 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
         require(_feeVault != address(0), "zero addr");
         require(_feeVault != feeVault, "same addr");
         feeVault = _feeVault;
+        emit FeeVaultSet(_feeVault);
     }
 
     ///@notice set new internal bribe contract (where to send fees)
     function setInternalBribe(address _int) external onlyOwner {
         require(_int != address(0), "zero");
         internal_bribe = _int;
+        emit InternalBribeSet(_int);
     }
 
     function activateEmergencyMode() external onlyOwner {
