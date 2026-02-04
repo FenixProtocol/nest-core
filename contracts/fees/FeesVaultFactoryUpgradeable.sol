@@ -5,7 +5,6 @@ import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 
 import {IFeesVaultFactory} from "./interfaces/IFeesVaultFactory.sol";
 import {IFeesVault} from "./interfaces/IFeesVault.sol";
-import {IPairIntegrationInfo} from "../integration/interfaces/IPairIntegrationInfo.sol";
 import {FeesVaultProxy} from "./FeesVaultProxy.sol";
 
 contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, AccessControlUpgradeable {
@@ -26,7 +25,7 @@ contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, AccessControlUpgradea
     mapping(address feesVault => address creator) internal _feesVaultCreator;
 
     error AddressZero();
-    
+
     /**
      * @dev Constructor that disables initialization on implementation.
      */
