@@ -5,6 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // Pair Fees contract is used as a 1:1 pair relationship to split out fees, this ensures that the curve does not need to be modified for LP shares
 contract PairFees {
+    error SenderNotPair();
     address internal immutable pair; // The pair it is bonded to
     address internal immutable token0; // token0 of pair, saved locally and statically for gas optimization
     address internal immutable token1; // Token1 of pair, saved locally and statically for gas optimization
@@ -23,7 +24,8 @@ contract PairFees {
 
     // Allow the pair to transfer fees to users
     function claimFeesFor(address recipient, uint amount0, uint amount1) external {
-        require(msg.sender == pair);
+        if (msg.sender != pair) revert SenderNotPair();
+
         if (amount0 > 0) _safeTransfer(token0, recipient, amount0);
         if (amount1 > 0) _safeTransfer(token1, recipient, amount1);
     }
