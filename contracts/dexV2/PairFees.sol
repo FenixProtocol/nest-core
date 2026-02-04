@@ -2,24 +2,17 @@
 pragma solidity =0.8.19;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IPairFactory} from "./interfaces/IPairFactory.sol";
 
 // Pair Fees contract is used as a 1:1 pair relationship to split out fees, this ensures that the curve does not need to be modified for LP shares
 contract PairFees {
     address internal immutable pair; // The pair it is bonded to
-    address internal immutable token0; // token0 of pair, saved localy and statically for gas optimization
-    address internal immutable token1; // Token1 of pair, saved localy and statically for gas optimization
-    address internal immutable factory; // The pair factory
+    address internal immutable token0; // token0 of pair, saved locally and statically for gas optimization
+    address internal immutable token1; // Token1 of pair, saved locally and statically for gas optimization
 
-    constructor(
-        address _factory,
-        address _token0,
-        address _token1
-    ) {
+    constructor(address _token0, address _token1) {
         pair = msg.sender;
         token0 = _token0;
         token1 = _token1;
-        factory = _factory;
     }
 
     function _safeTransfer(address token, address to, uint256 value) internal {

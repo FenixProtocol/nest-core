@@ -101,7 +101,7 @@ contract Pair is IPair {
 
         (token0, token1, stable, communityVault) = (_token0, _token1, _stable, _communityVault);
 
-        fees = address(new PairFees(msg.sender, _token0, _token1));
+        fees = address(new PairFees(_token0, _token1));
 
         _unlocked = 1;
 
