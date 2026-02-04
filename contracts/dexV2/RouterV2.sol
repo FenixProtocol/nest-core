@@ -175,7 +175,6 @@ contract RouterV2 {
         uint amountADesired,
         uint amountBDesired
     ) public view returns (uint amountA, uint amountB, uint liquidity) {
-        // create the pair if it doesn't exist yet
         address _pair = IPairFactory(factory).getPair(tokenA, tokenB, stable);
         (uint reserveA, uint reserveB) = (0, 0);
         uint _totalSupply = 0;
@@ -205,7 +204,6 @@ contract RouterV2 {
         bool stable,
         uint liquidity
     ) public view returns (uint amountA, uint amountB) {
-        // create the pair if it doesn't exist yet
         address _pair = IPairFactory(factory).getPair(tokenA, tokenB, stable);
 
         if (_pair == address(0)) {
@@ -230,7 +228,6 @@ contract RouterV2 {
     ) internal returns (uint amountA, uint amountB) {
         require(amountADesired >= amountAMin, "RouterV2: Desired A liquidity less than min");
         require(amountBDesired >= amountBMin, "RouterV2: Desired B liquidity less than min");
-        // create the pair if it doesn't exist yet
         address _pair = IPairFactory(factory).getPair(tokenA, tokenB, stable);
         if (_pair == address(0)) {
             _pair = IPairFactory(factory).createPair(tokenA, tokenB, stable);
