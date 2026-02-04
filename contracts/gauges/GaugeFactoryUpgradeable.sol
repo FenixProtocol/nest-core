@@ -14,16 +14,12 @@ contract GaugeFactoryUpgradeable is IGaugeFactory, OwnableUpgradeable {
     address public override merklGaugeMiddleman;
 
     error AddressZero();
-    
+
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(
-        address _voter,
-        address _gaugeImplementation,
-        address _merklGaugeMiddleman
-    ) external initializer {
+    function initialize(address _voter, address _gaugeImplementation, address _merklGaugeMiddleman) external initializer {
         _checkAddressZero(_voter);
         _checkAddressZero(_gaugeImplementation);
 
@@ -64,7 +60,6 @@ contract GaugeFactoryUpgradeable is IGaugeFactory, OwnableUpgradeable {
         return newLastGauge;
     }
 
-
     function gaugeOwner() external view returns (address) {
         return owner();
     }
@@ -76,7 +71,10 @@ contract GaugeFactoryUpgradeable is IGaugeFactory, OwnableUpgradeable {
     }
 
     function setMerklGaugeMiddleman(address _newMerklGaugeMiddleman) external onlyOwner {
+        _checkAddressZero(_newMerklGaugeMiddleman);
+        address oldMerklGaugeMiddleman = merklGaugeMiddleman;
         merklGaugeMiddleman = _newMerklGaugeMiddleman;
+        emit MerklGaugeMiddlemanChanged(oldMerklGaugeMiddleman, _newMerklGaugeMiddleman);
     }
 
     /**

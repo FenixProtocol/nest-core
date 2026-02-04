@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 interface IGaugeFactory {
     event GaugeImplementationChanged(address _oldGaugeImplementation, address _newGaugeImplementation);
+    event MerklGaugeMiddlemanChanged(address _oldMerklGaugeMiddleman, address _newMerklGaugeMiddleman);
 
     function createGauge(
         address _rewardToken,
