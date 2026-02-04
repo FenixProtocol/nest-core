@@ -6,7 +6,7 @@
   "private": "true",
   "scripts": {
     "compile": "hardhat clean && npx hardhat compile",
-    "test": "NODE_OPTIONS='--max-old-space-size=8192' npx hardhat test --parallel",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096' npx hardhat test --parallel",
     "test:coverage": "npx hardhat coverage",
     "clean": "hardhat clean",
     "lint": "npm run lint:ts && npm run lint:prettier && npm run lint:solhint",

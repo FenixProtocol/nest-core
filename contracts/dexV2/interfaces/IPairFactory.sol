@@ -12,7 +12,7 @@ interface IPairFactory {
     event SetFee(bool stable, uint256 fee);
     event SetCustomVolatileDynamicFeeModule(address indexed pair, address indexed module);
 
-    error IncorrcectFee();
+    error IncorrectFee();
     error IncorrectPair();
     error IdenticalAddress();
     error PairExist();

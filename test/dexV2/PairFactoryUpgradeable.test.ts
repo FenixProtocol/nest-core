@@ -114,23 +114,23 @@ describe('PairFactoryUpgradeable Contract', function () {
   });
 
 
-  describe("#setCustomVolatileDynamicFeeModule", async() => {
-    it("fail if caller not have admin role", async() => {
+  describe("#setCustomVolatileDynamicFeeModule", async () => {
+    it("fail if caller not have admin role", async () => {
       await expect(pairFactory.connect(signers.otherUser1).setCustomVolatileDynamicFeeModule(signers.otherUser1, signers.otherUser1)).to.be.revertedWith(
         getAccessControlError(await pairFactory.DEFAULT_ADMIN_ROLE(), signers.otherUser1.address),
       );
     })
 
-    it("fail if pair is zero", async() => {
+    it("fail if pair is zero", async () => {
       await expect(pairFactory.connect(signers.deployer).setCustomVolatileDynamicFeeModule(ethers.ZeroAddress, signers.otherUser1)).to.be.revertedWithCustomError(
-        pairFactory, "AddressZero"        
+        pairFactory, "AddressZero"
       );
     })
 
-    it("success set module for address", async() => {
+    it("success set module for address", async () => {
       let newPairAddress = await pairFactory.createPair.staticCall(deployed.fenix.target, tokenTK6.target, false);
       await pairFactory.createPair(deployed.fenix.target, tokenTK6.target, false);
-      
+
       expect(await pairFactory.getFee(newPairAddress, false)).to.be.eq(18)
 
       expect(await pairFactory.getCustomVolatileDynamicFeeModule(newPairAddress)).to.be.eq(ethers.ZeroAddress)
@@ -219,10 +219,10 @@ describe('PairFactoryUpgradeable Contract', function () {
         );
       });
       it('fails if try set protocol fee > MAX_FEE% or fee == 0', async () => {
-        await expect(pairFactory.setFee(false, 501)).to.be.revertedWithCustomError(pairFactory, 'IncorrcectFee');
-        await expect(pairFactory.setFee(false, 0)).to.be.revertedWithCustomError(pairFactory, 'IncorrcectFee');
-        await expect(pairFactory.setFee(true, 501)).to.be.revertedWithCustomError(pairFactory, 'IncorrcectFee');
-        await expect(pairFactory.setFee(true, 0)).to.be.revertedWithCustomError(pairFactory, 'IncorrcectFee');
+        await expect(pairFactory.setFee(false, 501)).to.be.revertedWithCustomError(pairFactory, 'IncorrectFee');
+        await expect(pairFactory.setFee(false, 0)).to.be.revertedWithCustomError(pairFactory, 'IncorrectFee');
+        await expect(pairFactory.setFee(true, 501)).to.be.revertedWithCustomError(pairFactory, 'IncorrectFee');
+        await expect(pairFactory.setFee(true, 0)).to.be.revertedWithCustomError(pairFactory, 'IncorrectFee');
       });
       it('should corect set fee for stable pairs', async () => {
         expect(await pairFactory.stableFee()).to.be.eq(4);

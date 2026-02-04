@@ -51,7 +51,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
 
         stableFee = 4; // 0.04%
         volatileFee = 18; // 0.18%
-        protocolFee = 10000; // 100% of stable/volatileFee to communit vaults
+        protocolFee = 10000; // 100% of stable/volatileFee to community vaults
 
         implementation = implementation_;
 
@@ -80,7 +80,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
 
     function setProtocolFee(uint256 _newFee) external onlyRole(FEES_MANAGER_ROLE) {
         if (_newFee > PRECISION) {
-            revert IncorrcectFee();
+            revert IncorrectFee();
         }
         protocolFee = _newFee;
         emit SetProtocolFee(_newFee);
@@ -110,7 +110,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
 
     function setFee(bool _stable, uint256 _fee) external onlyRole(FEES_MANAGER_ROLE) {
         if (_fee == 0 || _fee > MAX_FEE) {
-            revert IncorrcectFee();
+            revert IncorrectFee();
         }
         if (_stable) {
             stableFee = _fee;
@@ -161,7 +161,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
         return _customVolatileDynamicFeeModule[pair_];
     }
 
-    // Stub functions for future improvments
+    // Stub functions for future improvements
     function getHookTarget(address /*pair_*/) external view virtual override returns (address) {
         return address(0);
     }
@@ -210,7 +210,7 @@ contract PairFactoryUpgradeable is IPairFactory, AccessControlUpgradeable {
 
     function _checkFeeAndPair(address pair_, uint256 fee_, uint256 upperLimit_) internal view {
         if (fee_ > upperLimit_) {
-            revert IncorrcectFee();
+            revert IncorrectFee();
         }
         if (!isPair[pair_]) {
             revert IncorrectPair();

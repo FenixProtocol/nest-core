@@ -20,12 +20,7 @@ import "./libraries/LibVotingEscrowUtils.sol";
  * @dev This upgradeable contract includes features such as permanent locking, managed NFT attachments, and boosted deposits.
  *      It integrates with various external systems including VotingEscrow, and VeBoost.
  */
-contract VotingEscrowUpgradeableV2 is
-    IVotingEscrow,
-    Ownable2StepUpgradeable,
-    ERC721EnumerableUpgradeable,
-    ReentrancyGuardUpgradeable
-{
+contract VotingEscrowUpgradeableV2 is IVotingEscrow, Ownable2StepUpgradeable, ERC721EnumerableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /// @notice The token used for voting escrow.
@@ -881,7 +876,13 @@ contract VotingEscrowUpgradeableV2 is
             last_point = supplyPointsHistory[_epoch];
         }
         uint256 last_checkpoint = last_point.ts;
-        Point memory initial_last_point = last_point;
+        Point memory initial_last_point = Point({
+            bias: last_point.bias,
+            slope: last_point.slope,
+            ts: last_point.ts,
+            blk: last_point.blk,
+            permanent: last_point.permanent
+        });
         uint256 block_slope; // dblock/dt
         if (block.timestamp > last_point.ts) {
             block_slope = (1e18 * (block.number - last_point.blk)) / (block.timestamp - last_point.ts);
