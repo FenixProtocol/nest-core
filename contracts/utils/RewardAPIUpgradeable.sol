@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.19;
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {IERC20Upgradeable, IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
+import {
+    IERC20Upgradeable,
+    IERC20MetadataUpgradeable
+} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721EnumerableUpgradeable.sol";
 
 import "../core/interfaces/IVoter.sol";
@@ -166,7 +169,7 @@ contract RewardAPIUpgradeable is OwnableUpgradeable {
 
         for (i; i < _offset + _amounts; i++) {
             // if totalPairs is reached, break.
-            if (i == totPairs) {
+            if (i >= totPairs) {
                 break;
             }
             _pair = pairFactory.allPairs(i);
@@ -219,7 +222,7 @@ contract RewardAPIUpgradeable is OwnableUpgradeable {
 
         for (i; i < _offset + _amounts; i++) {
             // if totalPairs is reached, break.
-            if (i == totPairs) {
+            if (i >= totPairs) {
                 break;
             }
             _pair = voter.v3Pools(i);
