@@ -376,17 +376,15 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
                 uint256 leftover = remaining * (rewardRate);
                 rewardRate = (reward + leftover) / DURATION;
             }
-
             // Ensure the provided reward amount is not more than the balance in the contract.
             // This keeps the reward rate in the right range, preventing overflows due to
             // very high values of rewardRate in the earned and rewardsPerToken functions;
             // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
             uint256 balance = rewardToken.balanceOf(address(this));
             require(rewardRate <= balance / (DURATION), "Provided reward too high");
+            _periodFinish = block.timestamp + (DURATION);
         }
-
         lastUpdateTime = block.timestamp;
-        _periodFinish = block.timestamp + (DURATION);
         emit RewardAdded(reward);
     }
 
