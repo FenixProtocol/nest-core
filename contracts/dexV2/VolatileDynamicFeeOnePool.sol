@@ -68,11 +68,6 @@ contract VolatileDynamicFeeOnePool is ICustomVolatileDynamicFee, OwnableUpgradea
     error AddressZero();
 
     /**
-     * @dev Thrown when a caller is not authorized to execute the function.
-     */
-    error InvalidCaller();
-
-    /**
      * @dev Thrown when a function is called for a pair that does not match the configured `pair`.
      */
     error InvalidExpectPair();
