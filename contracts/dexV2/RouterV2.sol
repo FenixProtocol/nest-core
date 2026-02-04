@@ -79,7 +79,6 @@ interface IWETH {
     function withdraw(uint) external;
 }
 
-
 // Experimental Extension [ftm.guru/solidly/BaseV1Router02]
 // contract BaseV1Router02 is BaseV1Router01
 // with Support for Fee-on-Transfer Tokens
@@ -229,8 +228,8 @@ contract RouterV2 {
         uint amountAMin,
         uint amountBMin
     ) internal returns (uint amountA, uint amountB) {
-        require(amountADesired >= amountAMin);
-        require(amountBDesired >= amountBMin);
+        require(amountADesired >= amountAMin, "RouterV2: Desired A liquidity less than min");
+        require(amountBDesired >= amountBMin, "RouterV2: Desired B liquidity less than min");
         // create the pair if it doesn't exist yet
         address _pair = IPairFactory(factory).getPair(tokenA, tokenB, stable);
         if (_pair == address(0)) {
@@ -266,8 +265,8 @@ contract RouterV2 {
     ) public ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, stable, amountADesired, amountBDesired, amountAMin, amountBMin);
         address pair = pairFor(tokenA, tokenB, stable);
-        // to prevent mint of intial liquidity of a stable pair with invalid token balances 
-        if(erc20(pair).totalSupply() == 0 && stable) IBaseV1Pair(pair).skim(0x000000000000000000000000000000000000dEaD);
+        // to prevent mint of intial liquidity of a stable pair with invalid token balances
+        if (erc20(pair).totalSupply() == 0 && stable) IBaseV1Pair(pair).skim(0x000000000000000000000000000000000000dEaD);
         _safeTransferFrom(tokenA, msg.sender, pair, amountA);
         _safeTransferFrom(tokenB, msg.sender, pair, amountB);
         liquidity = IBaseV1Pair(pair).mint(to);
@@ -285,7 +284,7 @@ contract RouterV2 {
         (amountToken, amountETH) = _addLiquidity(token, address(wETH), stable, amountTokenDesired, msg.value, amountTokenMin, amountETHMin);
         address pair = pairFor(token, address(wETH), stable);
         // to prevent mint of intial liquidity of a stable pair with invalid token balances
-        if(erc20(pair).totalSupply() == 0 && stable) IBaseV1Pair(pair).skim(0x000000000000000000000000000000000000dEaD);
+        if (erc20(pair).totalSupply() == 0 && stable) IBaseV1Pair(pair).skim(0x000000000000000000000000000000000000dEaD);
         _safeTransferFrom(token, msg.sender, pair, amountToken);
         wETH.deposit{value: amountETH}();
         assert(wETH.transfer(pair, amountETH));
@@ -306,7 +305,7 @@ contract RouterV2 {
         uint deadline
     ) public ensure(deadline) returns (uint amountA, uint amountB) {
         address pair = pairFor(tokenA, tokenB, stable);
-        require(IBaseV1Pair(pair).transferFrom(msg.sender, pair, liquidity)); // send liquidity to pair
+        require(IBaseV1Pair(pair).transferFrom(msg.sender, pair, liquidity), "RouterV2: Failed to transfer liquidity to pair"); // send liquidity to pair
         (uint amount0, uint amount1) = IBaseV1Pair(pair).burn(to);
         (address token0, ) = sortTokens(tokenA, tokenB);
         (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
@@ -473,15 +472,15 @@ contract RouterV2 {
     }
 
     function _safeTransfer(address token, address to, uint256 value) internal {
-        require(token.code.length > 0);
+        require(token.code.length > 0, "RouterV2: Token has no code");
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(erc20.transfer.selector, to, value));
-        require(success && (data.length == 0 || abi.decode(data, (bool))));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), "RouterV2: Failed to transfer token");
     }
 
     function _safeTransferFrom(address token, address from, address to, uint256 value) internal {
-        require(token.code.length > 0);
+        require(token.code.length > 0, "RouterV2: Token has no code");
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(erc20.transferFrom.selector, from, to, value));
-        require(success && (data.length == 0 || abi.decode(data, (bool))));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), "RouterV2: Failed to transfer token from");
     }
 
     // Experimental Extension [ETH.guru/solidly/BaseV1Router02]
