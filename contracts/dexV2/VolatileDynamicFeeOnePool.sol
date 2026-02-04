@@ -3,7 +3,6 @@ pragma solidity =0.8.19;
 
 import {ICustomVolatileDynamicFee} from "./interfaces/ICustomVolatileDynamicFee.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {IPair} from "./interfaces/IPair.sol";
 
 /**
  * @title VolatileDynamicFeeOnePool
