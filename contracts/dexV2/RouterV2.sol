@@ -109,7 +109,7 @@ contract RouterV2 {
     }
 
     receive() external payable {
-        assert(msg.sender == address(wETH)); // only accept ETH via fallback from the WETH contract
+        require(msg.sender == address(wETH), "RouterV2: Sender is not WETH"); // only accept ETH via fallback from the WETH contract
     }
 
     function sortTokens(address tokenA, address tokenB) public pure returns (address token0, address token1) {
@@ -245,7 +245,7 @@ contract RouterV2 {
                 (amountA, amountB) = (amountADesired, amountBOptimal);
             } else {
                 uint amountAOptimal = quoteLiquidity(amountBDesired, reserveB, reserveA);
-                assert(amountAOptimal <= amountADesired);
+                require(amountAOptimal <= amountADesired, "RouterV2: Desired A liquidity less than optimal");
                 require(amountAOptimal >= amountAMin, "BaseV1Router: INSUFFICIENT_A_AMOUNT");
                 (amountA, amountB) = (amountAOptimal, amountBDesired);
             }
@@ -287,7 +287,7 @@ contract RouterV2 {
         if (erc20(pair).totalSupply() == 0 && stable) IBaseV1Pair(pair).skim(0x000000000000000000000000000000000000dEaD);
         _safeTransferFrom(token, msg.sender, pair, amountToken);
         wETH.deposit{value: amountETH}();
-        assert(wETH.transfer(pair, amountETH));
+        require(wETH.transfer(pair, amountETH), "RouterV2: Failed to transfer WETH to pair");
         liquidity = IBaseV1Pair(pair).mint(to);
         // refund dust ETH, if any
         if (msg.value > amountETH) _safeTransferETH(msg.sender, msg.value - amountETH);
@@ -435,7 +435,10 @@ contract RouterV2 {
         amounts = getAmountsOut(msg.value, routes);
         require(amounts[amounts.length - 1] >= amountOutMin, "BaseV1Router: INSUFFICIENT_OUTPUT_AMOUNT");
         wETH.deposit{value: amounts[0]}();
-        assert(wETH.transfer(pairFor(routes[0].from, routes[0].to, routes[0].stable), amounts[0]));
+        require(
+            wETH.transfer(pairFor(routes[0].from, routes[0].to, routes[0].stable), amounts[0]),
+            "RouterV2: Failed to transfer WETH to pair"
+        );
         _swap(amounts, routes, to);
     }
 
@@ -587,7 +590,10 @@ contract RouterV2 {
         require(routes[0].from == address(wETH), "BaseV1Router: INVALID_PATH");
         uint amountIn = msg.value;
         wETH.deposit{value: amountIn}();
-        assert(wETH.transfer(pairFor(routes[0].from, routes[0].to, routes[0].stable), amountIn));
+        require(
+            wETH.transfer(pairFor(routes[0].from, routes[0].to, routes[0].stable), amountIn),
+            "RouterV2: Failed to transfer WETH to pair"
+        );
         uint balanceBefore = erc20(routes[routes.length - 1].to).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(routes, to);
         require(
