@@ -77,7 +77,7 @@ contract MinimalLinearVestingUpgradeable is IMinimalLinearVesting, OwnableUpgrad
      * Reverts with `NotAvailableDuringClaimPhase` if vesting has already started.
      */
     modifier onlyNotDuringClaimPhase() {
-        if (startTimestamp > 0 && startTimestamp < block.timestamp) {
+        if (startTimestamp > 0 && startTimestamp <= block.timestamp) {
             revert NotAvailableDuringClaimPhase();
         }
         _;
