@@ -11,7 +11,6 @@ import {ISingelTokenVirtualRewarder} from "./interfaces/ISingelTokenVirtualRewar
 import {ICompoundVeNESTManagedNFTStrategy} from "./interfaces/ICompoundVeNESTManagedNFTStrategy.sol";
 import {IRouterV2PathProvider, SingelTokenBuybackUpgradeable} from "./SingelTokenBuybackUpgradeable.sol";
 import {LibStrategyFlags} from "./libraries/LibStrategyFlags.sol";
-import {LibStrategyFlags} from "./libraries/LibStrategyFlags.sol";
 
 /**
  * @title Compound VeNEST Managed NFT Strategy Upgradeable
@@ -79,7 +78,7 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
      */
     uint256 public detachmentLockDuration;
 
-    /** 
+    /**
      * @notice Hard cap for per-strategy detachment lock override (aligned with manager's 6 days bound).
      * @dev Keep in sync with the manager-side maximum.
      */
@@ -138,15 +137,7 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
      * @return lockEnd    The timestamp when the lock window ends; equals `epochStart + duration`
      *                    (or `epochStart` when duration is zero).
      */
-    function dettachLockWindowInfo()
-        public
-        view
-        returns (
-            bool locked,
-            uint256 epochStart,
-            uint256 lockEnd
-        )
-    {
+    function dettachLockWindowInfo() public view returns (bool locked, uint256 epochStart, uint256 lockEnd) {
         epochStart = (block.timestamp / WEEK) * WEEK;
         uint256 duration = detachmentLockDuration;
 
@@ -154,7 +145,7 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
             duration = IManagedNFTManager(managedNFTManager).defaultDetachmentLockDuration();
         }
 
-        if(duration == 0) {
+        if (duration == 0) {
             return (false, epochStart, epochStart);
         }
 
@@ -188,7 +179,7 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
      */
     function onDettach(uint256 tokenId_, uint256 userBalance_) external override onlyManagedNFTManager returns (uint256 lockedRewards) {
         (bool locked, , uint256 lockEnd) = dettachLockWindowInfo();
-        if(locked) {
+        if (locked) {
             revert DettachLockWindowActive(lockEnd);
         }
 
@@ -367,14 +358,14 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
 
     /**
      * @notice Set the per-strategy detachment lock duration.
-     * @dev 
+     * @dev
      * - Set to 0 to fall back to the manager default.
      * - Must not exceed {STRATEGY_MAX_DETACH_LOCK_DURATION}.
      * - Emits {SetDetachmentLockDuration}.
      * @param newDuration_ New duration in seconds (0 = use manager default).
      */
     function setDetachmentLockDuration(uint256 newDuration_) external onlyAdmin {
-        if(newDuration_ > STRATEGY_MAX_DETACH_LOCK_DURATION) {
+        if (newDuration_ > STRATEGY_MAX_DETACH_LOCK_DURATION) {
             revert DetachmentLockDurationTooLong(newDuration_, STRATEGY_MAX_DETACH_LOCK_DURATION);
         }
         uint256 old = detachmentLockDuration;
