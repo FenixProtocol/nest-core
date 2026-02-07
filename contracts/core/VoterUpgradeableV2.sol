@@ -88,7 +88,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     /// @notice Current index used in reward distribution calculations.
     uint256 public index;
 
-    /// @notice Delay period before a vote can be cast again.
+    /// @notice Delay period before a vote can be cast again. DEPRECATED!!!
     uint256 public voteDelay;
 
     /// @notice Duration of the distribution window, in seconds.
@@ -728,7 +728,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             if (bribesByTokenId_.bribes.length > 0) {
                 claimBribes(bribesByTokenId_.bribes, bribesByTokenId_.tokens, bribesByTokenId_.tokenId);
             }
-            
+
             _claimBlazeRewardsFor(_msgSender(), blaze_);
 
             if (splitMerklAidrop_.amount > 0) {
@@ -991,10 +991,10 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
      * @param blaze_ The parameters for Blaze-based claiming.
      */
     function _claimBlazeRewardsFor(address target_, AggregateClaimBlazeDataParams calldata blaze_) internal {
-        if(blaze_.totalAmount > 0) {
+        if (blaze_.totalAmount > 0) {
             IGaugeRewarder rewarder = IGaugeRewarder(gaugeRewarder);
             uint256 claimed = rewarder.claimed(target_);
-            if(blaze_.totalAmount > claimed) {
+            if (blaze_.totalAmount > claimed) {
                 IGaugeRewarder(gaugeRewarder).claimFor(target_, blaze_.totalAmount, blaze_.deadline, blaze_.signature);
             }
         }
@@ -1048,7 +1048,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
      * @custom:error VoteDelay Thrown if the required delay period has not passed.
      */
     function _checkVoteDelay(uint256 tokenId_) internal view {
-        if (block.timestamp < lastVotedTimestamps[tokenId_] + voteDelay) {
+        if (block.timestamp < lastVotedTimestamps[tokenId_]) {
             revert VoteDelay();
         }
     }
