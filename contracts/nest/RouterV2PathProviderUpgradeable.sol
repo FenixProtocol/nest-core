@@ -67,7 +67,7 @@ contract RouterV2PathProviderUpgradeable is IRouterV2PathProvider, Ownable2StepU
     error RouteAlreadyExist();
 
     error AddressZero();
-    
+
     /**
      * @notice Disables initialization on the implementation to prevent proxy issues.
      * @dev Constructor sets up non-initializable pattern for proxy use.
@@ -86,7 +86,7 @@ contract RouterV2PathProviderUpgradeable is IRouterV2PathProvider, Ownable2StepU
     function initialize(address factory_, address router_) external initializer {
         _checkAddressZero(factory_);
         _checkAddressZero(router_);
-        
+
         __Ownable2Step_init();
 
         factory = factory_;
@@ -227,32 +227,32 @@ contract RouterV2PathProviderUpgradeable is IRouterV2PathProvider, Ownable2StepU
             }
         }
 
-        IRouterV2.route[] memory singelRoute = new IRouterV2.route[](1);
-        uint256 amountOutStabel;
+        IRouterV2.route[] memory singleRoute = new IRouterV2.route[](1);
+        uint256 amountOutStable;
         uint256 amountOutVolatility;
 
         if (factoryCache.getPair(inputToken_, outputToken_, true) != address(0)) {
-            singelRoute[0] = IRouterV2.route({from: inputToken_, to: outputToken_, stable: true});
-            try routerCache.getAmountsOut(amountIn_, singelRoute) returns (uint256[] memory amountsOut) {
-                amountOutStabel = amountsOut[1];
+            singleRoute[0] = IRouterV2.route({from: inputToken_, to: outputToken_, stable: true});
+            try routerCache.getAmountsOut(amountIn_, singleRoute) returns (uint256[] memory amountsOut) {
+                amountOutStable = amountsOut[1];
             } catch {}
         }
 
         if (factoryCache.getPair(inputToken_, outputToken_, false) != address(0)) {
-            singelRoute[0] = IRouterV2.route({from: inputToken_, to: outputToken_, stable: false});
-            try routerCache.getAmountsOut(amountIn_, singelRoute) returns (uint256[] memory amountsOut) {
+            singleRoute[0] = IRouterV2.route({from: inputToken_, to: outputToken_, stable: false});
+            try routerCache.getAmountsOut(amountIn_, singleRoute) returns (uint256[] memory amountsOut) {
                 amountOutVolatility = amountsOut[1];
             } catch {}
         }
 
-        if (amountOutVolatility >= amountOutStabel && amountOutVolatility >= bestMultiRouteAmountOut) {
+        if (amountOutVolatility >= amountOutStable && amountOutVolatility >= bestMultiRouteAmountOut) {
             if (amountOutVolatility == 0) {
                 return (new IRouterV2.route[](0), 0);
             }
-            return (singelRoute, amountOutVolatility);
-        } else if (amountOutStabel >= amountOutVolatility && amountOutStabel >= bestMultiRouteAmountOut) {
-            singelRoute[0] = IRouterV2.route({from: inputToken_, to: outputToken_, stable: true});
-            return (singelRoute, amountOutStabel);
+            return (singleRoute, amountOutVolatility);
+        } else if (amountOutStable >= amountOutVolatility && amountOutStable >= bestMultiRouteAmountOut) {
+            singleRoute[0] = IRouterV2.route({from: inputToken_, to: outputToken_, stable: true});
+            return (singleRoute, amountOutStable);
         } else {
             return (routesTokenToToken[index], bestMultiRouteAmountOut);
         }
