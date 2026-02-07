@@ -52,8 +52,6 @@ contract PairAPIUpgradeable is OwnableUpgradeable {
         uint account_gauge_balance; // account pair staked in gauge balance
         uint account_gauge_total_weight; // account pair total Weight of all NFT gauge
         uint account_gauge_earned; // account earned emissions for this pair
-        uint _a0Expect;
-        uint _a1Expect;
     }
 
     struct tokenBribe {
