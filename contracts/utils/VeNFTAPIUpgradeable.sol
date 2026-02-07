@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.19;
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {IERC20Upgradeable, IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
+import {
+    IERC20Upgradeable,
+    IERC20MetadataUpgradeable
+} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721EnumerableUpgradeable.sol";
 
 import "../core/interfaces/IVoter.sol";
@@ -104,7 +107,7 @@ contract VeNFTAPIUpgradeable is OwnableUpgradeable {
         address _owner;
 
         for (i; i < _offset + _amounts; i++) {
-            _owner = ve.ownerOf(i);
+            _owner = _getOwnerOfNFT(ve, i);
             // if id_i has owner read data
             if (_owner != address(0)) {
                 _veNFT[i - _offset] = _getNFTFromId(i, _owner);
@@ -113,7 +116,7 @@ contract VeNFTAPIUpgradeable is OwnableUpgradeable {
     }
 
     function getNFTFromId(uint256 id) external view returns (veNFT memory) {
-        return _getNFTFromId(id, ve.ownerOf(id));
+        return _getNFTFromId(id, _getOwnerOfNFT(ve, id));
     }
 
     function getNFTFromAddress(address _user) external view returns (veNFT[] memory venft) {
@@ -178,8 +181,9 @@ contract VeNFTAPIUpgradeable is OwnableUpgradeable {
 
     function getNFTFromIds(uint256[] memory ids_) public view returns (veNFT[] memory veNFTs) {
         veNFTs = new veNFT[](ids_.length);
+        IVotingEscrow votingEscrowCache = ve;
         for (uint256 i; i < ids_.length; i++) {
-            veNFTs[i] = _getNFTFromId(ids_[i], ve.ownerOf(ids_[i]));
+            veNFTs[i] = _getNFTFromId(ids_[i], _getOwnerOfNFT(votingEscrowCache, ids_[i]));
         }
     }
 
@@ -228,7 +232,7 @@ contract VeNFTAPIUpgradeable is OwnableUpgradeable {
             uint256 mTokenId = managedNFTManagerCache.getAttachedManagedTokenId(tokenId);
             if (mTokenId > 0) {
                 array[i].attachedManagedTokenId = mTokenId;
-                array[i].strategy = IERC721EnumerableUpgradeable(address(votingEscrowCache)).ownerOf(mTokenId);
+                array[i].strategy = _getOwnerOfNFT(votingEscrowCache, mTokenId);
 
                 if (array[i].strategy.code.length > 0) {
                     ICompoundVeNESTManagedNFTStrategy strategy = ICompoundVeNESTManagedNFTStrategy(array[i].strategy);
@@ -256,6 +260,14 @@ contract VeNFTAPIUpgradeable is OwnableUpgradeable {
             unchecked {
                 i++;
             }
+        }
+    }
+
+    function _getOwnerOfNFT(IVotingEscrow votingEscrow, uint256 tokenId) internal view returns (address) {
+        try votingEscrow.ownerOf(tokenId) returns (address result) {
+            return result;
+        } catch {
+            return address(0);
         }
     }
 
