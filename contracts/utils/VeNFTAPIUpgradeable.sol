@@ -9,10 +9,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721Enume
 
 import "../core/interfaces/IVoter.sol";
 import "../core/interfaces/IVotingEscrow.sol";
-import "../dexV2/interfaces/IPairFactory.sol";
-import "../dexV2/interfaces/IPair.sol";
-import "../gauges/interfaces/IGauge.sol";
-import "../bribes/interfaces/IBribe.sol";
 import "../nest/interfaces/ISingelTokenVirtualRewarder.sol";
 import "../nest/interfaces/ICompoundVeNESTManagedNFTStrategy.sol";
 
