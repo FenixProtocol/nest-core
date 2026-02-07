@@ -2,7 +2,10 @@
 pragma solidity =0.8.19;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {IERC20Upgradeable, IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
+import {
+    IERC20Upgradeable,
+    IERC20MetadataUpgradeable
+} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 import "../core/interfaces/IVoter.sol";
 import "../core/interfaces/IVotingEscrow.sol";
@@ -314,7 +317,7 @@ contract PairAPIUpgradeable is OwnableUpgradeable {
 
         // scan bribes
         // get latest balance and epoch start for bribes
-        uint _epochStartTimestamp = bribe.firstBribeTimestamp();
+        uint _epochStartTimestamp = bribe.firstBribeTimestamp() + (_offset * WEEK);
 
         // if 0 then no bribe created so far
         if (_epochStartTimestamp == 0) {
@@ -322,14 +325,12 @@ contract PairAPIUpgradeable is OwnableUpgradeable {
         }
 
         uint _supply;
-        uint i = _offset;
-
-        for (i; i < _offset + _amounts; i++) {
+        for (uint i; i < _amounts; i++) {
             _supply = bribe.totalSupplyAt(_epochStartTimestamp);
-            _pairEpoch[i - _offset].epochTimestamp = _epochStartTimestamp;
-            _pairEpoch[i - _offset].pair = _pair;
-            _pairEpoch[i - _offset].totalVotes = _supply;
-            _pairEpoch[i - _offset].bribes = _bribe(_epochStartTimestamp, address(bribe));
+            _pairEpoch[i].epochTimestamp = _epochStartTimestamp;
+            _pairEpoch[i].pair = _pair;
+            _pairEpoch[i].totalVotes = _supply;
+            _pairEpoch[i].bribes = _bribe(_epochStartTimestamp, address(bribe));
 
             _epochStartTimestamp += WEEK;
         }
