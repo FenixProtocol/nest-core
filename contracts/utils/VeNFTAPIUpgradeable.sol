@@ -38,35 +38,14 @@ contract VeNFTAPIUpgradeable is OwnableUpgradeable {
         uint256 attachedManagedNFTTokenId;
     }
 
-    struct Reward {
-        uint256 id;
-        uint256 amount;
-        uint8 decimals;
-        address pair;
-        address token;
-        address fee;
-        address bribe;
-        string symbol;
-    }
-
     uint256 public constant MAX_RESULTS = 1000;
-    uint256 public constant MAX_PAIRS = 30;
     uint256 internal constant _WEEK = 86400 * 7;
 
     IVoter public voter;
-    address public underlyingToken;
-
-    mapping(address => bool) public notReward;
 
     IVotingEscrow public ve;
 
-    address public pairAPI;
-
     IManagedNFTManager public managedNFTManager;
-
-    struct AllPairRewards {
-        Reward[] rewards;
-    }
 
     constructor() {
         _disableInitializers();
@@ -78,9 +57,6 @@ contract VeNFTAPIUpgradeable is OwnableUpgradeable {
         voter = IVoter(_voter);
 
         ve = IVotingEscrow(voter.votingEscrow());
-        underlyingToken = IVotingEscrow(ve).token();
-
-        notReward[address(0x0)] = true;
     }
 
     function setManagedNFTManager(IManagedNFTManager managedNFTManager_) external onlyOwner {
@@ -89,10 +65,6 @@ contract VeNFTAPIUpgradeable is OwnableUpgradeable {
 
     function setVoter(address _voter) external onlyOwner {
         voter = IVoter(_voter);
-    }
-
-    function setPairAPI(address _pairApi) external onlyOwner {
-        pairAPI = _pairApi;
     }
 
     function getAllNFT(uint256 _amounts, uint256 _offset) external view returns (veNFT[] memory _veNFT) {
