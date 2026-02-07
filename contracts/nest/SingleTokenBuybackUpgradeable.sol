@@ -6,14 +6,14 @@ import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-u
 
 import {IRouterV2} from "../dexV2/interfaces/IRouterV2.sol";
 import {IRouterV2PathProvider} from "./interfaces/IRouterV2PathProvider.sol";
-import {ISingelTokenBuyback} from "./interfaces/ISingelTokenBuyback.sol";
+import {ISingleTokenBuyback} from "./interfaces/ISingleTokenBuyback.sol";
 
 /**
  * @title Single Token Buyback Upgradeable Contract
  * @notice Implements token buyback functionality using DEX V2 Router.
  * @dev This contract uses an upgradeable pattern along with the SafeERC20 library for token interactions.
  */
-abstract contract SingelTokenBuybackUpgradeable is ISingelTokenBuyback, Initializable {
+abstract contract SingleTokenBuybackUpgradeable is ISingleTokenBuyback, Initializable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**

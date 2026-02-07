@@ -8,8 +8,8 @@ import {
   Pair,
   RouterV2,
   RouterV2PathProviderUpgradeable,
-  SingelTokenBuybackUpgradeableMock,
-  SingelTokenBuybackUpgradeableMock__factory,
+  SingleTokenBuybackUpgradeableMock,
+  SingleTokenBuybackUpgradeableMock__factory,
 } from '../../typechain-types';
 import { ERRORS, ONE_ETHER, ZERO, ZERO_ADDRESS } from '../utils/constants';
 import completeFixture, {
@@ -20,13 +20,13 @@ import completeFixture, {
   getSigners,
 } from '../utils/coreFixture';
 
-describe('SingelTokenBuybackUpgradeable Contract', function () {
+describe('SingleTokenBuybackUpgradeable Contract', function () {
   let signers: SignersList;
 
   let pathProvider: RouterV2PathProviderUpgradeable;
-  let factory: SingelTokenBuybackUpgradeableMock__factory;
-  let singelTokenBuyback: SingelTokenBuybackUpgradeableMock;
-  let singelTokenBuybackImpl: SingelTokenBuybackUpgradeableMock;
+  let factory: SingleTokenBuybackUpgradeableMock__factory;
+  let singelTokenBuyback: SingleTokenBuybackUpgradeableMock;
+  let singelTokenBuybackImpl: SingleTokenBuybackUpgradeableMock;
 
   let deployed: CoreFixtureDeployed;
 
@@ -90,15 +90,15 @@ describe('SingelTokenBuybackUpgradeable Contract', function () {
     routerV2 = await ethers.deployContract('RouterV2', [deployed.v2PairFactory.target, ethers.Wallet.createRandom()]);
     await pathProvider.initialize(deployed.v2PairFactory.target, routerV2.target);
 
-    factory = await ethers.getContractFactory('SingelTokenBuybackUpgradeableMock');
+    factory = await ethers.getContractFactory('SingleTokenBuybackUpgradeableMock');
     singelTokenBuybackImpl = await factory.deploy();
 
     singelTokenBuyback = (await ethers.getContractAt(
-      'SingelTokenBuybackUpgradeableMock',
+      'SingleTokenBuybackUpgradeableMock',
       (
         await deployTransaperntUpgradeableProxy(signers.deployer, signers.proxyAdmin.address, await singelTokenBuybackImpl.getAddress())
       ).target,
-    )) as any as SingelTokenBuybackUpgradeableMock;
+    )) as any as SingleTokenBuybackUpgradeableMock;
 
     await singelTokenBuyback.initialize(pathProvider.target, FENIX.target);
   });

@@ -831,7 +831,7 @@ import { ethers } from 'hardhat';
 import {
   ERC20Mock,
   MinterUpgradeable,
-  SingelTokenBuybackUpgradeableMock__factory,
+  SingleTokenBuybackUpgradeableMock__factory,
   VoterUpgradeableV2,
   VotingEscrowUpgradeableV2,
 } from '../../../typechain-types';

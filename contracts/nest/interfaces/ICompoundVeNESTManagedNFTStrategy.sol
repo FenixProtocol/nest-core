@@ -2,14 +2,14 @@
 pragma solidity >=0.8.0;
 
 import {IManagedNFTStrategy} from "./IManagedNFTStrategy.sol";
-import {ISingelTokenBuyback} from "./ISingelTokenBuyback.sol";
+import {ISingleTokenBuyback} from "./ISingleTokenBuyback.sol";
 
 /**
  * @title ICompoundVeNESTManagedNFTStrategy
  * @dev Interface for a compound strategy specific to VeNEST tokens, extending the basic managed NFT strategy functionality.
  * @notice This interface provides functionalities to handle compounding of VeNEST token rewards and interactions with a virtual rewarder contract.
  */
-interface ICompoundVeNESTManagedNFTStrategy is IManagedNFTStrategy, ISingelTokenBuyback {
+interface ICompoundVeNESTManagedNFTStrategy is IManagedNFTStrategy, ISingleTokenBuyback {
     /**
      * @dev Emitted when rewards are compounded by the caller.
      *
@@ -63,7 +63,7 @@ interface ICompoundVeNESTManagedNFTStrategy is IManagedNFTStrategy, ISingelToken
      */
     event SetRouterV2PathProvider(address indexed oldRouterV2PathProvider, address indexed newRouterV2PathProvider);
 
-    /** 
+    /**
      * @notice Emitted when the per-strategy detachment lock duration is updated.
      * @param previousDuration Previous duration in seconds (0 means "use manager default").
      * @param newDuration      New duration in seconds (0 means "use manager default").
@@ -175,10 +175,5 @@ interface ICompoundVeNESTManagedNFTStrategy is IManagedNFTStrategy, ISingelToken
      * @param virtualRewarder_ Address of the virtual rewarder contract.
      * @param name_ Name of the strategy.
      */
-    function initialize(
-        address managedNFTManager_,
-        address virtualRewarder_,
-        address routerV2PathProvider_,
-        string memory name_
-    ) external;
+    function initialize(address managedNFTManager_, address virtualRewarder_, address routerV2PathProvider_, string memory name_) external;
 }

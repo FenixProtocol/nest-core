@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.19;
 
-import {SingelTokenBuybackUpgradeable} from "../nest/SingelTokenBuybackUpgradeable.sol";
+import {SingleTokenBuybackUpgradeable} from "../nest/SingleTokenBuybackUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract SingelTokenBuybackUpgradeableMock is OwnableUpgradeable, SingelTokenBuybackUpgradeable {
+contract SingleTokenBuybackUpgradeableMock is OwnableUpgradeable, SingleTokenBuybackUpgradeable {
     address public token;
 
     function initialize(address pathProivderV2_, address targetToken_) external initializer {

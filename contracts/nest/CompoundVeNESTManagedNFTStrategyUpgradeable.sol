@@ -9,7 +9,7 @@ import {IERC721EnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/
 import {IVotingEscrow} from "../core/interfaces/IVotingEscrow.sol";
 import {ISingelTokenVirtualRewarder} from "./interfaces/ISingelTokenVirtualRewarder.sol";
 import {ICompoundVeNESTManagedNFTStrategy} from "./interfaces/ICompoundVeNESTManagedNFTStrategy.sol";
-import {IRouterV2PathProvider, SingelTokenBuybackUpgradeable} from "./SingelTokenBuybackUpgradeable.sol";
+import {IRouterV2PathProvider, SingleTokenBuybackUpgradeable} from "./SingleTokenBuybackUpgradeable.sol";
 import {LibStrategyFlags} from "./libraries/LibStrategyFlags.sol";
 
 /**
@@ -22,7 +22,7 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
     ICompoundVeNESTManagedNFTStrategy,
     IERC721ReceiverUpgradeable,
     BaseManagedNFTStrategyUpgradeable,
-    SingelTokenBuybackUpgradeable
+    SingleTokenBuybackUpgradeable
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -540,7 +540,7 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
      *      Overridden from multiple parents to unify the zero-address check logic.
      * @param addr_ The address to check.
      */
-    function _checkAddressZero(address addr_) internal pure override(BaseManagedNFTStrategyUpgradeable, SingelTokenBuybackUpgradeable) {
+    function _checkAddressZero(address addr_) internal pure override(BaseManagedNFTStrategyUpgradeable, SingleTokenBuybackUpgradeable) {
         if (addr_ == address(0)) {
             revert AddressZero();
         }

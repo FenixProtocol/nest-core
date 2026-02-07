@@ -12,7 +12,7 @@ It is one of the strategies to optimize the voting process and manage managed ve
 ## CompoundVeNESTManagedNFTStrategy-SingelTokenVirtualRewarderUpgradeable
 The Single Token Virtual Rewarder Upgradeable contract is designed to manage token rewards in a virtualized system where balances and rewards are tracked over epochs using checkpoints.
 
-## CompoundVeNESTManagedNFTStrategy-SingelTokenBuybackUpgradeable
+## CompoundVeNESTManagedNFTStrategy-SingleTokenBuybackUpgradeable
 The Single Token Buyback Upgradeable contract is designed to handle the buyback of a specific token using funds from another token. This process involves trading tokens on a decentralized exchange (DEX) using pre-defined routes to maximize efficiency and value retention during the transaction.
 
 ## RouterV2PathProviderUpgradeable

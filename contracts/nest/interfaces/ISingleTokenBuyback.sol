@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import {IRouterV2} from "../../dexV2/interfaces/IRouterV2.sol";
 
-interface ISingelTokenBuyback {
+interface ISingleTokenBuyback {
     event BuybackTokenByV2(
         address indexed caller,
         address indexed inputToken,
