@@ -33,11 +33,6 @@ contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgrad
     error NotManagedNFT();
 
     /**
-     * @dev Error indicating an attempt to reattach an NFT that is already attached to a managed token.
-     */
-    error AlreadyAttached();
-
-    /**
      * @dev Error indicating a mismatch or incorrect association between user NFTs and managed tokens.
      */
     error IncorrectUserNFT();
@@ -111,8 +106,8 @@ contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgrad
      * @dev Strategies should read this value as the baseline window unless an explicit per-strategy override applies.
      */
     uint256 public override defaultDetachmentLockDuration;
-    
-    /** 
+
+    /**
      * @notice Upper bound for the default detachment-lock duration: 6 days.
      * @dev Used as a hard cap in {setDefaultDetachmentLockDuration}.
      */
@@ -171,10 +166,7 @@ contract ManagedNFTManagerUpgradeable is IManagedNFTManager, AccessControlUpgrad
      * - Emits {SetDefaultDetachmentLockDuration} on success.
      * @param newDuration_ The new default lock duration, in seconds.
      */
-    function setDefaultDetachmentLockDuration(uint256 newDuration_)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function setDefaultDetachmentLockDuration(uint256 newDuration_) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (newDuration_ > _MAX_DETACHMENT_LOCK_DURATION) {
             revert DetachmentLockDurationTooLong(newDuration_, _MAX_DETACHMENT_LOCK_DURATION);
         }
