@@ -80,9 +80,7 @@ contract PairAPIUpgradeable is OwnableUpgradeable {
 
     address public underlyingToken;
 
-    event Owner(address oldOwner, address newOwner);
     event Voter(address oldVoter, address newVoter);
-    event WBF(address oldWBF, address newWBF);
 
     constructor() {
         _disableInitializers();
