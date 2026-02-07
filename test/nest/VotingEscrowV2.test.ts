@@ -1559,8 +1559,9 @@ describe('VotingEscrowV2 Contract', function () {
             expect(await votingEscrow.balanceOfNftIgnoreOwnershipChange(managedNftId)).to.be.deep.eq(0);
           });
           it('should fail if already attached nft to strategy', async () => {
+
             await expect(managedNFTManager.createManagedNFT(strategy.target)).to.be.revertedWithCustomError(
-              managedNFTManager,
+              strategy,
               'AlreadyAttached',
             );
           });
