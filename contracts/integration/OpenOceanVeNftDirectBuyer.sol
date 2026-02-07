@@ -2,7 +2,6 @@
 pragma solidity =0.8.19;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
@@ -53,7 +52,7 @@ contract OpenOceanVeNftDirectBuyer is IOpenOceanVeNftDirectBuyer, Ownable {
     error InvalidDstReceiver();
 
     error AddressZero();
-    
+
     /**
      * @notice Initializes the contract with required addresses.
      * @param votingEscrow_ Address of the VotingEscrow contract.
