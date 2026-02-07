@@ -82,7 +82,7 @@ contract GetInformationAggregatorUpgradeable {
         uint256 offset_
     ) external view returns (TokenVotesPerEpoch[] memory result) {
         IExtendVoter voter = IExtendVoter(registry[AddressKey.VOTER]);
-        IVotingEscrow votingEscow = IVotingEscrow(registry[AddressKey.VOTING_ESCROW]);
+        IVotingEscrow votingEscrow = IVotingEscrow(registry[AddressKey.VOTING_ESCROW]);
         IManagedNFTManager managedNftManager = IManagedNFTManager(registry[AddressKey.MANAGED_NFT_MANAGER]);
 
         require(epoch_ % WEEK == 0, "invalid epoch");
@@ -109,16 +109,16 @@ contract GetInformationAggregatorUpgradeable {
         for (uint256 i; i < tokenIds_.length; i++) {
             TokenVotesPerEpoch memory info;
             info.tokenId = tokenIds_[i];
-            IVotingEscrow.LockedBalance memory locked = votingEscow.getNftState(info.tokenId).locked;
+            IVotingEscrow.LockedBalance memory locked = votingEscrow.getNftState(info.tokenId).locked;
             info.isPermanentLocked = locked.isPermanentLocked;
             info.end = locked.end;
             info.isManagedNFT = managedNftManager.isManagedNFT(info.tokenId);
-            info.currentEpochTokenVotePower = votingEscow.balanceOfNftIgnoreOwnershipChange(info.tokenId);
+            info.currentEpochTokenVotePower = votingEscrow.balanceOfNftIgnoreOwnershipChange(info.tokenId);
             info.lastVotedTimestamp = voter.lastVotedTimestamps(info.tokenId);
             info.isAttached = managedNftManager.isAttachedNFT(info.tokenId);
             info.sumWeightFromBribe;
-            try votingEscow.ownerOf(info.tokenId) returns (address) {
-                info.currentOwner = votingEscow.ownerOf(info.tokenId);
+            try votingEscrow.ownerOf(info.tokenId) returns (address) {
+                info.currentOwner = votingEscrow.ownerOf(info.tokenId);
                 info.exists = true;
             } catch {}
             if (info.exists) {
@@ -171,13 +171,13 @@ contract GetInformationAggregatorUpgradeable {
         uint256 poolsCount;
         uint256 totalWeightsPerEpoch;
         uint256 epoch;
-        uint256 emisisonPerEpoch;
+        uint256 emissionPerEpoch;
         PoolEpochVoteInfo[] poolsEpochVoteInfo;
     }
 
     function getGeneralVotesPerEpoch(
         uint256 epoch_,
-        uint256 emisisonPerEpoch_,
+        uint256 emissionPerEpoch_,
         uint256 limit_,
         uint256 offset_
     ) external view returns (PoolsEpochVoteInfoGeneral memory result) {
@@ -200,7 +200,7 @@ contract GetInformationAggregatorUpgradeable {
 
         result.poolsCount = totalCount;
         result.totalWeightsPerEpoch = voter.totalWeightsPerEpoch(epoch_);
-        result.emisisonPerEpoch = emisisonPerEpoch_;
+        result.emissionPerEpoch = emissionPerEpoch_;
         result.epoch = epoch_;
         result.poolsEpochVoteInfo = new PoolEpochVoteInfo[](size);
 
@@ -210,7 +210,7 @@ contract GetInformationAggregatorUpgradeable {
             info.gauge = voter.poolToGauge(info.pool);
             info.weightsPerEpoch = voter.weightsPerEpoch(epoch_, info.pool);
             info.name = _getPoolName(pairFactory, info.pool);
-            info.emissionToGauge = (info.weightsPerEpoch * emisisonPerEpoch_) / result.totalWeightsPerEpoch;
+            info.emissionToGauge = (info.weightsPerEpoch * emissionPerEpoch_) / result.totalWeightsPerEpoch;
 
             IVoter.GaugeState memory state = voter.getGaugeState(info.gauge);
             IBribe internalBribe = IBribe(state.internalBribe);
