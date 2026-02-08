@@ -113,8 +113,16 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
      */
     error InsufficientAvailableBalance();
 
+    /**
+     * @dev Error thrown when an invalid amount is provided for a claim.
+     */
+    error InvalidAmountToClaim();
+
+    /**
+     * @dev Error thrown when an address is zero.
+     */
     error AddressZero();
-    
+
     /**
      * @dev Modifier to restrict access to either a gauge or an authorized rewarder.
      */
@@ -269,7 +277,13 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
         ) {
             revert InvalidSignature();
         }
+
         reward = totalAmount_ - claimedAmount;
+
+        // to prevent donation attack
+        if (totalRewardDistributed < reward + totalRewardClaimed) {
+            revert InvalidAmountToClaim();
+        }
 
         claimed[target_] = totalAmount_;
 

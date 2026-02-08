@@ -451,6 +451,15 @@ describe('GaugeRewarder Contract', function () {
           'InvalidSignature',
         );
       });
+      it('fail if hacker will try to donate token to the rewarder sc and execute claim before reward', async () => {
+        const donateAmount = ethers.parseEther('0.1');
+        await fenix.transfer(instance.target, donateAmount);
+        await instance.grantRole(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address);
+        await instance.setSigner(signers.deployer.address);
+        const deadline = (await time.latest()) + 100;
+        let signature = await createSignature(signers.deployer, signers.otherUser1.address, donateAmount, deadline);
+        await expect(instance.claimFor(signers.otherUser1.address, donateAmount, deadline, signature)).to.be.revertedWithCustomError(instance, 'InvalidAmountToClaim');
+      });
     });
 
     describe('success claim', async () => {
