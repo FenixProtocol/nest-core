@@ -141,6 +141,11 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Ree
     error TargetPoolGaugeIsKilled();
 
     /**
+     * @notice Thrown when attempting to compound emissions for a gauge that is not alive.
+     */
+    error GaugeIsNotAlive();
+
+    /**
      * @dev Restricts execution to addresses holding the specified role in the Voter contract.
      * @param role_ The role required for the function call.
      */
@@ -553,24 +558,11 @@ contract CompoundEmissionExtensionUpgradeable is ICompoundEmissionExtension, Ree
                 TargetPool memory targetPool = targetBribePools[i];
                 address gauge = voterCache.poolToGauge(targetPool.pool);
                 uint256 amount = (targetPool.percentage * toTargetBribePools) / _PRECISION;
-
-                if (voterCache.isAlive(gauge)) {
-                    address externalBribe = voterCache.getGaugeState(gauge).externalBribe;
-                    tokenCache.forceApprove(externalBribe, amount);
-                    IBribe(externalBribe).notifyRewardAmount(address(tokenCache), amount);
-                    emit CompoundEmissionToBribePool(claimParams_.target, targetPool.pool, amount);
-                } else {
-                    tokenCache.forceApprove(address(votingEscrowCache), amount);
-                    uint256 tokenId = votingEscrowCache.createLockFor(
-                        amount,
-                        userCreateLockConfig.lockDuration,
-                        claimParams_.target,
-                        userCreateLockConfig.shouldBoosted,
-                        userCreateLockConfig.withPermanentLock,
-                        userCreateLockConfig.managedTokenIdForAttach
-                    );
-                    emit CreateLockFromCompoundEmissionForBribePools(claimParams_.target, targetPool.pool, tokenId, amount);
-                }
+                if (!voterCache.isAlive(gauge)) revert GaugeIsNotAlive();
+                address externalBribe = voterCache.getGaugeState(gauge).externalBribe;
+                tokenCache.forceApprove(externalBribe, amount);
+                IBribe(externalBribe).notifyRewardAmount(address(tokenCache), amount);
+                emit CompoundEmissionToBribePool(claimParams_.target, targetPool.pool, amount);
 
                 unchecked {
                     i++;

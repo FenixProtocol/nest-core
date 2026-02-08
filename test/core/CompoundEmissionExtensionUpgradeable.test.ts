@@ -2222,7 +2222,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
           expect(rewardData.rewardsPerEpoch).to.be.eq(ethers.parseEther('60'));
         });
 
-        it('user 1 setup 60% to two one lock, and setup 40% to two pools, [60, 40], but second pool was killed, should create new lock from this emission, according to create lock config', async () => {
+        it('user 1 setup 60% to two one lock, and setup 40% to two pools, [60, 40], but second pool was killed, should revert with GaugeIsNotAlive', async () => {
           await Fenix.connect(signers.otherUser1).approve(Voter, ethers.MaxUint256);
           await Fenix.connect(signers.otherUser2).approve(Voter, ethers.MaxUint256);
 
@@ -2268,56 +2268,13 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
 
           let lastMintedTokenId = await VotingEscrow.lastMintedTokenId();
 
-          let tx = await CompoundEmissionExtension.compoundEmissionClaimBatch([
+          await expect(CompoundEmissionExtension.compoundEmissionClaimBatch([
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
               blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
             },
-          ]);
-
-          expect(await VotingEscrow.lastMintedTokenId()).to.be.eq(lastMintedTokenId + 1n);
-
-          await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
-          await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge2, signers.otherUser1, ethers.parseEther('100'));
-
-          expect(await Fenix.balanceOf(signers.otherUser1)).to.be.eq(0);
-
-          await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(signers.otherUser1, Voter, ethers.parseEther('200'));
-          await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(Voter, CompoundEmissionExtension, ethers.parseEther('200'));
-          await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(CompoundEmissionExtension, VotingEscrow, ethers.parseEther('120'));
-          await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(CompoundEmissionExtension, VotingEscrow, ethers.parseEther('48'));
-          await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(CompoundEmissionExtension, pool2.externalBribe, ethers.parseEther('32'));
-
-          await expect(tx).to.be.not.emit(pool1.externalBribe, 'RewardAdded');
-          await expect(tx).to.be.emit(pool2.externalBribe, 'RewardAdded').withArgs(Fenix, ethers.parseEther('32'), currentEpoch);
-          expect(await Fenix.balanceOf(pool1.externalBribe)).to.be.eq(0);
-          expect(await Fenix.balanceOf(pool2.externalBribe)).to.be.eq(ethers.parseEther('32'));
-
-          await expect(tx)
-            .to.be.emit(CompoundEmissionExtension, 'CreateLockFromCompoundEmissionForBribePools')
-            .withArgs(signers.otherUser1, pool1.address, lastMintedTokenId + 1n, ethers.parseEther('48'));
-
-          await expect(tx)
-            .to.be.emit(CompoundEmissionExtension, 'CompoundEmissionToBribePool')
-            .withArgs(signers.otherUser1, pool2.address, ethers.parseEther('32'));
-
-          await expect(tx)
-            .to.be.emit(CompoundEmissionExtension, 'CompoundEmissionToTargetLock')
-            .withArgs(signers.otherUser1, 1, ethers.parseEther('120'));
-
-          expect((await VotingEscrow.getNftState(1)).locked.amount).to.be.eq(ethers.parseEther('121'));
-
-          expect((await VotingEscrow.getNftState(lastMintedTokenId + 1n)).locked.amount).to.be.eq(ethers.parseEther('48'));
-          expect((await VotingEscrow.getNftState(lastMintedTokenId + 1n)).locked.isPermanentLocked).to.be.true;
-
-          expect(await VotingEscrow.ownerOf(lastMintedTokenId + 1n)).to.be.eq(signers.otherUser1);
-
-          rewardData = await pool1.externalBribe.rewardData(Fenix, currentEpoch);
-          expect(rewardData.rewardsPerEpoch).to.be.eq(0);
-
-          rewardData = await pool2.externalBribe.rewardData(Fenix, currentEpoch);
-          expect(rewardData.rewardsPerEpoch).to.be.eq(ethers.parseEther('32'));
+          ])).to.be.revertedWithCustomError(CompoundEmissionExtension, 'GaugeIsNotAlive');
         });
       });
     });
