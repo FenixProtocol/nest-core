@@ -122,6 +122,11 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     /// @notice Address of the extension contract for compound emission logic.
     address public compoundEmissionExtension;
 
+    /// @notice Mapping of epoch timestamps to the index for that epoch.
+    /// @dev The index is updating while epoch is running and stop after each epoch ends.
+    /// @dev The mapping is used in _distribute() function to calculate the amount of rewards to distribute to the pools.
+    mapping(uint256 epoch => uint256) public indexPerEpoch;
+
     /*//////////////////////////////////////////////////////////////
                              Modifiers
     //////////////////////////////////////////////////////////////*/
@@ -173,6 +178,12 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         votingEscrow = votingEscrow_;
         token = IVotingEscrow(votingEscrow_).token();
         distributionWindowDuration = 3600;
+    }
+
+    function reinitialize() external onlyRole(DEFAULT_ADMIN_ROLE) reinitializer(2) {
+        // votingEscrow = votingEscrow_;
+        // token = IVotingEscrow(votingEscrow_).token();
+        // distributionWindowDuration = 3600;
     }
 
     /**
@@ -403,11 +414,13 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
 
     function notifyRewardAmount(uint256 amount_) external {
         _checkSender(minter);
-        uint256 weightAt = totalWeightsPerEpoch[epochTimestamp() - _WEEK]; // minter call notify after updates active_period, loads votes - 1 week
+        uint256 epochCache = epochTimestamp();
+        uint256 weightAt = totalWeightsPerEpoch[epochCache - _WEEK]; // minter call notify after updates active_period, loads votes - 1 week
         if (weightAt > 0) {
             IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
             index += (amount_ * 1e18) / weightAt;
         }
+        indexPerEpoch[epochCache] = index;
         emit NotifyReward(_msgSender(), token, amount_);
     }
 
@@ -839,24 +852,29 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     function _distribute(address gauge_) internal {
         GaugeState memory state = gaugesState[gauge_];
         uint256 currentTimestamp = epochTimestamp();
+        uint256 lastDistributionTimestampCache = state.lastDistributionTimestamp;
         if (state.lastDistributionTimestamp < currentTimestamp) {
-            uint256 totalVotesWeight = weightsPerEpoch[currentTimestamp - _WEEK][state.pool];
-            if (totalVotesWeight > 0) {
-                uint256 delta = index - state.index;
-                if (delta > 0) {
-                    uint256 amount = (totalVotesWeight * delta) / 1e18;
-                    if (state.isAlive) {
-                        gaugesState[gauge_].claimable += amount;
-                    } else {
-                        IERC20Upgradeable(token).safeTransfer(minter, amount);
+            for (; lastDistributionTimestampCache <= currentTimestamp - _WEEK; lastDistributionTimestampCache += _WEEK) {
+                uint256 totalVotesWeight = weightsPerEpoch[lastDistributionTimestampCache][state.pool];
+                if (totalVotesWeight > 0) {
+                    uint256 indexCache = indexPerEpoch[lastDistributionTimestampCache + _WEEK];
+                    uint256 delta = indexCache - state.index;
+                    if (delta > 0) {
+                        uint256 amount = (totalVotesWeight * delta) / 1e18;
+                        if (state.isAlive) {
+                            gaugesState[gauge_].claimable += amount;
+                        } else {
+                            IERC20Upgradeable(token).safeTransfer(minter, amount);
+                        }
                     }
+                    state.index = indexCache;
                 }
             }
             gaugesState[gauge_].index = index;
+            gaugesState[gauge_].lastDistributionTimestamp = currentTimestamp;
             uint256 claimable = gaugesState[gauge_].claimable;
             if (claimable > 0 && state.isAlive) {
                 gaugesState[gauge_].claimable = 0;
-                gaugesState[gauge_].lastDistributionTimestamp = currentTimestamp;
                 IERC20Upgradeable(token).approve(gauge_, claimable);
                 IGauge(gauge_).notifyRewardAmount(token, claimable);
                 emit DistributeReward(_msgSender(), gauge_, claimable);
@@ -880,7 +898,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             pool: pool_,
             claimable: 0,
             index: index,
-            lastDistributionTimestamp: 0
+            lastDistributionTimestamp: epochTimestamp()
         });
         poolToGauge[pool_] = gauge_;
         pools.push(pool_);

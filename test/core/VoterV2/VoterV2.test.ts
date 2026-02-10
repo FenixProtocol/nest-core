@@ -463,7 +463,7 @@ describe('VotingEscrow_V2', function () {
           expect(gaugeState.pool).to.be.eq(pair);
           expect(gaugeState.claimable).to.be.eq(0);
           expect(gaugeState.index).to.be.eq(0);
-          expect(gaugeState.lastDistributionTimestamp).to.be.eq(0);
+          expect(gaugeState.lastDistributionTimestamp).to.be.eq(await Voter.epochTimestamp());
         });
 
         it('success emit event', async () => {
