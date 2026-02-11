@@ -72,7 +72,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       etherscan: `${process.env.ETHERSCAN_API_KEY}`,
-      hyperEvm:  `${process.env.ETHERSCAN_API_KEY}`,
+      hyperEvm: `${process.env.ETHERSCAN_API_KEY}`,
       baseSepolia: `${process.env.ETHERSCAN_API_KEY}`,
     },
     customChains: [
@@ -131,6 +131,11 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       allowUnlimitedContractSize: true,
+      forking: {
+        enabled: !!process.env.FORK_ENABLED,
+        url: `https://rpc.hyperliquid.xyz/evm`,
+        blockNumber: 26999704, // Feb-11-2026 12:00:07 PM +UTC
+      },
     },
   },
   solidity: {

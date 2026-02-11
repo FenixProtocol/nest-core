@@ -321,9 +321,10 @@ describe('GaugesRewardsDistribution', function () {
       // Verify split votes
       const user1V3Pool1Votes = await voter.votes(user1TokenId, v3Pool1.target);
       const user1V2Pool1Votes = await voter.votes(user1TokenId, v2Pool1.target);
-
+      const user2V3Pool2Votes = await voter.votes(user2TokenId, v3Pool2.target);
       expect(user1V3Pool1Votes).to.be.gt(0);
       expect(user1V2Pool1Votes).to.be.gt(0);
+      expect(user2V3Pool2Votes).to.be.gt(0);
       // V3Pool1 should have more votes than V2Pool1 (60% vs 40%)
       expect(user1V3Pool1Votes).to.be.gt(user1V2Pool1Votes);
 
@@ -335,7 +336,6 @@ describe('GaugesRewardsDistribution', function () {
       const v3Pool1Weight = await voter.weightsPerEpoch(epochTimestamp, v3Pool1.target);
       const v2Pool1Weight = await voter.weightsPerEpoch(epochTimestamp, v2Pool1.target);
       const v3Pool2Weight = await voter.weightsPerEpoch(epochTimestamp, v3Pool2.target);
-
       const totalWeight = v3Pool1Weight + v2Pool1Weight + v3Pool2Weight;
       expect(totalWeight).to.be.gt(0);
     });

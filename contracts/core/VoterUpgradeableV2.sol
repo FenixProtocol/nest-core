@@ -180,10 +180,16 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         distributionWindowDuration = 3600;
     }
 
-    function reinitialize() external onlyRole(DEFAULT_ADMIN_ROLE) reinitializer(2) {
-        // votingEscrow = votingEscrow_;
-        // token = IVotingEscrow(votingEscrow_).token();
-        // distributionWindowDuration = 3600;
+    function reinitialize(uint256[] memory epochs_, uint256[] memory epochIndexes_) external onlyRole(DEFAULT_ADMIN_ROLE) reinitializer(3) {
+        if (epochs_.length != epochIndexes_.length) {
+            revert ArrayLengthMismatch();
+        }
+        for (uint256 i; i < epochs_.length; ) {
+            indexPerEpoch[epochs_[i]] = epochIndexes_[i];
+            unchecked {
+                i++;
+            }
+        }
     }
 
     /**
