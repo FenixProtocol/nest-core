@@ -175,11 +175,18 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         distributionWindowDuration = 3600;
     }
 
+    /**
+     * @notice Reinitializes the contract with the given parameters.
+     * @dev The function doesn't have access restrictions because it is called by the ProxyAdmin contract in the moment of the upgrade.
+     * @param gauges_ An array of gauge addresses.
+     * @param indexes_ An array of indexes.
+     * @param lastDistributions_ An array of last distribution timestamps.
+     */
     function reinitialize(
         address[] memory gauges_,
         uint256[] memory indexes_,
         uint256[] memory lastDistributions_
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) reinitializer(2) {
+    ) external reinitializer(2) {
         if (gauges_.length != indexes_.length || gauges_.length != lastDistributions_.length) {
             revert ArrayLengthMismatch();
         }
