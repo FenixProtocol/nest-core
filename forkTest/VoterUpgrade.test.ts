@@ -24,12 +24,12 @@ describe('VoterUpgrade Fork Test', function () {
         // Get existing Voter contract
         voter = await ethers.getContractAt('VoterUpgradeableV2', VOTER_PROXY_ADDRESS);
         proxyAdmin = await ethers.getContractAt('ProxyAdmin', PROXY_ADMIN_ADDRESS);
-
+        
         const ownerOfAdminProxy = await proxyAdmin.owner();
         if (ownerOfAdminProxy == ethers.ZeroAddress) throw new Error('ProxyAdmin is not owned by any account');
         // Impersonate the proxy admin account
-        await ethers.provider.send('hardhat_impersonateAccount', [ownerOfAdminProxy]);
-        proxyAdminOwner = await ethers.getSigner(ownerOfAdminProxy);
+        // await ethers.getImpersonatedSigner(ownerOfAdminProxy); // provider.send('hardhat_impersonateAccount', [ownerOfAdminProxy]);
+        proxyAdminOwner = await ethers.getImpersonatedSigner(ownerOfAdminProxy);
         if (await voter.hasRole(await voter.DEFAULT_ADMIN_ROLE(), ownerOfAdminProxy)) throw new Error('Voter is not owned by the proxy admin owner');
 
         startSnapshot = await takeSnapshot();

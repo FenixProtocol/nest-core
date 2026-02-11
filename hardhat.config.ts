@@ -131,9 +131,18 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       allowUnlimitedContractSize: true,
-    },
-    localhost: {
-      url: `http://127.0.0.1:8545`,
+      forking: {
+        enabled: true,
+        url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
+        blockNumber: 25055503
+      },
+      chains: {
+        999: {
+          hardforkHistory: {
+            prague: 25055503
+          }
+        }
+      }
     },
   },
   solidity: {
