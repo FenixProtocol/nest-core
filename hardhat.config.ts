@@ -96,7 +96,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hyperEvm: {
-      url: `https://rpc.hyperliquid.xyz/evm`,
+      url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
       chainId: 999,
       gasPrice: 2e9,
       accounts: {
@@ -131,11 +131,9 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       allowUnlimitedContractSize: true,
-      forking: {
-        enabled: !!process.env.FORK_ENABLED,
-        url: `https://rpc.hyperliquid.xyz/evm`,
-        blockNumber: 26999704, // Feb-11-2026 12:00:07 PM +UTC
-      },
+    },
+    localhost: {
+      url: `http://127.0.0.1:8545`,
     },
   },
   solidity: {
