@@ -175,6 +175,20 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         distributionWindowDuration = 3600;
     }
 
+    function reinitialize(
+        address[] memory gauges_,
+        uint256[] memory indexes_,
+        uint256[] memory lastDistributions_
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) reinitializer(2) {
+        if (gauges_.length != indexes_.length || gauges_.length != lastDistributions_.length) {
+            revert ArrayLengthMismatch();
+        }
+        for (uint256 i; i < gauges_.length; i++) {
+            gaugesState[gauges_[i]].index = indexes_[i];
+            gaugesState[gauges_[i]].lastDistributionTimestamp = lastDistributions_[i];
+        }
+    }
+
     /**
      * @notice Updates the address of a specified contract.
      * @dev Only callable by an address with the VOTER_ADMIN_ROLE.
@@ -729,7 +743,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             if (bribesByTokenId_.bribes.length > 0) {
                 claimBribes(bribesByTokenId_.bribes, bribesByTokenId_.tokens, bribesByTokenId_.tokenId);
             }
-            
+
             _claimBlazeRewardsFor(_msgSender(), blaze_);
 
             if (splitMerklAidrop_.amount > 0) {
@@ -992,10 +1006,10 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
      * @param blaze_ The parameters for Blaze-based claiming.
      */
     function _claimBlazeRewardsFor(address target_, AggregateClaimBlazeDataParams calldata blaze_) internal {
-        if(blaze_.totalAmount > 0) {
+        if (blaze_.totalAmount > 0) {
             IGaugeRewarder rewarder = IGaugeRewarder(gaugeRewarder);
             uint256 claimed = rewarder.claimed(target_);
-            if(blaze_.totalAmount > claimed) {
+            if (blaze_.totalAmount > claimed) {
                 IGaugeRewarder(gaugeRewarder).claimFor(target_, blaze_.totalAmount, blaze_.deadline, blaze_.signature);
             }
         }
