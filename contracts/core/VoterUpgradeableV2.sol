@@ -620,6 +620,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         uint256 weight = IVotingEscrow(votingEscrow).balanceOfNftIgnoreOwnershipChange(managedTokenId);
         if (weight == 0) {
             _reset(managedTokenId);
+            IVotingEscrow(votingEscrow).votingHook(managedTokenId, false);
         } else {
             _poke(managedTokenId);
         }

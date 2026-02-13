@@ -339,7 +339,7 @@ describe('Nest Main Contract', function () {
     expect(await voter.votes(managedNftId, USDT_WETH_PAIR)).to.be.eq(ethers.parseEther('34.5'));
     await voter.connect(signers.otherUser3).dettachFromManagedNFT(nftToken3);
 
-    expect((await votingEscrow.nftStates(managedNftId)).isVoted).to.be.true;
+    expect((await votingEscrow.nftStates(managedNftId)).isVoted).to.be.false;
     expect(await voter.votes(managedNftId, WETH_FENIX_PAIR)).to.be.eq(ZERO);
     expect(await voter.votes(managedNftId, USDT_WETH_PAIR)).to.be.eq(ZERO);
   });
