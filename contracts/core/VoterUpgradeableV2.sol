@@ -180,7 +180,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         distributionWindowDuration = 3600;
     }
 
-    function reinitialize(uint256[] memory epochs_, uint256[] memory epochIndexes_) external onlyRole(DEFAULT_ADMIN_ROLE) reinitializer(3) {
+    function reinitialize(uint256[] memory epochs_, uint256[] memory epochIndexes_) external reinitializer(2) {
         if (epochs_.length != epochIndexes_.length) {
             revert ArrayLengthMismatch();
         }

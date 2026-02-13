@@ -66,6 +66,9 @@ const LOWEST_CONTRACT_SIZE_COMPILER_SETTINGS: SolcUserConfig = {
   },
 };
 const config: HardhatUserConfig = {
+  mocha: {
+    timeout: 300000, // 5 minutes for fork tests
+  },
   sourcify: {
     enabled: true,
   },
@@ -132,7 +135,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       allowUnlimitedContractSize: true,
       forking: {
-        enabled: true,
+        enabled: false, // emable only while fork testing
         url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
         blockNumber: 25055503
       },
