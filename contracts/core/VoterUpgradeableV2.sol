@@ -1011,7 +1011,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
      * @param tokenId_ The token ID for which to update the last voted timestamp.
      */
     function _updateLastVotedTimestamp(uint256 tokenId_) internal {
-        lastVotedTimestamps[tokenId_] = epochTimestamp() + 1;
+        lastVotedTimestamps[tokenId_] = block.timestamp;
     }
 
     /**
