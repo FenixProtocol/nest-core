@@ -250,6 +250,7 @@ contract VotingEscrowUpgradeableV2 is IVotingEscrow, Ownable2StepUpgradeable, ER
         }
         _checkExistAndNotExpired(tokenFromId_);
         _checkExistAndNotExpired(tokenToId_);
+        _checkForSameOwner(tokenFromId_, tokenToId_);
 
         emit MergeInit(tokenFromId_, tokenToId_);
 
@@ -772,6 +773,12 @@ contract VotingEscrowUpgradeableV2 is IVotingEscrow, Ownable2StepUpgradeable, ER
 
         if (state.locked.end < block.timestamp) {
             revert TokenExpired();
+        }
+    }
+
+    function _checkForSameOwner(uint256 tokenFromId_, uint256 tokenToId_) internal view {
+        if (ownerOf(tokenFromId_) != ownerOf(tokenToId_)) {
+            revert OwnerNotSame();
         }
     }
 
