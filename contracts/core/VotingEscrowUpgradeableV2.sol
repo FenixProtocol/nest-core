@@ -232,10 +232,10 @@ contract VotingEscrowUpgradeableV2 is IVotingEscrow, Ownable2StepUpgradeable, ER
         }
 
         _resetVotesIfVoted(tokenId_);
-
+        address owner = _ownerOf(tokenId_);
         uint256 amount = _withdrawClearNftInfo(tokenId_);
 
-        IERC20Upgradeable(token).safeTransfer(_msgSender(), amount);
+        IERC20Upgradeable(token).safeTransfer(owner, amount);
     }
 
     /**
@@ -777,7 +777,7 @@ contract VotingEscrowUpgradeableV2 is IVotingEscrow, Ownable2StepUpgradeable, ER
     }
 
     function _checkForSameOwner(uint256 tokenFromId_, uint256 tokenToId_) internal view {
-        if (ownerOf(tokenFromId_) != ownerOf(tokenToId_)) {
+        if (_ownerOf(tokenFromId_) != _ownerOf(tokenToId_)) {
             revert OwnerNotSame();
         }
     }
