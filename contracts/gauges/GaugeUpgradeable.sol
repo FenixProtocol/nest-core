@@ -177,13 +177,6 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
         emit FeeVaultSet(_feeVault);
     }
 
-    ///@notice set new internal bribe contract (where to send fees)
-    function setInternalBribe(address _int) external onlyOwner {
-        require(_int != address(0), "zero");
-        internal_bribe = _int;
-        emit InternalBribeSet(_int);
-    }
-
     function activateEmergencyMode() external onlyOwner {
         require(emergency == false, "emergency");
         emergency = true;
