@@ -11,7 +11,9 @@ import {ISingleTokenBuyback} from "./interfaces/ISingleTokenBuyback.sol";
 /**
  * @title Single Token Buyback Upgradeable Contract
  * @notice Implements token buyback functionality using DEX V2 Router.
- * @dev This contract uses an upgradeable pattern along with the SafeERC20 library for token interactions.
+ * @dev THE CONTRACT IS DEPREACTED AND NO LONGER USED
+ * @dev THE CONTRACT MUST STAY TO NOT BREAK STORAGE IN THE CompoundVeNESTManagedNFTStrategyUpgradeable CONTRACT
+ * @dev DON'T USE THE CONTRACT IN NEW CONTRACTS
  */
 abstract contract SingleTokenBuybackUpgradeable is ISingleTokenBuyback, Initializable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -99,84 +101,6 @@ abstract contract SingleTokenBuybackUpgradeable is ISingleTokenBuyback, Initiali
         _checkAddressZero(routerV2PathProvider_);
 
         routerV2PathProvider = routerV2PathProvider_;
-    }
-
-    /**
-     * @notice Buys back tokens by swapping specified input tokens for a target token via a DEX
-     * @dev Executes a token swap using the optimal route found via Router V2 Path Provider. Ensures input token is not the target token and validates slippage.
-     *
-     * @param inputToken_ The ERC20 token to swap from.
-     * @param inputRouters_ Array of routes to potentially use for the swap.
-     * @param slippage_ The maximum allowed slippage for the swap, in basis points.
-     * @param deadline_ Unix timestamp after which the transaction will revert.
-     */
-    function buybackTokenByV2(
-        address inputToken_,
-        IRouterV2.route[] calldata inputRouters_,
-        uint256 slippage_,
-        uint256 deadline_
-    ) external virtual override onlyCorrectInputToken(inputToken_) onlyCorrectSlippage(slippage_) returns (uint256 outputAmount) {
-        _checkBuybackSwapPermissions();
-
-        IERC20Upgradeable inputTokenCache = IERC20Upgradeable(inputToken_);
-
-        uint256 amountIn = inputTokenCache.balanceOf(address(this));
-        if (amountIn == 0) {
-            revert ZeroBalance();
-        }
-
-        address targetToken = _getBuybackTargetToken();
-
-        IRouterV2PathProvider routerV2PathProviderCache = IRouterV2PathProvider(routerV2PathProvider);
-
-        (IRouterV2.route[] memory optimalRoute, ) = routerV2PathProviderCache.getOptimalTokenToTokenRoute(
-            inputToken_,
-            targetToken,
-            amountIn
-        );
-
-        uint256 amountOutQuote;
-        if (optimalRoute.length > 0) {
-            amountOutQuote = routerV2PathProviderCache.getAmountOutQuote(amountIn, optimalRoute);
-        }
-
-        if (inputRouters_.length > 1) {
-            if (inputRouters_[0].from != inputToken_ || inputRouters_[inputRouters_.length - 1].to != targetToken) {
-                revert InvalidInputRoutes();
-            }
-
-            if (!routerV2PathProviderCache.isValidInputRoutes(inputRouters_)) {
-                revert InvalidInputRoutes();
-            }
-
-            uint256 amountOutQuoteInputRouters = routerV2PathProviderCache.getAmountOutQuote(amountIn, inputRouters_);
-
-            if (amountOutQuoteInputRouters > amountOutQuote) {
-                optimalRoute = inputRouters_;
-                amountOutQuote = amountOutQuoteInputRouters;
-            }
-        }
-
-        amountOutQuote = amountOutQuote - (amountOutQuote * slippage_) / SLIPPAGE_PRECISION;
-        if (amountOutQuote == 0) {
-            revert RouteNotFound();
-        }
-
-        IRouterV2 router = IRouterV2(routerV2PathProviderCache.router());
-        inputTokenCache.forceApprove(address(router), amountIn);
-
-        uint256 balanceBefore = IERC20Upgradeable(targetToken).balanceOf(address(this));
-
-        uint256[] memory amountsOut = router.swapExactTokensForTokens(amountIn, amountOutQuote, optimalRoute, address(this), deadline_);
-
-        uint256 amountOut = amountsOut[amountsOut.length - 1];
-
-        assert(IERC20Upgradeable(targetToken).balanceOf(address(this)) - balanceBefore == amountOut);
-        assert(amountOut > 0);
-
-        emit BuybackTokenByV2(msg.sender, inputToken_, targetToken, optimalRoute, amountIn, amountOut);
-
-        return amountOut;
     }
 
     /**
