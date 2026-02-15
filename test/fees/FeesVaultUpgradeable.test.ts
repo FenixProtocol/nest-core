@@ -168,6 +168,12 @@ describe('FeesVault Contract', function () {
       expect(await feesVaultFactory.getDistributionConfig(feesVault.target)).to.be.deep.eq([10000, [], []]);
       await expect(feesVault.connect(gauge).claimFees()).to.be.revertedWithCustomError(feesVault, 'PoolMismatch');
     });
+    it('fails if caller is not alive', async () => {
+      await voterMock.setGauge(gauge.address, poolMock.target);
+      await voterMock.killGauge(gauge.address);
+      expect(await feesVaultFactory.getDistributionConfig(feesVault.target)).to.be.deep.eq([10000, [], []]);
+      await expect(feesVault.connect(gauge).claimFees()).to.be.revertedWithCustomError(feesVault, 'GaugeNotAlive');
+    });
 
     it('fails if toGaugeRate = 0, and caller not CLAIM_FEES_CALLER_ROLE', async () => {
       await feesVaultFactory.setCustomDistributionConfig(feesVault.target, {

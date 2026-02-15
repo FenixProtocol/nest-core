@@ -61,6 +61,9 @@ contract FeesVaultUpgradeable is IFeesVault, Initializable, UpgradeCall {
             if (!IVoter(voterCache).isGauge(msg.sender)) {
                 revert AccessDenied();
             }
+            if (!IVoter(voterCache).isAlive(msg.sender)) {
+                revert GaugeNotAlive();
+            }
             if (poolCache != IVoter(voterCache).poolForGauge(msg.sender)) {
                 revert PoolMismatch();
             }

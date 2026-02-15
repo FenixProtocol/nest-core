@@ -4,12 +4,22 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract VoterMock {
     mapping(address => bool) public isGauge;
+    mapping(address => bool) public isAlive;
     mapping(address => address) public poolForGauge;
     address public token;
 
     function setGauge(address gauge_, address pool_) external {
         isGauge[gauge_] = true;
+        isAlive[gauge_] = true;
         poolForGauge[gauge_] = pool_;
+    }
+
+    function killGauge(address gauge_) external {
+        isAlive[gauge_] = false;
+    }
+
+    function reviveGauge(address gauge_) external {
+        isAlive[gauge_] = true;
     }
 
     function setToken(address token_) external {

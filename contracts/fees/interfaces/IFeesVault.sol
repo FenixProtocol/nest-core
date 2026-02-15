@@ -44,6 +44,11 @@ interface IFeesVault {
     error PoolMismatch();
 
     /**
+     * @dev Reverts if the gauge is not alive.
+     */
+    error GaugeNotAlive();
+
+    /**
      * @notice Gets the factory address associated with this fees vault.
      * @return The address of the factory contract.
      */
