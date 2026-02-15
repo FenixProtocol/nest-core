@@ -463,10 +463,6 @@ describe('SingelTokenVirtualRewarder Contract', function () {
       await expect(rewarder.notifyRewardAmount(1)).to.be.revertedWithCustomError(rewarder, 'AccessDenied');
     });
 
-    it('fail if call with zero amount param', async () => {
-      await expect(rewarder.connect(strategy).notifyRewardAmount(0)).to.be.revertedWithCustomError(rewarder, 'ZeroAmount');
-    });
-
     it('correct call and add amount to rewards per epoch', async () => {
       expect(await rewarder.rewardsPerEpoch(0)).to.be.eq(ZERO);
       expect(await rewarder.rewardsPerEpoch(await currentEpoch())).to.be.eq(ZERO);

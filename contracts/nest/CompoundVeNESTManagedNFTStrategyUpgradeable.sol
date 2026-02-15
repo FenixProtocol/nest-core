@@ -258,6 +258,9 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
      * @param tokenIds_ The list of veNFT IDs to be merged.
      */
     function compoundVeNFTs(uint256[] calldata tokenIds_) external {
+        if (tokenIds_.length == 0) {
+            revert ZeroCompoundVeNFTsReward();
+        }
         _requirePermisisonIfNotSetupFlag(LibStrategyFlags.IGNORE_RESTRICTIONS_ON_PUBLIC_VE_NFT_COMPOUND);
 
         IVotingEscrow votingEscrowCache = IVotingEscrow(votingEscrow);
@@ -506,10 +509,6 @@ contract CompoundVeNESTManagedNFTStrategyUpgradeable is
         }
         uint256 balanceAfter = uint256(int256(votingEscrowCache.getNftState(managedTokenIdCache).locked.amount));
         uint256 compoundRewards = balanceAfter - balanceBefore;
-
-        if (compoundRewards == 0) {
-            revert ZeroCompoundVeNFTsReward();
-        }
 
         ISingelTokenVirtualRewarder(virtualRewarder).notifyRewardAmount(compoundRewards);
 

@@ -79,7 +79,7 @@ contract SingelTokenVirtualRewarderUpgradeable is ISingelTokenVirtualRewarder, I
     error ZeroAmount();
 
     error AddressZero();
-    
+
     /**
      * @dev Modifier to restrict function calls to the strategy address
      * @notice Ensures that only the designated strategy can call certain functions.
@@ -181,10 +181,6 @@ contract SingelTokenVirtualRewarderUpgradeable is ISingelTokenVirtualRewarder, I
      * @param amount_ The amount of rewards to distribute
      */
     function notifyRewardAmount(uint256 amount_) external onlyStrategy {
-        if (amount_ == 0) {
-            revert ZeroAmount();
-        }
-
         uint256 currentEpoch = _currentEpoch();
         rewardsPerEpoch[currentEpoch] += amount_;
 
