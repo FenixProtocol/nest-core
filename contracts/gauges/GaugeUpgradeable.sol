@@ -6,7 +6,6 @@ import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeE
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import {IGaugeFactory} from "./interfaces/IGaugeFactory.sol";
-import {IRewarder} from "./interfaces/IRewarder.sol";
 import {IMerklGaugeMiddleman} from "../integration/interfaces/IMerklGaugeMiddleman.sol";
 import {IPairIntegrationInfo} from "../integration/interfaces/IPairIntegrationInfo.sol";
 import {IPair} from "../dexV2/interfaces/IPair.sol";
@@ -34,6 +33,8 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
 
     address public VE;
     address public DISTRIBUTION;
+    // @dev gaugeRewarder is DEPRECATED!!! DO NOT USE IT!!!
+    // @dev we keep it to not break the storage
     address public gaugeRewarder;
     address public internal_bribe;
     address public external_bribe;
@@ -63,7 +64,6 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
     event MerklGaugeMiddlemanSet(address indexed merklGaugeMiddleman);
     event DistributionSet(address indexed distribution);
     event IsDistributeEmissionToMerkleSet(bool indexed isDistributeEmissionToMerkle);
-    event GaugeRewarderSet(address indexed gaugeRewarder);
     event FeeVaultSet(address indexed feeVault);
     event InternalBribeSet(address indexed internalBribe);
     modifier updateReward(address account) {
@@ -162,13 +162,6 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
         emit IsDistributeEmissionToMerkleSet(_isDistributeEmissionToMerkle);
     }
 
-    ///@notice set gauge rewarder address
-    function setGaugeRewarder(address _gaugeRewarder) external onlyOwner {
-        require(_gaugeRewarder != gaugeRewarder, "same addr");
-        gaugeRewarder = _gaugeRewarder;
-        emit GaugeRewarderSet(_gaugeRewarder);
-    }
-
     ///@notice set feeVault address
     function setFeeVault(address _feeVault) external onlyOwner {
         require(_feeVault != address(0), "zero addr");
@@ -262,10 +255,6 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
 
         IERC20(TOKEN).safeTransferFrom(account, address(this), amount);
 
-        if (address(gaugeRewarder) != address(0)) {
-            IRewarder(gaugeRewarder).onReward(account, account, _balances[account]);
-        }
-
         emit Deposit(account, amount);
     }
 
@@ -286,10 +275,6 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
 
         _totalSupply = _totalSupply - (amount);
         _balances[msg.sender] = _balances[msg.sender] - (amount);
-
-        if (address(gaugeRewarder) != address(0)) {
-            IRewarder(gaugeRewarder).onReward(msg.sender, msg.sender, _balances[msg.sender]);
-        }
 
         IERC20(TOKEN).safeTransfer(msg.sender, amount);
 
@@ -332,10 +317,6 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
             rewardToken.safeTransfer(_user, reward);
             emit Harvest(_user, reward);
         }
-
-        if (gaugeRewarder != address(0)) {
-            IRewarder(gaugeRewarder).onReward(_user, _user, _balances[_user]);
-        }
     }
 
     ///@notice User harvest function
@@ -345,10 +326,6 @@ contract GaugeUpgradeable is IGauge, ReentrancyGuardUpgradeable, UpgradeCall {
             rewards[msg.sender] = 0;
             rewardToken.safeTransfer(msg.sender, reward);
             emit Harvest(msg.sender, reward);
-        }
-
-        if (gaugeRewarder != address(0)) {
-            IRewarder(gaugeRewarder).onReward(msg.sender, msg.sender, _balances[msg.sender]);
         }
     }
 

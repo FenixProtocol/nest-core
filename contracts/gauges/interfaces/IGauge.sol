@@ -26,8 +26,6 @@ interface IGauge {
 
     function stopEmergencyMode() external;
 
-    function setGaugeRewarder(address _gr) external;
-
     function setFeeVault(address _feeVault) external;
 
     function initialize(
