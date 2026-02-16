@@ -85,7 +85,7 @@ library VirtualRewarderCheckpoints {
         }
 
         if (self_[0].timestamp > timestamp_) {
-            return 1;
+            return 0;
         }
 
         uint256 start;
