@@ -438,13 +438,14 @@ contract RewardAPIUpgradeable is OwnableUpgradeable {
             address pool = voterCache.pools(i + offset_);
             address gauge = voterCache.poolToGauge(pool);
             IExtendVoter.GaugeState memory state = voterCache.getGaugeState(gauge);
-            address[] memory rewardTokens = IBribe(state.internalBribe).getRewardTokens();
-            BribeAvailableRewards memory internalBribeResult = _getBribeRewards(user_, IBribe(state.internalBribe), rewardTokens);
+            address[] memory internalRewardTokens = IBribe(state.internalBribe).getRewardTokens();
+            BribeAvailableRewards memory internalBribeResult = _getBribeRewards(user_, IBribe(state.internalBribe), internalRewardTokens);
             if (internalBribeResult.amounts.length > 0) {
                 fullArray[counterBribeWithRewards] = internalBribeResult;
                 counterBribeWithRewards++;
             }
-            BribeAvailableRewards memory externalBribeResult = _getBribeRewards(user_, IBribe(state.externalBribe), rewardTokens);
+            address[] memory externalRewardTokens = IBribe(state.externalBribe).getRewardTokens();
+            BribeAvailableRewards memory externalBribeResult = _getBribeRewards(user_, IBribe(state.externalBribe), externalRewardTokens);
             if (externalBribeResult.amounts.length > 0) {
                 fullArray[counterBribeWithRewards] = externalBribeResult;
                 counterBribeWithRewards++;
