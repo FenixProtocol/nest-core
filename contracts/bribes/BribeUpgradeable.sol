@@ -29,7 +29,7 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
 
     string public TYPE;
 
-    // owner -> reward token -> lastTime
+    // @dev mapping userRewardPerTokenPaid is DEPRECATED!!! DO NOT USE IT!!!
     mapping(address => mapping(address => uint256)) public userRewardPerTokenPaid;
     mapping(address => mapping(address => uint256)) public userTimestamp;
 
