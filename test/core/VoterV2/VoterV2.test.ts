@@ -5,7 +5,7 @@ import { ERC20Mock, VoterUpgradeableV2, VotingEscrowUpgradeableV2 } from '../../
 import { ERRORS, getAccessControlError } from '../../utils/constants';
 import completeFixture, { CoreFixtureDeployed, deployERC20MockToken, SignersList } from '../../utils/coreFixture';
 
-describe('VotingEscrow_V2', function () {
+describe('Voter_V2', function () {
   let VotingEscrow: VotingEscrowUpgradeableV2;
   let Voter: VoterUpgradeableV2;
   let signers: SignersList;
@@ -494,6 +494,65 @@ describe('VotingEscrow_V2', function () {
           await Voter.createV2Gauge(pair);
           await expect(Voter.createV3Gauge(pair)).to.be.revertedWithCustomError(Voter, 'GaugeForPoolAlreadyExists');
         });
+      });
+    });
+
+    describe('#vote - epoch update on vote', async () => {
+      it('should update period and register vote for correct epoch when new epoch started but update_period not called', async () => {
+        // Setup: Create pair and gauge using existing token from beforeEach
+        let pair = await deployed.v2PairFactory.createPair.staticCall(deployed.fenix.target, token.target, false);
+        await deployed.v2PairFactory.createPair(deployed.fenix.target, token.target, false);
+        await Voter.createV2Gauge(pair);
+
+        // Setup: Create veNFT for user
+        await deployed.fenix.transfer(signers.otherUser1.address, ethers.parseEther('10'));
+        await deployed.fenix.connect(signers.otherUser1).approve(VotingEscrow.target, ethers.parseEther('10'));
+        await VotingEscrow.connect(signers.otherUser1).createLockFor(
+          ethers.parseEther('1'),
+          15724800, // ~182 days
+          signers.otherUser1.address,
+          false,
+          false,
+          0,
+        );
+
+        // Get the initial active period from minter
+        const initialActivePeriod = await deployed.minter.active_period();
+
+        // Fast forward time to next epoch + past distribution window (3600 seconds)
+        const nextEpoch = await getNextEpochTime();
+        await time.increaseTo(nextEpoch + 3601n);
+
+        // Verify update_period hasn't been called yet - minter's active_period should still be old
+        const minterActivePeriodBeforeVote = await deployed.minter.active_period();
+        expect(minterActivePeriodBeforeVote).to.be.eq(initialActivePeriod);
+
+        // Calculate what the new epoch should be
+        const currentTimestamp = BigInt(await time.latest());
+        const expectedNewEpoch = (currentTimestamp / 604800n) * 604800n;
+
+        // Execute vote - this should internally call update_period
+        await Voter.connect(signers.otherUser1).vote(1, [pair], [100]);
+
+        // Verify minter's active_period was updated
+        const minterActivePeriodAfterVote = await deployed.minter.active_period();
+        expect(minterActivePeriodAfterVote).to.be.eq(expectedNewEpoch);
+
+        // Verify vote was registered for the correct (new) epoch
+        const voteWeight = await Voter.votes(1, pair);
+        expect(voteWeight).to.be.gt(0);
+
+        // Verify weightsPerEpoch for the new epoch
+        const weightForNewEpoch = await Voter.weightsPerEpoch(expectedNewEpoch, pair);
+        expect(weightForNewEpoch).to.be.eq(voteWeight);
+
+        // Verify totalWeightsPerEpoch for the new epoch
+        const totalWeightForNewEpoch = await Voter.totalWeightsPerEpoch(expectedNewEpoch);
+        expect(totalWeightForNewEpoch).to.be.eq(voteWeight);
+
+        // Verify epochTimestamp returns correct value
+        const voterEpochTimestamp = await Voter.epochTimestamp();
+        expect(voterEpochTimestamp).to.be.eq(expectedNewEpoch);
       });
     });
   });

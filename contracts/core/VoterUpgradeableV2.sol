@@ -536,6 +536,9 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         address[] calldata poolsVotes_,
         uint256[] calldata weights_
     ) external nonReentrant whenNotVotingPaused onlyNftApprovedOrOwner(tokenId_) {
+        // update period to get valid epoch in case if update period wasn't called before vote
+        // if period already updated, it will do nothing
+        IMinter(minter).update_period();
         if (poolsVotes_.length != weights_.length) {
             revert ArrayLengthMismatch();
         }
