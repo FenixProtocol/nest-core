@@ -412,10 +412,10 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     function notifyRewardAmount(uint256 amount_) external {
         _checkSender(minter);
 
-        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
         uint256 weightAt = totalWeightsPerEpoch[epochTimestamp() - _WEEK]; // minter call notify after updates active_period, loads votes - 1 week
         if (weightAt > 0) {
             index += (amount_ * 1e18) / weightAt;
+            IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
         }
         emit NotifyReward(_msgSender(), token, amount_);
     }
