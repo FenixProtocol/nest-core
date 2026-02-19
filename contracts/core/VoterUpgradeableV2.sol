@@ -21,7 +21,7 @@ import {ICompoundEmissionExtension} from "./interfaces/ICompoundEmissionExtensio
 
 import "./libraries/LibVoterErrors.sol";
 import "./interfaces/IVoter.sol";
-
+import "hardhat/console.sol";
 /**
  * @title VoterUpgradeableV2
  * @notice This contract manages the voting process within a decentralized protocol,
@@ -244,6 +244,14 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         if (!state.isAlive) {
             revert GaugeAlreadyKilled();
         }
+        uint256 epochCache = epochTimestamp();
+        uint256 votesWeight = weightsPerEpoch[epochCache][state.pool];
+        uint256 totalVotesWeight = totalWeightsPerEpoch[epochCache];
+        console.log("votesWeight", votesWeight);
+        console.log("totalVotesWeight", totalVotesWeight);
+        console.log("totalVotesWeight >= votesWeight", totalVotesWeight >= votesWeight);
+        if (votesWeight > 0 && totalVotesWeight >= votesWeight) totalWeightsPerEpoch[epochCache] = totalVotesWeight - votesWeight;
+        weightsPerEpoch[epochCache][state.pool] = 0;
         delete gaugesState[gauge_].isAlive;
         if (state.claimable > 0) {
             IERC20Upgradeable(token).safeTransfer(minter, state.claimable);
@@ -911,11 +919,11 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             if (votePowerForPool > 0) {
                 delete votes[tokenId_][pool];
                 if (lastVotedTime >= time) {
-                    weightsPerEpoch[time][pool] -= votePowerForPool;
                     address gauge = poolToGauge[pool];
                     IBribe(gaugesState[gauge].internalBribe).withdraw(votePowerForPool, tokenId_);
                     IBribe(gaugesState[gauge].externalBribe).withdraw(votePowerForPool, tokenId_);
                     if (gaugesState[gauge].isAlive) {
+                        weightsPerEpoch[time][pool] -= votePowerForPool;
                         totalVotePowerForPools += votePowerForPool;
                     }
                 }
@@ -966,6 +974,9 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             votes[tokenId_][pool] = votePowerForPool;
             weightsPerEpoch[time][pool] += votePowerForPool;
             totalVoterPower += votePowerForPool;
+            console.log("time", time);
+            console.log("weightsPerEpoch[time][pool]", weightsPerEpoch[time][pool]);
+            console.log("totalVoterPower", totalVoterPower);
             voteWeights[i] = votePowerForPool;
 
             IBribe(gaugesState[gauge].internalBribe).deposit(votePowerForPool, tokenId_);
