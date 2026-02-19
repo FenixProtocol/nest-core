@@ -264,7 +264,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         uint256 epochCache = epochTimestamp();
         uint256 votesWeight = weightsPerEpoch[epochCache][state.pool];
         uint256 totalVotesWeight = totalWeightsPerEpoch[epochCache];
-        if (votesWeight > 0 && totalVotesWeight > votesWeight) totalWeightsPerEpoch[epochCache] = totalVotesWeight - votesWeight;
+        if (votesWeight > 0 && totalVotesWeight >= votesWeight) totalWeightsPerEpoch[epochCache] = totalVotesWeight - votesWeight;
         weightsPerEpoch[epochCache][state.pool] = 0;
         delete gaugesState[gauge_].isAlive;
         if (state.claimable > 0) {
