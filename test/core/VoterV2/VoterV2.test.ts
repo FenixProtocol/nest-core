@@ -137,7 +137,6 @@ describe('VotingEscrow_V2', function () {
 
         // Get epoch timestamp and check weights before killing
         let epochTimestamp = await Voter.epochTimestamp();
-        console.log("epochTimestamp", epochTimestamp);
         let poolWeightBefore = await Voter.weightsPerEpoch(epochTimestamp, pair);
         let totalWeightBefore = await Voter.totalWeightsPerEpoch(epochTimestamp);
 
