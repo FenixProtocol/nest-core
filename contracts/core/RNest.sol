@@ -26,7 +26,7 @@ contract RNest is IRNest, ERC20Burnable, Ownable2Step {
     address public override token; // Address of the NEST token
 
     error AddressZero();
-    
+
     /**
      * @dev Initializes the contract by setting the governance, token, and Voting Escrow addresses.
      * @param votingEscrow_ Address of the Voting Escrow contract.
@@ -98,11 +98,11 @@ contract RNest is IRNest, ERC20Burnable, Ownable2Step {
 
         if (toVeNFTAmount > 0) {
             IVotingEscrow veCache = IVotingEscrow(votingEscrow);
-            tokenCache.safeApprove(address(veCache), toVeNFTAmount);
+            tokenCache.forceApprove(address(veCache), toVeNFTAmount);
 
             tokenId = veCache.createLockFor(toVeNFTAmount, _LOCK_DURATION, msg.sender, false, false, 0);
 
-            tokenCache.safeApprove(address(veCache), 0);
+            tokenCache.forceApprove(address(veCache), 0);
         }
 
         if (toTokenAmount > 0) {

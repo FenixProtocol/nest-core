@@ -87,14 +87,14 @@ library UniversalERC20 {
         require(!isETH(token), "Approve called on ETH");
 
         if (amount == 0) {
-            token.safeApprove(to, 0);
+            token.forceApprove(to, 0);
         } else {
             uint256 allowance = token.allowance(address(this), to);
             if (allowance < amount) {
                 if (allowance > 0) {
-                    token.safeApprove(to, 0);
+                    token.forceApprove(to, 0);
                 }
-                token.safeApprove(to, amount);
+                token.forceApprove(to, amount);
             }
         }
     }

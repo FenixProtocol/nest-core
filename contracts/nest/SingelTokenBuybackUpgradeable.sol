@@ -163,7 +163,7 @@ abstract contract SingelTokenBuybackUpgradeable is ISingelTokenBuyback, Initiali
         }
 
         IRouterV2 router = IRouterV2(routerV2PathProviderCache.router());
-        inputTokenCache.safeApprove(address(router), amountIn);
+        inputTokenCache.forceApprove(address(router), amountIn);
 
         uint256 balanceBefore = IERC20Upgradeable(targetToken).balanceOf(address(this));
 

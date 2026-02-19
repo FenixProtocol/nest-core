@@ -12,11 +12,7 @@ import {MerkleProofUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/
  * @title VeNestSplitMerklAidropUpgradeable
  * @dev A contract for handling token and veNft token claims based on a Merkle tree proof.
  */
-contract VeNestSplitMerklAidropUpgradeable is
-    IVeNestSplitMerklAidrop,
-    Ownable2StepUpgradeable,
-    PausableUpgradeable
-{
+contract VeNestSplitMerklAidropUpgradeable is IVeNestSplitMerklAidrop, Ownable2StepUpgradeable, PausableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**
@@ -85,7 +81,7 @@ contract VeNestSplitMerklAidropUpgradeable is
     error ZeroPureTokensRate();
 
     error AddressZero();
-    
+
     /**
      * @dev Initializes the contract by disabling the initializer of the inherited upgradeable contract.
      */
@@ -100,11 +96,7 @@ contract VeNestSplitMerklAidropUpgradeable is
      * @param pureTokensRate_ Rate for pure tokens.
      * @notice This function can only be called once.
      */
-    function initialize(
-        address token_,
-        address votingEscrow_,
-        uint256 pureTokensRate_
-    ) external virtual initializer {
+    function initialize(address token_, address votingEscrow_, uint256 pureTokensRate_) external virtual initializer {
         _checkAddressZero(token_);
         _checkAddressZero(votingEscrow_);
         _checkPureTokensRate(pureTokensRate_);
@@ -299,7 +291,7 @@ contract VeNestSplitMerklAidropUpgradeable is
         } else {
             toVeNFTAmount = claimAmount;
             IVotingEscrow veCache = IVotingEscrow(votingEscrow);
-            tokenCache.safeApprove(address(veCache), toVeNFTAmount);
+            tokenCache.forceApprove(address(veCache), toVeNFTAmount);
             tokenId = veCache.createLockFor(toVeNFTAmount, _LOCK_DURATION, target_, false, withPermanentLock_, managedTokenIdForAttach_);
         }
 

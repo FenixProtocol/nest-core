@@ -53,7 +53,7 @@ contract OpenOceanVeNftDirectBuyer is IOpenOceanVeNftDirectBuyer, Ownable {
     error InvalidDstReceiver();
 
     error AddressZero();
-    
+
     /**
      * @notice Initializes the contract with required addresses.
      * @param votingEscrow_ Address of the VotingEscrow contract.
@@ -115,7 +115,7 @@ contract OpenOceanVeNftDirectBuyer is IOpenOceanVeNftDirectBuyer, Ownable {
                 revert PermitNotSupported();
             }
             desc_.srcToken.safeTransferFrom(_msgSender(), address(this), desc_.amount);
-            desc_.srcToken.safeApprove(address(openOceanExchangeCache), desc_.amount);
+            desc_.srcToken.forceApprove(address(openOceanExchangeCache), desc_.amount);
         }
 
         uint256 dstTokenInitialBalance = tokenCache.balanceOf(address(this));
@@ -132,7 +132,7 @@ contract OpenOceanVeNftDirectBuyer is IOpenOceanVeNftDirectBuyer, Ownable {
         }
 
         IVotingEscrow votingEscrowCache = IVotingEscrow(votingEscrow);
-        tokenCache.safeApprove(address(votingEscrowCache), tokenAmount);
+        tokenCache.forceApprove(address(votingEscrowCache), tokenAmount);
         tokenId = votingEscrowCache.createLockFor(
             tokenAmount,
             votingEscrowCreateForParams_.lockDuration,

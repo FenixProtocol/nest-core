@@ -688,7 +688,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         uint256 total = toTargetLocks + toTargetBribePools;
         if (total > 0) {
             tokenCache.safeTransferFrom(target_, address(this), total);
-            tokenCache.safeApprove(address(compoundEmissionExtensionCache), total);
+            tokenCache.forceApprove(address(compoundEmissionExtensionCache), total);
         }
     }
 
@@ -729,7 +729,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             if (bribesByTokenId_.bribes.length > 0) {
                 claimBribes(bribesByTokenId_.bribes, bribesByTokenId_.tokens, bribesByTokenId_.tokenId);
             }
-            
+
             _claimBlazeRewardsFor(_msgSender(), blaze_);
 
             if (splitMerklAidrop_.amount > 0) {
@@ -751,7 +751,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             if (amount > 0) {
                 IVotingEscrow votingEscrowCache = IVotingEscrow(votingEscrow);
                 tokenCache.safeTransferFrom(_msgSender(), address(this), amount);
-                tokenCache.safeApprove(address(votingEscrowCache), amount);
+                tokenCache.forceApprove(address(votingEscrowCache), amount);
                 votingEscrowCache.createLockFor(
                     amount,
                     aggregateCreateLock_.lockDuration,
@@ -992,10 +992,10 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
      * @param blaze_ The parameters for Blaze-based claiming.
      */
     function _claimBlazeRewardsFor(address target_, AggregateClaimBlazeDataParams calldata blaze_) internal {
-        if(blaze_.totalAmount > 0) {
+        if (blaze_.totalAmount > 0) {
             IGaugeRewarder rewarder = IGaugeRewarder(gaugeRewarder);
             uint256 claimed = rewarder.claimed(target_);
-            if(blaze_.totalAmount > claimed) {
+            if (blaze_.totalAmount > claimed) {
                 IGaugeRewarder(gaugeRewarder).claimFor(target_, blaze_.totalAmount, blaze_.deadline, blaze_.signature);
             }
         }
