@@ -66,13 +66,16 @@ const LOWEST_CONTRACT_SIZE_COMPILER_SETTINGS: SolcUserConfig = {
   },
 };
 const config: HardhatUserConfig = {
+  mocha: {
+    timeout: 300000, // 5 minutes for fork tests
+  },
   sourcify: {
     enabled: true,
   },
   etherscan: {
     apiKey: {
       etherscan: `${process.env.ETHERSCAN_API_KEY}`,
-      hyperEvm:  `${process.env.ETHERSCAN_API_KEY}`,
+      hyperEvm: `${process.env.ETHERSCAN_API_KEY}`,
       baseSepolia: `${process.env.ETHERSCAN_API_KEY}`,
     },
     customChains: [
@@ -96,7 +99,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hyperEvm: {
-      url: `https://rpc.hyperliquid.xyz/evm`,
+      url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
       chainId: 999,
       gasPrice: 2e9,
       accounts: {
@@ -131,6 +134,18 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       allowUnlimitedContractSize: true,
+      forking: {
+        enabled: false, // set to true to run fork tests
+        url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
+        blockNumber: 25055503
+      },
+      chains: {
+        999: {
+          hardforkHistory: {
+            prague: 25055503
+          }
+        }
+      }
     },
   },
   solidity: {
