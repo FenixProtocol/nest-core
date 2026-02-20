@@ -52,6 +52,11 @@ error InvalidAddressKey();
 error MergeTokenIdsTheSame();
 
 /**
+ * @notice Reverts when a merge operation is attempted with tokens that have different owners.
+ */
+error OwnerNotSame();
+
+/**
  * @notice Reverts when access is denied for the operation.
  */
 error AccessDenied();

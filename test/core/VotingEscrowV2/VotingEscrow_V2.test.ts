@@ -600,6 +600,11 @@ describe('VotingEscrow_V2', function () {
         await VotingEscrow.connect(signers.user1).transferFrom(signers.user1.address, signers.user2.address, 2);
         await expect(VotingEscrow.connect(signers.user1).merge(1, 2)).to.be.revertedWithCustomError(VotingEscrow, 'AccessDenied');
       });
+      it('tokens have different owners', async () => {
+        await VotingEscrow.connect(signers.user1).transferFrom(signers.user1.address, signers.user2.address, 1);
+        await VotingEscrow.connect(signers.user2).approve(signers.user1.address, 1);
+        await expect(VotingEscrow.connect(signers.user1).merge(1, 2)).to.be.revertedWithCustomError(VotingEscrow, 'OwnerNotSame');
+      });
 
       it('one from token is expired', async () => {
         await time.increase(MAX_LOCK_TIME + WEEK);

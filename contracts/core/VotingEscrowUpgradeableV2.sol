@@ -20,12 +20,7 @@ import "./libraries/LibVotingEscrowUtils.sol";
  * @dev This upgradeable contract includes features such as permanent locking, managed NFT attachments, and boosted deposits.
  *      It integrates with various external systems including VotingEscrow, and VeBoost.
  */
-contract VotingEscrowUpgradeableV2 is
-    IVotingEscrow,
-    Ownable2StepUpgradeable,
-    ERC721EnumerableUpgradeable,
-    ReentrancyGuardUpgradeable
-{
+contract VotingEscrowUpgradeableV2 is IVotingEscrow, Ownable2StepUpgradeable, ERC721EnumerableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /// @notice The token used for voting escrow.
@@ -255,6 +250,7 @@ contract VotingEscrowUpgradeableV2 is
         }
         _checkExistAndNotExpired(tokenFromId_);
         _checkExistAndNotExpired(tokenToId_);
+        _checkForSameOwner(tokenFromId_, tokenToId_);
 
         emit MergeInit(tokenFromId_, tokenToId_);
 
@@ -777,6 +773,12 @@ contract VotingEscrowUpgradeableV2 is
 
         if (state.locked.end < block.timestamp) {
             revert TokenExpired();
+        }
+    }
+
+    function _checkForSameOwner(uint256 tokenFromId_, uint256 tokenToId_) internal view {
+        if (ownerOf(tokenFromId_) != ownerOf(tokenToId_)) {
+            revert OwnerNotSame();
         }
     }
 
