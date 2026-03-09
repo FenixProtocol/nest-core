@@ -558,20 +558,20 @@ describe('Pair Contract', function () {
       );
     });
 
-    it('should revert when trying to remove all liquidity from volatile pair (K below MINIMUM_K)', async () => {
-      // Add liquidity to the volatile pair
-      await tokenTK18.mint(pairVolatily.target, ONE_ETHER);
-      await tokenTK6.mint(pairVolatily.target, 1e6);
-      await pairVolatily.mint(signers.deployer.address);
+    it('should revert when trying to remove all liquidity from stable pair (K below MINIMUM_K)', async () => {
+      // Add liquidity to the stable pair
+      await deployed.fenix.transfer(pairStable.target, ONE_ETHER);
+      await tokenTK6.mint(pairStable.target, 1e6);
+      await pairStable.mint(signers.deployer.address);
 
       // Get all LP tokens (except MINIMUM_LIQUIDITY locked)
-      const lpBalance = await pairVolatily.balanceOf(signers.deployer.address);
+      const lpBalance = await pairStable.balanceOf(signers.deployer.address);
 
       // Transfer all LP tokens to the pair to burn them
-      await pairVolatily.transfer(pairVolatily.target, lpBalance);
+      await pairStable.transfer(pairStable.target, lpBalance);
 
       // Attempting to burn all liquidity should revert because K would fall below MINIMUM_K
-      await expect(pairVolatily.burn(signers.deployer.address)).to.be.revertedWith(
+      await expect(pairStable.burn(signers.deployer.address)).to.be.revertedWith(
         'Pair: K must be greater than minimum k',
       );
     });
