@@ -876,8 +876,8 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         if (state.lastDistributionTimestamp < currentTimestamp) {
             for (; lastDistributionTimestampCache <= currentTimestamp - _WEEK; lastDistributionTimestampCache += _WEEK) {
                 uint256 totalVotesWeight = weightsPerEpoch[lastDistributionTimestampCache][state.pool];
+                uint256 indexCache = indexPerEpoch[lastDistributionTimestampCache + _WEEK];
                 if (totalVotesWeight > 0) {
-                    uint256 indexCache = indexPerEpoch[lastDistributionTimestampCache + _WEEK];
                     uint256 delta = indexCache - state.index;
                     if (delta > 0) {
                         uint256 amount = (totalVotesWeight * delta) / 1e18;
@@ -887,8 +887,8 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
                             IERC20Upgradeable(token).safeTransfer(minter, amount);
                         }
                     }
-                    state.index = indexCache;
                 }
+                state.index = indexCache;
             }
             gaugesState[gauge_].index = index;
             gaugesState[gauge_].lastDistributionTimestamp = currentTimestamp;

@@ -426,7 +426,7 @@ describe('GaugesRewardsDistribution', function () {
 
             // Now distribute for v2Pool2 - it should catch up for epoch 2 only
             const v2Gauge2BalanceBefore = await fenix.balanceOf(v2Gauge2.target);
-            await voter.distribute([v2Gauge2.target]);
+            await (voter as any).distribute([v2Gauge2.target]);
             const v2Gauge2BalanceAfter = await fenix.balanceOf(v2Gauge2.target);
 
             // Should receive rewards only for epoch 2 (when it had votes)
@@ -475,7 +475,7 @@ describe('GaugesRewardsDistribution', function () {
 
             // Now call distribute - should receive rewards for BOTH epoch 1 and epoch 2
             const v2Gauge1BalanceBefore = await fenix.balanceOf(v2Gauge1.target);
-            await voter.distribute([v2Gauge1.target]);
+            await (voter as any).distribute([v2Gauge1.target]);
             const v2Gauge1BalanceAfter = await fenix.balanceOf(v2Gauge1.target);
 
             // The gauge should have received accumulated rewards from both epochs
@@ -557,7 +557,7 @@ describe('GaugesRewardsDistribution', function () {
 
             // Now distribute - should get rewards from all epochs
             const v2Gauge1BalanceBefore = await fenix.balanceOf(v2Gauge1.target);
-            await voter.distribute([v2Gauge1.target]);
+            await (voter as any).distribute([v2Gauge1.target]);
             const v2Gauge1BalanceAfter = await fenix.balanceOf(v2Gauge1.target);
 
             const totalReceived = v2Gauge1BalanceAfter - v2Gauge1BalanceBefore;
@@ -568,6 +568,131 @@ describe('GaugesRewardsDistribution', function () {
             // Verify state is correctly updated
             const gaugeState = await voter.gaugesState(v2Gauge1.target);
             expect(gaugeState.lastDistributionTimestamp).to.be.eq(await voter.epochTimestamp());
+        });
+    });
+
+    describe("Test Case #4: Pool wasn't voted for several epochs and then receives votes again", function () {
+        beforeEach(async () => {
+            await setupFullEnvironment();
+
+            // Create veNFTs with equal voting power for deterministic 50/50 and 25/25/25/25 checks
+            user1TokenId = await createVeNFT(signers.otherUser1, ethers.parseEther('10000'), 180 * 86400);
+            user2TokenId = await createVeNFT(signers.otherUser2, ethers.parseEther('10000'), 180 * 86400);
+            user3TokenId = await createVeNFT(signers.otherUser3, ethers.parseEther('10000'), 180 * 86400);
+            user4TokenId = await createVeNFT(signers.otherUser4, ethers.parseEther('10000'), 180 * 86400);
+        });
+
+        it('should distribute correct rewards when a pool is skipped for multiple epochs and voted again later', async () => {
+            const tolerance = ethers.parseEther('2');
+
+            // Epoch 1:
+            // - v2Pool1 gets 10k votes from user1
+            // - v2Pool2 gets 10k votes from user2
+            await voter.connect(signers.otherUser1).vote(user1TokenId, [v2Pool1.target], [10000]);
+            await voter.connect(signers.otherUser2).vote(user2TokenId, [v2Pool2.target], [10000]);
+
+            // Epoch 2 start
+            await advanceToNextEpoch();
+
+            // Distribute for v2Pool2 and save amount.
+            // v2Pool1 had equal weight in epoch 1 and must receive this amount later for epoch 1.
+            const v2Gauge2BalanceBeforeEpoch2Distribution = await fenix.balanceOf(v2Gauge2.target);
+            await (voter as any).distribute([v2Gauge2.target]);
+            const v2Gauge2BalanceAfterEpoch2Distribution = await fenix.balanceOf(v2Gauge2.target);
+            const epoch1RewardForV2Pool2 = v2Gauge2BalanceAfterEpoch2Distribution - v2Gauge2BalanceBeforeEpoch2Distribution;
+            expect(epoch1RewardForV2Pool2).to.be.gt(0);
+            console.log('epoch1RewardForV2Pool2', epoch1RewardForV2Pool2);
+
+            // Epoch 2 votes:
+            // - clear old votes from users 1 and 2
+            // - v3Pool1 gets 10k votes from user2
+            // - v3Pool2 gets 10k votes from user3
+            await voter.connect(signers.otherUser1).reset(user1TokenId);
+            await voter.connect(signers.otherUser2).reset(user2TokenId);
+            await voter.connect(signers.otherUser2).vote(user2TokenId, [v3Pool1.target], [10000]);
+            await voter.connect(signers.otherUser3).vote(user3TokenId, [v3Pool2.target], [10000]);
+
+            // Epoch 3 start
+            await advanceToNextEpoch();
+
+            // Distribute for v3 pools from epoch 2; each should receive ~50%.
+            const merklBeforeV3Gauge1 = await fenix.balanceOf(deployed.merklDistributionCreator.target);
+            await (voter as any).distribute([v3Gauge1.target]);
+            const merklAfterV3Gauge1 = await fenix.balanceOf(deployed.merklDistributionCreator.target);
+            const v3Gauge1RewardEpoch2 = merklAfterV3Gauge1 - merklBeforeV3Gauge1;
+
+            const merklBeforeV3Gauge2 = await fenix.balanceOf(deployed.merklDistributionCreator.target);
+            await (voter as any).distribute([v3Gauge2.target]);
+            const merklAfterV3Gauge2 = await fenix.balanceOf(deployed.merklDistributionCreator.target);
+            const v3Gauge2RewardEpoch2 = merklAfterV3Gauge2 - merklBeforeV3Gauge2;
+
+            expect(v3Gauge1RewardEpoch2).to.be.gt(0);
+            expect(v3Gauge2RewardEpoch2).to.be.gt(0);
+            expect(v3Gauge1RewardEpoch2).to.be.closeTo(v3Gauge2RewardEpoch2, tolerance);
+
+            // Epoch 3 votes:
+            // - clear v3 votes
+            // - v2Pool2 gets 100% votes from user4
+            await voter.connect(signers.otherUser2).reset(user2TokenId);
+            await voter.connect(signers.otherUser3).reset(user3TokenId);
+            await voter.connect(signers.otherUser4).vote(user4TokenId, [v2Pool2.target], [10000]);
+
+            // Epoch 4 start
+            await advanceToNextEpoch();
+
+            // Distribute for v2Pool2 from epoch 3 (100% share)
+            const v2Gauge2BalanceBeforeEpoch4Distribution = await fenix.balanceOf(v2Gauge2.target);
+            await (voter as any).distribute([v2Gauge2.target]);
+            const v2Gauge2BalanceAfterEpoch4Distribution = await fenix.balanceOf(v2Gauge2.target);
+            expect(v2Gauge2BalanceAfterEpoch4Distribution - v2Gauge2BalanceBeforeEpoch4Distribution).to.be.gt(0);
+
+            // Epoch 4 votes (equal 10k per pool):
+            // user1 -> v2Pool1, user2 -> v2Pool2, user3 -> v3Pool1, user4 -> v3Pool2
+            await voter.connect(signers.otherUser4).reset(user4TokenId);
+            await voter.connect(signers.otherUser1).vote(user1TokenId, [v2Pool1.target], [10000]);
+            await voter.connect(signers.otherUser2).vote(user2TokenId, [v2Pool2.target], [10000]);
+            await voter.connect(signers.otherUser3).vote(user3TokenId, [v3Pool1.target], [10000]);
+            await voter.connect(signers.otherUser4).vote(user4TokenId, [v3Pool2.target], [10000]);
+
+            // Epoch 5 start
+            await advanceToNextEpoch();
+
+            // Distribute for all pools from epoch 4.
+            // For epoch 4 all pools have equal votes, so rewards should be equal.
+            // v2Pool1 was not distributed after epoch 1 and had no votes in epochs 2-3,
+            // therefore now it must receive: epoch1 reward + epoch4 reward.
+            const v2Gauge1BalanceBeforeFinal = await fenix.balanceOf(v2Gauge1.target);
+            const v2Gauge2BalanceBeforeFinal = await fenix.balanceOf(v2Gauge2.target);
+            const merklBeforeFinal = await fenix.balanceOf(deployed.merklDistributionCreator.target);
+
+            await (voter as any).distribute([v2Gauge1.target]);
+            await (voter as any).distribute([v2Gauge2.target]);
+
+            const merklBeforeFinalV3Gauge1 = await fenix.balanceOf(deployed.merklDistributionCreator.target);
+            await (voter as any).distribute([v3Gauge1.target]);
+            const merklAfterFinalV3Gauge1 = await fenix.balanceOf(deployed.merklDistributionCreator.target);
+
+            const merklBeforeFinalV3Gauge2 = await fenix.balanceOf(deployed.merklDistributionCreator.target);
+            await (voter as any).distribute([v3Gauge2.target]);
+            const merklAfterFinalV3Gauge2 = await fenix.balanceOf(deployed.merklDistributionCreator.target);
+
+            const v2Gauge1ReceivedFinal = (await fenix.balanceOf(v2Gauge1.target)) - v2Gauge1BalanceBeforeFinal;
+            const v2Gauge2ReceivedFinal = (await fenix.balanceOf(v2Gauge2.target)) - v2Gauge2BalanceBeforeFinal;
+            const v3Gauge1ReceivedFinal = merklAfterFinalV3Gauge1 - merklBeforeFinalV3Gauge1;
+            const v3Gauge2ReceivedFinal = merklAfterFinalV3Gauge2 - merklBeforeFinalV3Gauge2;
+            const merklReceivedFinalTotal = (await fenix.balanceOf(deployed.merklDistributionCreator.target)) - merklBeforeFinal;
+
+            // Epoch 4 distribution should be equal across all pools
+            expect(v2Gauge2ReceivedFinal).to.be.gt(0);
+            expect(v3Gauge1ReceivedFinal).to.be.closeTo(v2Gauge2ReceivedFinal, tolerance);
+            expect(v3Gauge2ReceivedFinal).to.be.closeTo(v2Gauge2ReceivedFinal, tolerance);
+            expect(merklReceivedFinalTotal).to.be.eq(v3Gauge1ReceivedFinal + v3Gauge2ReceivedFinal);
+
+            // v2Pool1 final receive must include:
+            // - epoch 1 reward (equal to saved v2Pool2 epoch 1 reward)
+            // - epoch 4 reward (equal pool share in final distribution)
+            const expectedV2Gauge1Final = epoch1RewardForV2Pool2 + v2Gauge2ReceivedFinal;
+            expect(v2Gauge1ReceivedFinal).to.be.closeTo(expectedV2Gauge1Final, tolerance);
         });
     });
 
@@ -584,11 +709,11 @@ describe('GaugesRewardsDistribution', function () {
             await advanceToNextEpoch();
 
             // First distribution
-            await voter.distribute([v2Gauge1.target]);
+            await (voter as any).distribute([v2Gauge1.target]);
             const balanceAfterFirst = await fenix.balanceOf(v2Gauge1.target);
 
             // Second distribution in same epoch - should not add more
-            await voter.distribute([v2Gauge1.target]);
+            await (voter as any).distribute([v2Gauge1.target]);
             const balanceAfterSecond = await fenix.balanceOf(v2Gauge1.target);
 
             expect(balanceAfterSecond).to.be.eq(balanceAfterFirst);
@@ -608,7 +733,7 @@ describe('GaugesRewardsDistribution', function () {
 
             // Distribute - should get rewards for epoch 1 only
             const balanceBefore = await fenix.balanceOf(v2Gauge1.target);
-            await voter.distribute([v2Gauge1.target]);
+            await (voter as any).distribute([v2Gauge1.target]);
             const balanceAfter = await fenix.balanceOf(v2Gauge1.target);
 
             expect(balanceAfter).to.be.gt(balanceBefore);
