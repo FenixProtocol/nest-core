@@ -209,23 +209,21 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
     }
 
     /// @notice get the earned rewards
+    /// @dev Uses single-step division (balance * rewardsPerEpoch / supply) to avoid
+    ///      intermediate precision loss that occurs with low-decimal tokens (e.g. BTC with 8 decimals).
+    ///      Previously used rewardPerToken() which computed (rewardsPerEpoch * 1e18 / supply),
+    ///      rounding to zero when rewardsPerEpoch * 1e18 < supply.
     function _earned(address _owner, address _rewardToken, uint256 _timestamp) internal view returns (uint256) {
         uint256 _balance = balanceOfOwnerAt(_owner, _timestamp);
         if (_balance == 0) {
             return 0;
-        } else {
-            uint256 _rewardPerToken = rewardPerToken(_rewardToken, _timestamp);
-            uint256 _rewards = (_rewardPerToken * _balance) / 1e18;
-            return _rewards;
         }
-    }
-
-    /// @notice get the rewards for token
-    function rewardPerToken(address _rewardsToken, uint256 _timestamp) public view returns (uint256) {
-        if (_totalSupply[_timestamp] == 0) {
-            return rewardData[_rewardsToken][_timestamp].rewardsPerEpoch;
+        uint256 _supply = _totalSupply[_timestamp];
+        if (_supply == 0) {
+            return 0;
         }
-        return (rewardData[_rewardsToken][_timestamp].rewardsPerEpoch * 1e18) / _totalSupply[_timestamp];
+        uint256 _rewardsPerEpoch = rewardData[_rewardToken][_timestamp].rewardsPerEpoch;
+        return (_balance * _rewardsPerEpoch) / _supply;
     }
 
     /* ========== MUTATIVE FUNCTIONS ========== */
