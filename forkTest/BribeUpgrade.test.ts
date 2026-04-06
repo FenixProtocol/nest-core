@@ -65,7 +65,7 @@ describe('BribeUpgrade Fork Test', function () {
                 const [reward] = await bribe.earnedWithTimestampPublic(entry.user, UBTC_ADDRESS);
                 totalRewards += reward;
                 const expected = ethers.parseUnits(entry.pendingUbtcEstimate, ubtcDecimals);
-                console.log(`epx rewards ${expected}, actual rewards ${reward}, res ${reward == expected}`);
+                // console.log(`epx rewards ${expected}, actual rewards ${reward}, res ${reward == expected}`);
             }
             const ubtcBalance = await ubtc.balanceOf(BRIBE_ADDRESS);
             console.log(`total rewards ${totalRewards}`);
@@ -79,7 +79,7 @@ describe('BribeUpgrade Fork Test', function () {
                 const [reward] = await bribe.earnedWithTimestampPublic(owner, UBTC_ADDRESS);
                 totalRewards += reward;
                 usersRewards[owner] = reward.toString();
-                console.log(`rewards for user ${owner} = ${reward}`);
+                // console.log(`rewards for user ${owner} = ${reward}`);
             }
             console.log(`total rewards = ${totalRewards}`);
             const ubtcBalance = await ubtc.balanceOf(BRIBE_ADDRESS);
@@ -93,12 +93,46 @@ describe('BribeUpgrade Fork Test', function () {
                 const owner = await votingEscrow.ownerOf(tokenId);
                 const [reward] = await bribe.earnedWithTimestampPublic(owner, UBTC_ADDRESS);
                 totalRewards += reward;
-                console.log(`rewards for tokenId ${tokenId} = ${reward}`);
+                // console.log(`rewards for tokenId ${tokenId} = ${reward}`);
             }
             const ubtcBalance = await ubtc.balanceOf(BRIBE_ADDRESS);
             console.log(`total rewards ${totalRewards}`);
             console.log(`bribe balance ${ubtcBalance}`);
             expect(ubtcBalance).to.be.greaterThanOrEqual(totalRewards);
+        });
+        it(`reward calculations must be the same in UBTC/USDH pool`, async function () {
+            // pool 0x67c889d58147ae200c6dd55e3f08c3d3d9e0495d
+            const ubtcUsdhBribeAddress = "0x78595FECd6c3cfaca2F70f80A863B227cE16d7a2";
+            const usdhAddress = "0x111111a1a0667d36bD57c0A9f569b98057111111";
+            const sender = "0x55ccB3aA99b6350Bd29EC5A25499f0f1AFf4F58A"
+            const voterScAddress = "0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901";
+            const usdhRewardAmount = 826n;
+            await bribeFactory.setVoterToBribe(ubtcUsdhBribeAddress, voterScAddress);
+            const senderSigner = await ethers.getImpersonatedSigner(sender);
+            const bribeLocal = await ethers.getContractAt('BribeUpgradeableMockWithFixTargetEpoch', ubtcUsdhBribeAddress);
+            const tx = await bribeLocal.connect(senderSigner)["getReward(address[])"]([usdhAddress]);
+            const receipt = await tx.wait();
+            parseLogs(receipt, bribeLocal);
+            expect(tx).to.be.emit(bribeLocal, 'RewardPaid').withArgs(sender, usdhAddress, usdhRewardAmount);
+        });
+        it(`reward calculations must be the same in USDH/WHYPE pool`, async function () {
+            // pool 0x45fbf9786cdbde9e940620f4af0eb42b76848d17
+            const usdhWhypeBribeAddress = "0xC6D666cc5C1eE0b54Ef55836bfFC60794DCFf2Bd";
+            const whypeAddress = "0x5555555555555555555555555555555555555555";
+            const usdhAddress = "0x111111a1a0667d36bD57c0A9f569b98057111111";
+            const sender = "0xbE93d14C5dEFb8F41aF8FB092F58e3C71C712b85"
+            const voterScAddress = "0x566bdc5444fd5fe5d93ec379Bd66eC861ddbA901";
+            const whypeRewardAmount = 25574840346063952n;
+            const usdhRewardAmount = 793830n;
+            await bribeFactory.setVoterToBribe(usdhWhypeBribeAddress, voterScAddress);
+            const senderSigner = await ethers.getImpersonatedSigner(sender);
+            const bribeLocal = await ethers.getContractAt('BribeUpgradeableMockWithFixTargetEpoch', usdhWhypeBribeAddress);
+            const tx = await bribeLocal.connect(senderSigner)["getReward(address[])"]([whypeAddress, usdhAddress]);
+            const receipt = await tx.wait();
+            parseLogs(receipt, bribeLocal);
+            expect(tx).to.be.emit(bribeLocal, 'RewardPaid').withArgs(sender, whypeAddress, whypeRewardAmount);
+            expect(tx).to.be.emit(bribeLocal, 'RewardPaid').withArgs(sender, usdhAddress, usdhRewardAmount);
+
         });
     });
     describe('getRewards', function () {
@@ -107,14 +141,17 @@ describe('BribeUpgrade Fork Test', function () {
         });
         it(`must execute getRewards for all voters`, async function () {
             const tokenIds = [...new Set(testData2.map(entry => entry.tokenId))];
+            const balanceBefore = await ubtc.balanceOf(BRIBE_ADDRESS);
             for (const tokenId of tokenIds) {
                 const tx = await bribe.getRewardForOwner(tokenId, [UBTC_ADDRESS]);
                 console.log(`token with id ${tokenId} got rewards successfully`);
             }
+            const balanceAfter = await ubtc.balanceOf(BRIBE_ADDRESS);
+            expect(balanceBefore).to.be.greaterThan(balanceAfter);
             // if reward transfer is successful, then the test is successful
         });
     });
-    describe.only('aggregateClaim', function () {
+    describe('aggregateClaim', function () {
         after(async () => {
             await startSnapshot.restore();
         });
@@ -132,3 +169,16 @@ describe('BribeUpgrade Fork Test', function () {
         });
     });
 });
+
+function parseLogs(receipt: any, bribeLocal: any): void {
+    if (receipt) {
+        for (const log of receipt.logs) {
+            try {
+                const parsed = bribeLocal.interface.parseLog(log as any);
+                console.log(`Event: ${parsed?.name}`, parsed?.args);
+            } catch (e) {
+                // not a bribeLocal event
+            }
+        }
+    }
+}
