@@ -4,6 +4,8 @@ import { ethers } from 'hardhat';
 import { BribeUpgradeable, BribeFactoryMock, ProxyAdmin, ERC20, BribeUpgradeableMockWithFixTargetEpoch, VoterUpgradeableV2, VotingEscrowUpgradeableV2 } from '../typechain-types';
 import testData from './data/testData.json';
 import testData2 from './data/testData2.json';
+import usdhUbtcSnapshot from './data/usdhUbtcSnapshot.json';
+import usdhWhypeSnapshot from './data/usdhWhypeSnapshot.json';
 import { SnapshotRestorer, takeSnapshot } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 
 describe('BribeUpgrade Fork Test', function () {
@@ -58,7 +60,7 @@ describe('BribeUpgrade Fork Test', function () {
         startSnapshot = await takeSnapshot();
     });
 
-    describe('rewards calculations', function () {
+    describe.only('rewards calculations', function () {
         it(`should return correct earnedWithTimestamp`, async function () {
             let totalRewards = 0n;
             for (const entry of testData) {
@@ -70,6 +72,51 @@ describe('BribeUpgrade Fork Test', function () {
             const ubtcBalance = await ubtc.balanceOf(BRIBE_ADDRESS);
             console.log(`total rewards ${totalRewards}`);
             console.log(`bribe balance ${ubtcBalance}`);
+        });
+        it(`should return correct earnedWithTimestamp for USDH/WHYPE bribe`, async function () {
+            const bribeAddress = "0xC6D666cc5C1eE0b54Ef55836bfFC60794DCFf2Bd";
+            const bribeLocal = await ethers.getContractAt('BribeUpgradeableMockWithFixTargetEpoch', bribeAddress);
+            const usdhAddress = "0x111111a1a0667d36bD57c0A9f569b98057111111";
+            const whypeAddress = "0x5555555555555555555555555555555555555555";
+            const usdh = await ethers.getContractAt('ERC20', usdhAddress);
+            const whype = await ethers.getContractAt('ERC20', whypeAddress);
+            const users = [...new Set(usdhWhypeSnapshot.locks.map(lock => lock.owner))];
+            let usdhRewards = 0n;
+            let whypeRewards = 0n;
+            for (const user of users) {
+                const [usdhReward] = await bribeLocal.earnedWithTimestampPublic(user, usdhAddress);
+                usdhRewards += usdhReward;
+                const [whypeReward] = await bribeLocal.earnedWithTimestampPublic(user, whypeAddress);
+                whypeRewards += whypeReward;
+            }
+            const usdhBalance = await usdh.balanceOf(bribeAddress);
+            const whypeBalance = await whype.balanceOf(bribeAddress);
+            console.log(`usdh rewards must be less than balance ${usdhBalance} ${usdhRewards}`);
+            console.log(`whype rewards must be less than balance ${whypeBalance} ${whypeRewards}`);
+            expect(usdhRewards).to.be.lessThan(usdhBalance);
+            expect(whypeRewards).to.be.lessThan(whypeBalance);
+        });
+        it(`should return correct earnedWithTimestamp for USDH/UBTC bribe`, async function () {
+            const bribeAddress = "0x78595FECd6c3cfaca2F70f80A863B227cE16d7a2";
+            const bribeLocal = await ethers.getContractAt('BribeUpgradeableMockWithFixTargetEpoch', bribeAddress);
+            const usdhAddress = "0x111111a1a0667d36bD57c0A9f569b98057111111";
+            const whypeAddress = "0x5555555555555555555555555555555555555555";
+            const usdh = await ethers.getContractAt('ERC20', usdhAddress);
+            const users = [...new Set(usdhUbtcSnapshot.locks.map(lock => lock.owner))];
+            let usdhRewards = 0n;
+            let ubtcRewards = 0n;
+            for (const user of users) {
+                const [usdhReward] = await bribeLocal.earnedWithTimestampPublic(user, usdhAddress);
+                usdhRewards += usdhReward;
+                const [ubtcReward] = await bribeLocal.earnedWithTimestampPublic(user, UBTC_ADDRESS);
+                ubtcRewards += ubtcReward;
+            }
+            const usdhBalance = await usdh.balanceOf(bribeAddress);
+            const ubtcBalance = await ubtc.balanceOf(bribeAddress);
+            console.log(`usdh rewards must be less than balance ${usdhBalance} ${usdhRewards}`);
+            console.log(`ubtc rewards must be less than balance ${ubtcBalance} ${ubtcRewards}`);
+            expect(usdhRewards).to.be.lessThan(usdhBalance);
+            expect(ubtcRewards).to.be.lessThan(ubtcBalance);
         });
         it(`check total rewards of all voters for all time`, async function () {
             let totalRewards = 0n;

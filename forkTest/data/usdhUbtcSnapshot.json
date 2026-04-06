@@ -1,0 +1,65 @@
+{
+  "pool": "0x67c889d58147ae200c6dd55e3f08c3d3d9e0495d",
+  "internalBribe": "0x78595fecd6c3cfaca2f70f80a863b227ce16d7a2",
+  "externalBribe": "0x89ad647f9f3c977c1050c3346a41b6b050529642",
+  "locksEverVotedPoolCount": 18,
+  "rewardRecipientWalletCount": 12,
+  "locks": [
+    {
+      "tokenId": 1,
+      "owner": "0x96f7b8ba7580d3e510b0fb3f0e135a743d8eb17a"
+    },
+    {
+      "tokenId": 2,
+      "owner": "0xba6f01324f61ad4f5997c44580cf21a80655b969"
+    },
+    {
+      "tokenId": 3,
+      "owner": "0x90d39920c60953a96bfaafba55f909697f55a7cc"
+    },
+    {
+      "tokenId": 4,
+      "owner": "0x8ce4d7f93f8a55e6d120f302c0bcce502b640827"
+    },
+    {
+      "tokenId": 5,
+      "owner": "0x0ccd34be3c5f4f905308b0ef898e870fb7930354"
+    },
+    {
+      "tokenId": 149,
+      "owner": "0xb22c0a39d40556d1cd014700cbd626d82a88c072"
+    },
+    {
+      "tokenId": 337,
+      "owner": "0x56e08babb8bf928bd8571d2a2a78235ae57ae5bd"
+    },
+    {
+      "tokenId": 463,
+      "owner": "0xb5d26158102181dc4ceee75f260a60debd752e45"
+    },
+    {
+      "tokenId": 465,
+      "owner": "0x2f45724d7e384b38d5c97206e78470544304887f"
+    },
+    {
+      "tokenId": 543,
+      "owner": "0xd01bd97e365197cedae9ac6d65b28dbd238b66ee"
+    },
+    {
+      "tokenId": 702,
+      "owner": "0x55ccb3aa99b6350bd29ec5a25499f0f1aff4f58a"
+    },
+    {
+      "tokenId": 722,
+      "owner": "0x56e08babb8bf928bd8571d2a2a78235ae57ae5bd"
+    },
+    {
+      "tokenId": 768,
+      "owner": "0x03cdf55f7de2837902bda23afd8191d8a2d11076"
+    },
+    {
+      "tokenId": 860,
+      "owner": "0xb5d26158102181dc4ceee75f260a60debd752e45"
+    }
+  ]
+}
