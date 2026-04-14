@@ -27,3 +27,6 @@ docs/modules/api
 /cache_forge
 
 /temp
+
+# helpers scripts
+/scripts/analytics
