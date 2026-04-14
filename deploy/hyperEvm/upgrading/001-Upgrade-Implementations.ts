@@ -2,8 +2,8 @@ import { ethers } from 'hardhat';
 import { GaugeType } from '../../../utils/Constants';
 import { AliasDeployedContracts, deploy, getDeployedContractsAddressList, getProxyAdminAddress, logTx } from '../../../utils/Deploy';
 import { InstanceName } from '../../../utils/Names';
-const PREVIOUS_EPOCH = 0; // TODO: set valid value, e.g 1773273600n;
-const PREVIOUS_INDEX = 0; // TODO: set valid value, e.g 359391232473502260n;
+const PREVIOUS_EPOCH = 1775088000n; // TODO: set valid value, e.g 1773273600n;
+const PREVIOUS_INDEX = 420741890673727469n; // TODO: set valid value, e.g 359391232473502260n;
 const WEEK = 604800n;
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -11,11 +11,6 @@ async function main() {
   const DeployedContracts = await getDeployedContractsAddressList();
   const ProxyAdmin = await getProxyAdminAddress();
   const ProxyAdmin_Typed = await ethers.getContractAt(InstanceName.ProxyAdmin, ProxyAdmin);
-
-  if (PREVIOUS_EPOCH == 0 || PREVIOUS_INDEX == 0) {
-    throw new Error('Previous epoch and index are not set');
-  }
-
   // ──────────────────────────────────────────────────────────
   // 1. BribeVeNESTRewardToken — deploy + ProxyAdmin.upgrade
   // ──────────────────────────────────────────────────────────
@@ -33,6 +28,8 @@ async function main() {
       await bribeVeNESTRewardTokenImpl.getAddress(),
     ),
   );
+
+  console.log('\nBribeVeNESTRewardToken upgraded\n');
 
   // ──────────────────────────────────────────────────────────
   // 2. CustomBribeRewardRouter — deploy + ProxyAdmin.upgrade
@@ -52,6 +49,8 @@ async function main() {
     ),
   );
 
+  console.log('\nCustomBribeRewardRouter upgraded\n');
+
   // ──────────────────────────────────────────────────────────
   // 3. CompoundEmissionExtensionUpgradeable — deploy + ProxyAdmin.upgrade
   // ──────────────────────────────────────────────────────────
@@ -69,6 +68,8 @@ async function main() {
       await compoundEmissionExtImpl.getAddress(),
     ),
   );
+
+  console.log('\nCompoundEmissionExtensionUpgradeable upgraded\n');
 
   // ──────────────────────────────────────────────────────────
   // 4. VotingEscrowUpgradeableV2 — deploy + ProxyAdmin.upgrade
@@ -88,6 +89,8 @@ async function main() {
     ),
   );
 
+  console.log('\nVotingEscrowUpgradeable upgraded\n');
+
   // ──────────────────────────────────────────────────────────
   // 5. VoterUpgradeableV2 — deploy + ProxyAdmin.upgradeAndCall(reinitialize)
   // ──────────────────────────────────────────────────────────
@@ -104,6 +107,7 @@ async function main() {
   const latestIndex = await voter.index();
   const latestEpoch = await voter.epochTimestamp();
   if (latestEpoch - WEEK != PREVIOUS_EPOCH) { throw new Error('Previous epoch is not correct'); }
+  if (latestIndex <= PREVIOUS_INDEX) { throw new Error('Previous index must be smaller than current index'); }
   // previous epoch, current epoch
   const epochs: bigint[] = [PREVIOUS_EPOCH, latestEpoch];
   const epochIndexes: bigint[] = [PREVIOUS_INDEX, latestIndex];
@@ -117,6 +121,8 @@ async function main() {
       reinitializeCalldata,
     ),
   );
+
+  console.log('\nVoterUpgradeable upgraded\n');
 
   // ──────────────────────────────────────────────────────────
   // 6. Pair — deploy + PairFactory.upgradePairImplementation
@@ -135,16 +141,22 @@ async function main() {
   );
   await logTx(pairFactory, pairFactory.upgradePairImplementation(await pairImpl.getAddress()));
 
+  console.log('\nPair upgraded\n');
+
   // ──────────────────────────────────────────────────────────
   // 7. RouterV2 — deploy only
   // ──────────────────────────────────────────────────────────
+  const pairFactoryAddress = "0xfDb34624506e9A0624AF60F85ebd9E44A0FD2a17";
+  const wETHAddress = "0x5555555555555555555555555555555555555555";
   await deploy({
     name: InstanceName.RouterV2,
     deployer,
-    constructorArguments: [],
+    constructorArguments: [pairFactoryAddress, wETHAddress],
     saveAlias: AliasDeployedContracts.RouterV2,
     verify: true,
   });
+
+  console.log('\nRouterV2 deployed\n');
 
   // ──────────────────────────────────────────────────────────
   // 8. GaugeUpgradeable — deploy V2 & V3 + GaugeFactory.changeImplementation (both)
@@ -157,6 +169,8 @@ async function main() {
     verify: true,
   });
 
+  console.log('\nGaugeUpgradeable V2 deployed\n');
+
   const gaugeV3Impl = await deploy({
     name: InstanceName.GaugeUpgradeable,
     deployer,
@@ -165,17 +179,23 @@ async function main() {
     verify: true,
   });
 
+  console.log('\nGaugeUpgradeable V3 deployed\n');
+
   const gaugeFactoryV2 = await ethers.getContractAt(
     InstanceName.GaugeFactoryUpgradeable,
     DeployedContracts[AliasDeployedContracts.GaugeFactory_V2Pools_Proxy],
   );
   await logTx(gaugeFactoryV2, gaugeFactoryV2.changeImplementation(await gaugeV2Impl.getAddress()));
 
+  console.log('\nGauge V2 implementation updated\n');
+
   const gaugeFactoryV3 = await ethers.getContractAt(
     InstanceName.GaugeFactoryUpgradeable,
     DeployedContracts[AliasDeployedContracts.GaugeFactory_V3Pools_Proxy],
   );
   await logTx(gaugeFactoryV3, gaugeFactoryV3.changeImplementation(await gaugeV3Impl.getAddress()));
+
+  console.log('\nGauge V3 implementation updated\n');
 
   // ──────────────────────────────────────────────────────────
   // 9. CompoundVeNESTManagedNFTStrategyUpgradeable — deploy + factory.changeStrategyImplementation
@@ -194,6 +214,8 @@ async function main() {
   );
   await logTx(strategyFactory, strategyFactory.changeStrategyImplementation(await strategyImpl.getAddress()));
 
+  console.log('\nStrategy implementation updated\n');
+
   // ──────────────────────────────────────────────────────────
   // 10. SingelTokenVirtualRewarderUpgradeable — deploy + factory.changeVirtualRewarderImplementation
   // ──────────────────────────────────────────────────────────
@@ -206,6 +228,8 @@ async function main() {
   });
 
   await logTx(strategyFactory, strategyFactory.changeVirtualRewarderImplementation(await virtualRewarderImpl.getAddress()));
+
+  console.log('\nVirtualRewarder implementation updated\n');
 
   // ──────────────────────────────────────────────────────────
   // 11. BribeUpgradeable — deploy + BribeFactory.changeImplementation
@@ -223,6 +247,8 @@ async function main() {
     DeployedContracts[AliasDeployedContracts.BribeFactoryUpgradeable_Proxy],
   );
   await logTx(bribeFactory, bribeFactory.changeImplementation(await bribeImpl.getAddress()));
+
+  console.log('\nBribe implementation updated\n');
 }
 
 main()
