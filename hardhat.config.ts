@@ -137,7 +137,7 @@ const config: HardhatUserConfig = {
       forking: {
         enabled: false, // set to true to run fork tests
         url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
-        blockNumber: 31369069// previous block number 25055503
+        blockNumber: 32612975// previous block numbers 31369069, 25055503
       },
       chains: {
         999: {
