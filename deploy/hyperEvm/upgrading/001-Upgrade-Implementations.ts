@@ -146,7 +146,7 @@ async function main() {
   // ──────────────────────────────────────────────────────────
   // 7. RouterV2 — deploy only
   // ──────────────────────────────────────────────────────────
-  const pairFactoryAddress = "0xfDb34624506e9A0624AF60F85ebd9E44A0FD2a17";
+  const pairFactoryAddress = "0x889Fd0aDA8453C7619cD7f11E9029a1f0848Fdf5";
   const wETHAddress = "0x5555555555555555555555555555555555555555";
   await deploy({
     name: InstanceName.RouterV2,
