@@ -126,7 +126,8 @@ enum ContractsInstanceName {
   CustomBribeRewardRouter = 'CustomBribeRewardRouter',
   CompoundEmissionExtensionUpgradeable = 'CompoundEmissionExtensionUpgradeable',
   VolatileDynamicFeeOnePool = 'VolatileDynamicFeeOnePool',
-  TokenPublicRaiseUpgradeable = 'TokenPublicRaiseUpgradeable'
+  TokenPublicRaiseUpgradeable = 'TokenPublicRaiseUpgradeable',
+  WHypeAirdrop = 'WHypeAirdrop'
 }
 
 enum ContractsMocksInstanceName {
