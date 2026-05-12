@@ -1,6 +1,7 @@
 node_modules
 .env
-
+.vscode
+.cursor
 # Hardhat files
 /cache
 /artifacts
@@ -26,3 +27,6 @@ docs/modules/api
 /cache_forge
 
 /temp
+
+# helpers scripts
+/scripts/analytics

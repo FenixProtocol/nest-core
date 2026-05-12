@@ -1,0 +1,52 @@
+[
+    {
+        "user": "0x0ccd34be3c5f4f905308b0ef898e870fb7930354",
+        "accruedUbtc": "0.00133963",
+        "pendingUbtcEstimate": "0.00133963"
+    },
+    {
+        "user": "0x1da29ca4e330f0faa816edb6b55b46f9ee453f7f",
+        "accruedUbtc": "0.00000066",
+        "pendingUbtcEstimate": "0.00000066"
+    },
+    {
+        "user": "0x60d97552d8f7982922d18d0f2a8fbd9d5b0e2c28",
+        "accruedUbtc": "0.00070562",
+        "pendingUbtcEstimate": "0.00070562"
+    },
+    {
+        "user": "0x641a6bcf38ace1930551dd551b3bc61e22ea1679",
+        "accruedUbtc": "0.00000356",
+        "pendingUbtcEstimate": "0.00000356"
+    },
+    {
+        "user": "0x8605c7b18c75e05221653045690e1b01bdee5cba",
+        "accruedUbtc": "0.00003908",
+        "pendingUbtcEstimate": "0.00003908"
+    },
+    {
+        "user": "0x8ce4d7f93f8a55e6d120f302c0bcce502b640827",
+        "accruedUbtc": "0.00145966",
+        "pendingUbtcEstimate": "0.00145966"
+    },
+    {
+        "user": "0x90d39920c60953a96bfaafba55f909697f55a7cc",
+        "accruedUbtc": "0.00203250",
+        "pendingUbtcEstimate": "0.00203250"
+    },
+    {
+        "user": "0x96f7b8ba7580d3e510b0fb3f0e135a743d8eb17a",
+        "accruedUbtc": "0.00274353",
+        "pendingUbtcEstimate": "0.00274353"
+    },
+    {
+        "user": "0xba6f01324f61ad4f5997c44580cf21a80655b969",
+        "accruedUbtc": "0.00539771",
+        "pendingUbtcEstimate": "0.00539771"
+    },
+    {
+        "user": "0xeb97d6e2c851e01a4ba9f3e282de2bfe467cb13b",
+        "accruedUbtc": "0.00000095",
+        "pendingUbtcEstimate": "0.00000095"
+    }
+]

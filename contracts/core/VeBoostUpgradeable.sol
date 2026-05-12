@@ -67,7 +67,7 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
     EnumerableSetUpgradeable.AddressSet internal _rewardTokens;
 
     error AddressZero();
-    
+
     /**
      * @dev Initializes the contract by disabling the initializer of the inherited upgradeable contract.
      */
@@ -97,7 +97,7 @@ contract VeBoostUpgradeable is IVeBoost, Ownable2StepUpgradeable {
         _minLockedTime = 182 * 86400; // Initialize minimum locked time to approximately 6 months
         _boostNESTPercentage = 1_000; // Initialize NEST boost percentage to 10%
 
-        IERC20Upgradeable(nest).safeApprove(votingEscrow_, type(uint256).max);
+        IERC20Upgradeable(nest).forceApprove(votingEscrow_, type(uint256).max);
     }
 
     /**

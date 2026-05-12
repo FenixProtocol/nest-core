@@ -58,7 +58,7 @@ contract VeNestDistributorUpgradeable is IVeNestDistributor, AccessControlEnumer
     error ArrayLengthMismatch();
 
     error AddressZero();
-    
+
     /**
      * @notice Constructor that ensures the implementation contract cannot be initialized more than once.
      */
@@ -143,7 +143,7 @@ contract VeNestDistributorUpgradeable is IVeNestDistributor, AccessControlEnumer
 
         if (totalDistributionSum > nestCache.balanceOf(address(this))) revert InsufficientBalance();
 
-        nestCache.safeApprove(address(veCache), totalDistributionSum);
+        nestCache.forceApprove(address(veCache), totalDistributionSum);
         for (uint256 i; i < rows_.length; ) {
             AidropRow memory row = rows_[i];
             uint256 tokenId = veCache.createLockFor(

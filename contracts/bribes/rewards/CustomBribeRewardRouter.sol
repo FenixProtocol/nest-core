@@ -25,11 +25,7 @@ import {ICustomBribeRewardRouter} from "./interfaces/ICustomBribeRewardRouter.so
  *      - Uses a voter contract to derive the correct external bribe contract for a given pool.
  *      - Requires the caller to have appropriate roles and the function to be enabled before executing certain operations.
  */
-contract CustomBribeRewardRouter is
-    ICustomBribeRewardRouter,
-    AccessControlUpgradeable,
-    ERC721HolderUpgradeable
-{
+contract CustomBribeRewardRouter is ICustomBribeRewardRouter, AccessControlUpgradeable, ERC721HolderUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /// @notice The address of the intermediate bribe-veNEST reward token.
@@ -117,12 +113,12 @@ contract CustomBribeRewardRouter is
 
         token.safeTransferFrom(_msgSender(), address(this), amount_);
 
-        token.safeApprove(address(bribeVeNestRewardTokenCache), amount_);
+        token.forceApprove(address(bribeVeNestRewardTokenCache), amount_);
         bribeVeNestRewardTokenCache.mint(address(this), amount_);
 
         address externalBribe = _getExternalBribe(pool_);
 
-        IERC20Upgradeable(bribeVeNestRewardTokenCache).safeApprove(externalBribe, amount_);
+        IERC20Upgradeable(bribeVeNestRewardTokenCache).forceApprove(externalBribe, amount_);
         IBribe(externalBribe).notifyRewardAmount(address(bribeVeNestRewardTokenCache), amount_);
         emit NotifyRewardNESTInVeNest(_msgSender(), pool_, externalBribe, amount_);
     }
@@ -156,12 +152,12 @@ contract CustomBribeRewardRouter is
         votingEscrow.burnToBribes(tokenId_);
         uint256 amount = token.balanceOf(address(this)) - balanceBefore;
 
-        token.safeApprove(address(bribeVeNestRewardTokenCache), amount);
+        token.forceApprove(address(bribeVeNestRewardTokenCache), amount);
         bribeVeNestRewardTokenCache.mint(address(this), amount);
 
         address externalBribe = _getExternalBribe(pool_);
 
-        IERC20Upgradeable(bribeVeNestRewardTokenCache).safeApprove(externalBribe, amount);
+        IERC20Upgradeable(bribeVeNestRewardTokenCache).forceApprove(externalBribe, amount);
         IBribe(externalBribe).notifyRewardAmount(address(bribeVeNestRewardTokenCache), amount);
 
         emit NotifyRewardVeNESTInVeNest(_msgSender(), pool_, externalBribe, tokenId_, amount);

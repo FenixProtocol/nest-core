@@ -127,10 +127,36 @@ describe('VotingEscrow_V2', function () {
         await Voter.createV2Gauge(pair);
         let gauge = await Voter.poolToGauge(pair);
 
+        // Create veNFT lock and vote for the pool
+        await deployed.fenix.transfer(signers.otherUser1.address, ethers.parseEther('10'));
+        await deployed.fenix.connect(signers.otherUser1).approve(VotingEscrow.target, ethers.parseEther('10'));
+        await VotingEscrow.connect(signers.otherUser1).createLockFor(ethers.parseEther('10'), 15724800, signers.otherUser1.address, false, false, 0);
+
+        // Vote for the pool
+        await Voter.connect(signers.otherUser1).vote(1, [pair], [10000]);
+
+        // Get epoch timestamp and check weights before killing
+        let epochTimestamp = await Voter.epochTimestamp();
+        let poolWeightBefore = await Voter.weightsPerEpoch(epochTimestamp, pair);
+        let totalWeightBefore = await Voter.totalWeightsPerEpoch(epochTimestamp);
+
+        expect(poolWeightBefore).to.be.gt(0);
+        expect(totalWeightBefore).to.be.gte(poolWeightBefore);
+
+        // Kill the gauge
         await expect(Voter.killGauge(gauge)).to.be.emit(Voter, 'GaugeKilled').withArgs(gauge);
+
+        // Verify gauge state
         let gaugeState = await Voter.gaugesState(gauge);
         expect(gaugeState.isGauge).to.be.true;
         expect(gaugeState.isAlive).to.be.false;
+
+        // Verify weights after killing
+        let poolWeightAfter = await Voter.weightsPerEpoch(epochTimestamp, pair);
+        let totalWeightAfter = await Voter.totalWeightsPerEpoch(epochTimestamp);
+
+        expect(poolWeightAfter).to.be.eq(0);
+        expect(totalWeightAfter).to.be.eq(totalWeightBefore - poolWeightBefore);
       });
     });
     describe('#reviveGauge', async () => {
@@ -463,7 +489,7 @@ describe('VotingEscrow_V2', function () {
           expect(gaugeState.pool).to.be.eq(pair);
           expect(gaugeState.claimable).to.be.eq(0);
           expect(gaugeState.index).to.be.eq(0);
-          expect(gaugeState.lastDistributionTimestamp).to.be.eq(0);
+          expect(gaugeState.lastDistributionTimestamp).to.be.eq(await Voter.epochTimestamp());
         });
 
         it('success emit event', async () => {

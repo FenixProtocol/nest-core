@@ -540,6 +540,107 @@ describe('Pair Contract', function () {
       }
     });
   });
+  describe('#burn', async () => {
+    it('should revert when trying to remove all liquidity from stable pair (K below MINIMUM_K)', async () => {
+      // Add liquidity to the stable pair
+      await deployed.fenix.transfer(pairStable.target, ONE_ETHER);
+      await tokenTK6.mint(pairStable.target, 1e6);
+      await pairStable.mint(signers.deployer.address);
+
+      // Get all LP tokens (except MINIMUM_LIQUIDITY locked)
+      const lpBalance = await pairStable.balanceOf(signers.deployer.address);
+      // Transfer all LP tokens to the pair to burn them
+      await pairStable.transfer(pairStable.target, lpBalance);
+
+      // Attempting to burn all liquidity should revert because K would fall below MINIMUM_K
+      await expect(pairStable.burn(signers.deployer.address)).to.be.revertedWith(
+        'Pair: K must be greater than minimum k',
+      );
+    });
+
+    it('should revert when trying to remove all liquidity from stable pair (K below MINIMUM_K)', async () => {
+      // Add liquidity to the stable pair
+      await deployed.fenix.transfer(pairStable.target, ONE_ETHER);
+      await tokenTK6.mint(pairStable.target, 1e6);
+      await pairStable.mint(signers.deployer.address);
+
+      // Get all LP tokens (except MINIMUM_LIQUIDITY locked)
+      const lpBalance = await pairStable.balanceOf(signers.deployer.address);
+
+      // Transfer all LP tokens to the pair to burn them
+      await pairStable.transfer(pairStable.target, lpBalance);
+
+      // Attempting to burn all liquidity should revert because K would fall below MINIMUM_K
+      await expect(pairStable.burn(signers.deployer.address)).to.be.revertedWith(
+        'Pair: K must be greater than minimum k',
+      );
+    });
+
+    it('should successfully burn partial liquidity from volatile pair', async () => {
+      // Add liquidity to the volatile pair
+      await tokenTK18.mint(pairVolatily.target, ONE_ETHER);
+      await tokenTK6.mint(pairVolatily.target, 1e6);
+      await pairVolatily.mint(signers.deployer.address);
+
+      // Get LP balance
+      const lpBalance = await pairVolatily.balanceOf(signers.deployer.address);
+
+      // Transfer only half of the LP tokens to burn
+      const halfLpBalance = lpBalance / 2n;
+      await pairVolatily.transfer(pairVolatily.target, halfLpBalance);
+
+      // Get balances before burn
+      const token0 = await pairVolatily.token0();
+      const token1 = await pairVolatily.token1();
+      const token0Contract = token0 === tokenTK18.target ? tokenTK18 : tokenTK6;
+      const token1Contract = token0 === tokenTK18.target ? tokenTK6 : tokenTK18;
+
+      const balanceBefore0 = await token0Contract.balanceOf(signers.deployer.address);
+      const balanceBefore1 = await token1Contract.balanceOf(signers.deployer.address);
+
+      // Burn partial liquidity should succeed
+      await expect(pairVolatily.burn(signers.deployer.address)).to.emit(pairVolatily, 'Burn');
+
+      // Verify tokens were received
+      const balanceAfter0 = await token0Contract.balanceOf(signers.deployer.address);
+      const balanceAfter1 = await token1Contract.balanceOf(signers.deployer.address);
+
+      expect(balanceAfter0).to.be.gt(balanceBefore0);
+      expect(balanceAfter1).to.be.gt(balanceBefore1);
+    });
+
+    it('should successfully burn partial liquidity from stable pair', async () => {
+      // Add liquidity to the stable pair
+      await deployed.fenix.transfer(pairStable.target, ONE_ETHER);
+      await tokenTK6.mint(pairStable.target, 1e6);
+      await pairStable.mint(signers.deployer.address);
+
+      // Get LP balance
+      const lpBalance = await pairStable.balanceOf(signers.deployer.address);
+
+      // Transfer only half of the LP tokens to burn
+      const halfLpBalance = lpBalance / 2n;
+      await pairStable.transfer(pairStable.target, halfLpBalance);
+
+      // Get balances before burn
+      const token0 = await pairStable.token0();
+      const token0Contract = token0 === deployed.fenix.target ? deployed.fenix : tokenTK6;
+      const token1Contract = token0 === deployed.fenix.target ? tokenTK6 : deployed.fenix;
+
+      const balanceBefore0 = await token0Contract.balanceOf(signers.deployer.address);
+      const balanceBefore1 = await token1Contract.balanceOf(signers.deployer.address);
+
+      // Burn partial liquidity should succeed
+      await expect(pairStable.burn(signers.deployer.address)).to.emit(pairStable, 'Burn');
+
+      // Verify tokens were received
+      const balanceAfter0 = await token0Contract.balanceOf(signers.deployer.address);
+      const balanceAfter1 = await token1Contract.balanceOf(signers.deployer.address);
+
+      expect(balanceAfter0).to.be.gt(balanceBefore0);
+      expect(balanceAfter1).to.be.gt(balanceBefore1);
+    });
+  });
   describe('#setCommunityVault', async () => {
     it('fails if caller is not PAIRS_ADMINISTRATOR', async () => {
       await expect(pairVolatily.connect(signers.otherUser1).setCommunityVault(signers.otherUser1)).to.be.revertedWith('ACCESS_DENIED');

@@ -94,12 +94,7 @@ contract Pair is IPair {
         _unlocked = 1;
     }
 
-    function initialize(
-        address _token0,
-        address _token1,
-        bool _stable,
-        address _communityVault
-    ) external {
+    function initialize(address _token0, address _token1, bool _stable, address _communityVault) external {
         require(factory == address(0), "Initialized");
 
         factory = msg.sender;
@@ -368,6 +363,11 @@ contract Pair is IPair {
         amount0 = (_liquidity * _balance0) / _totalSupply; // using balances ensures pro-rata distribution
         amount1 = (_liquidity * _balance1) / _totalSupply; // using balances ensures pro-rata distribution
         require(amount0 > 0 && amount1 > 0, "ILB"); // Pair: INSUFFICIENT_LIQUIDITY_BURNED
+        if (stable) {
+            uint256 _remainder0 = _balance0 - amount0;
+            uint256 _remainder1 = _balance1 - amount1;
+            require(_k(_remainder0, _remainder1) >= MINIMUM_K, "Pair: K must be greater than minimum k"); // Pair: K must be greater than minimum k
+        }
         _burn(address(this), _liquidity);
         _safeTransfer(_token0, to, amount0);
         _safeTransfer(_token1, to, amount1);
@@ -433,6 +433,7 @@ contract Pair is IPair {
 
     // force reserves to match balances
     function sync() external lock {
+        require(totalSupply > 0, "Pair: zero total supply");
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), reserve0, reserve1);
     }
 
@@ -461,7 +462,7 @@ contract Pair is IPair {
                         // We found the correct answer. Return y
                         return y;
                     }
-                    if (_k(x0, y + 1) > xy) {
+                    if (_f(x0, y + 1) > xy) {
                         // If _k(x0, y + 1) > xy, then we are close to the correct answer.
                         // There's no closer answer than y + 1
                         return y + 1;
