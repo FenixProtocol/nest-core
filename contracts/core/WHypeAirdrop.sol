@@ -11,7 +11,7 @@ import {MerkleProofUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/
  * @notice Merkle-proof based airdrop contract for WHYPE token distribution.
  * @dev The contract expects the developer/operator to transfer enough WHYPE tokens
  *      to this contract address before users start claiming.
- * @author Aegis
+ * @author Aegas
  */
 contract WHypeAirdrop is AccessControlUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
