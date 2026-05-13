@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity =0.8.19;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -14,16 +14,12 @@ contract GaugeFactoryUpgradeable is IGaugeFactory, OwnableUpgradeable {
     address public override merklGaugeMiddleman;
 
     error AddressZero();
-    
+
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(
-        address _voter,
-        address _gaugeImplementation,
-        address _merklGaugeMiddleman
-    ) external initializer {
+    function initialize(address _voter, address _gaugeImplementation, address _merklGaugeMiddleman) external initializer {
         _checkAddressZero(_voter);
         _checkAddressZero(_gaugeImplementation);
 
@@ -63,7 +59,6 @@ contract GaugeFactoryUpgradeable is IGaugeFactory, OwnableUpgradeable {
 
         return newLastGauge;
     }
-
 
     function gaugeOwner() external view returns (address) {
         return owner();
