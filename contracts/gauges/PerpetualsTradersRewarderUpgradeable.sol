@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.19;
 
 import {EIP712Upgradeable, ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
@@ -10,11 +10,7 @@ import {IPerpetualsTradersRewarder} from "./interfaces/IPerpetualsTradersRewarde
  * @title PerpetualsTradersRewarderUpgradeable
  * @dev Implementation of the IPerpetualsTradersRewarder interface. Manages reward distribution to perpetual traders.
  */
-contract PerpetualsTradersRewarderUpgradeable is
-    IPerpetualsTradersRewarder,
-    OwnableUpgradeable,
-    EIP712Upgradeable
-{
+contract PerpetualsTradersRewarderUpgradeable is IPerpetualsTradersRewarder, OwnableUpgradeable, EIP712Upgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /// @notice The address of the gauge
@@ -54,7 +50,7 @@ contract PerpetualsTradersRewarderUpgradeable is
     error IncorrectRewardToken();
 
     error AddressZero();
-    
+
     /**
      * @dev Initializes the contract by disabling initializers.
      */

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity =0.8.19;
 
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
@@ -71,7 +71,7 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
      */
     mapping(address user => uint256) public userTokensAllocated;
 
-    /** 
+    /**
      * @dev Reverts when `msg.value` is below the minimum accepted amount for a context.
      */
     error DepositBelowMin();
@@ -140,7 +140,15 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
      * @param tokenPricePerOneNative_ Tokens per 1e18 native units.
      * @param treasury_ Destination address for collected native funds.
      */
-    function initialize(uint256 startTimestamp_, uint256 endTimestamp_, uint256 minDepositAmount_, uint256 maxDepositAmount_, uint256 totalDepositCap_, uint256 tokenPricePerOneNative_, address treasury_) external initializer {
+    function initialize(
+        uint256 startTimestamp_,
+        uint256 endTimestamp_,
+        uint256 minDepositAmount_,
+        uint256 maxDepositAmount_,
+        uint256 totalDepositCap_,
+        uint256 tokenPricePerOneNative_,
+        address treasury_
+    ) external initializer {
         __Ownable_init();
         __Ownable2Step_init();
         __ReentrancyGuard_init();
@@ -159,7 +167,7 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
      * - Accounts purchased tokens using `tokenPricePerOneNative`.
      * - Emits {Deposited}.
      */
-    function deposit() payable external nonReentrant {
+    function deposit() external payable nonReentrant {
         _deposit();
     }
 
@@ -249,14 +257,12 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
      * @param user_ The user address to query.
      * @return maxAllowed The maximum additional deposit amount in native units.
      */
-    function maxDeposit(address user_) public view returns(uint256 maxAllowed) {
+    function maxDeposit(address user_) public view returns (uint256 maxAllowed) {
         if (!isRaiseActive()) {
             return 0;
         }
 
-        uint256 globalRemaining = totalDeposited >= totalDepositCap
-            ? 0
-            : (totalDepositCap - totalDeposited);
+        uint256 globalRemaining = totalDeposited >= totalDepositCap ? 0 : (totalDepositCap - totalDeposited);
 
         uint256 already = userDeposited[user_];
         uint256 userRemaining = maxDepositAmount > already ? (maxDepositAmount - already) : 0;
@@ -268,7 +274,7 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
      * @notice Returns whether the raise window is currently active.
      * @dev Active iff `block.timestamp` is within [startTimestamp, endTimestamp].
      */
-    function isRaiseActive() public view returns(bool) {
+    function isRaiseActive() public view returns (bool) {
         return block.timestamp >= startTimestamp && block.timestamp <= endTimestamp;
     }
 
@@ -287,19 +293,25 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
      * @return userOut User’s accounted purchased tokens.
      * @return userMaxDeposit User's max deposit amount available for deposit
      */
-    function getInfo(address user_) external view returns(
-        bool active,
-        uint256 start,
-        uint256 end,
-        uint256 min,
-        uint256 max,
-        uint256 globalCap,
-        uint256 price,
-        uint256 totalIn,
-        uint256 userIn,
-        uint256 userOut,
-        uint256 userMaxDeposit
-    ) {
+    function getInfo(
+        address user_
+    )
+        external
+        view
+        returns (
+            bool active,
+            uint256 start,
+            uint256 end,
+            uint256 min,
+            uint256 max,
+            uint256 globalCap,
+            uint256 price,
+            uint256 totalIn,
+            uint256 userIn,
+            uint256 userOut,
+            uint256 userMaxDeposit
+        )
+    {
         active = isRaiseActive();
         start = startTimestamp;
         end = endTimestamp;
@@ -308,7 +320,7 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
         globalCap = totalDepositCap;
         price = tokenPricePerOneNative;
         totalIn = totalDeposited;
-        if(user_ != address(0)) {
+        if (user_ != address(0)) {
             userIn = userDeposited[user_];
             userOut = userTokensAllocated[user_];
             userMaxDeposit = maxDeposit(user_);
@@ -326,15 +338,13 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
      * - {AmountZero} if the accepted amount or tokens out evaluates to zero.
      */
     function _deposit() internal {
-        if(!isRaiseActive()) {
+        if (!isRaiseActive()) {
             revert RaiseNotActive();
         }
         uint256 amount = msg.value;
         _revertIfZero(amount);
 
-        uint256 globalRemaining = totalDeposited >= totalDepositCap
-            ? 0
-            : (totalDepositCap - totalDeposited);
+        uint256 globalRemaining = totalDeposited >= totalDepositCap ? 0 : (totalDepositCap - totalDeposited);
 
         if (globalRemaining == 0) revert DepositCapReached();
 
@@ -344,7 +354,7 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
 
         if (amount + userDeposited[_msgSender()] < minDepositAmount) revert DepositBelowMin();
 
-        uint256 tokensOut = amount * tokenPricePerOneNative / 1e18;
+        uint256 tokensOut = (amount * tokenPricePerOneNative) / 1e18;
 
         _revertIfZero(tokensOut);
 
@@ -381,7 +391,7 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
         _revertIfZero(maxDepositAmount_);
         _revertIfZero(totalDepositCap_);
 
-        if(minDepositAmount_ > maxDepositAmount_) revert InvalidDepositLimits();
+        if (minDepositAmount_ > maxDepositAmount_) revert InvalidDepositLimits();
 
         minDepositAmount = minDepositAmount_;
         maxDepositAmount = maxDepositAmount_;
@@ -437,7 +447,7 @@ contract TokenPublicRaiseUpgradeable is ITokenPublicRaise, Ownable2StepUpgradeab
     function _revertIfZero(address addr_) internal pure {
         if (addr_ == address(0)) revert AddressZero();
     }
-    
+
     /**
      * @dev Reverts if `amount_` is zero.
      * @param amount_ Amount to check.

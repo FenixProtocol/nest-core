@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity =0.8.19;
 
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -26,7 +26,7 @@ contract FeesVaultFactoryUpgradeable is IFeesVaultFactory, AccessControlUpgradea
     mapping(address feesVault => address creator) internal _feesVaultCreator;
 
     error AddressZero();
-    
+
     /**
      * @dev Constructor that disables initialization on implementation.
      */

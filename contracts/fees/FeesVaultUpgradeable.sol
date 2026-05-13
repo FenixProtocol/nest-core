@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity =0.8.19;
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -24,7 +24,7 @@ contract FeesVaultUpgradeable is IFeesVault, Initializable, UpgradeCall {
     address public override pool;
 
     error AddressZero();
-    
+
     /**
      * @dev Constructor that disables initialization on implementation.
      */
@@ -37,10 +37,7 @@ contract FeesVaultUpgradeable is IFeesVault, Initializable, UpgradeCall {
      * @param factory_ Factory address for this vault.
      * @param pool_ Address of the liquidity pool.
      */
-    function initialize(
-        address factory_,
-        address pool_
-    ) external virtual override initializer {
+    function initialize(address factory_, address pool_) external virtual override initializer {
         if (factory_ == address(0) || pool_ == address(0)) {
             revert AddressZero();
         }

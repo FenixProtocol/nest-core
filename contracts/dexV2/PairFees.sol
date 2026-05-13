@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity =0.8.19;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -11,11 +11,7 @@ contract PairFees {
     address internal immutable token1; // Token1 of pair, saved localy and statically for gas optimization
     address internal immutable factory; // The pair factory
 
-    constructor(
-        address _factory,
-        address _token0,
-        address _token1
-    ) {
+    constructor(address _factory, address _token0, address _token1) {
         pair = msg.sender;
         token0 = _token0;
         token1 = _token1;
