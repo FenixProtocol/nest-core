@@ -77,7 +77,8 @@ export enum AliasDeployedContracts {
   TokenPublicRaiseUpgradeable_Implementation = 'TokenPublicRaiseUpgradeable_Implementation',
   TokenPublicRaiseUpgradeable_Proxy = 'TokenPublicRaiseUpgradeable_Proxy',
   VolatileDynamicFeeOnePool_Proxy = 'VolatileDynamicFeeOnePool_Proxy',
-  VolatileDynamicFeeOnePool_Implementation = 'VolatileDynamicFeeOnePool_Implementation'
+  VolatileDynamicFeeOnePool_Implementation = 'VolatileDynamicFeeOnePool_Implementation',
+  TimelockController = 'TimelockController'
 }
 
 enum ContractsInstanceName {
@@ -127,7 +128,8 @@ enum ContractsInstanceName {
   CompoundEmissionExtensionUpgradeable = 'CompoundEmissionExtensionUpgradeable',
   VolatileDynamicFeeOnePool = 'VolatileDynamicFeeOnePool',
   TokenPublicRaiseUpgradeable = 'TokenPublicRaiseUpgradeable',
-  WHypeAirdrop = 'WHypeAirdrop'
+  WHypeAirdrop = 'WHypeAirdrop',
+  TimelockController = 'TimelockController'
 }
 
 enum ContractsMocksInstanceName {
