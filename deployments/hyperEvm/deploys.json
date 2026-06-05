@@ -62,5 +62,6 @@
   "VolatileDynamicFeeOnePool_Implementation": "0xE13Dd2b0CF20435228896D8814140C5C2e78bE9D",
   "VolatileDynamicFeeOnePool_Proxy": "0xFb665b755EFae4679aB018cFDa0cC643Ca06E790",
   "WHypeAirdrop_Implementation": "0x580D18167dEE3FB6Eb99b584B1B371F76d54B3A0",
-  "WHypeAirdrop_Proxy": "0x33afCe556508A39181a0609288c3E93611a00905"
+  "WHypeAirdrop_Proxy": "0x33afCe556508A39181a0609288c3E93611a00905",
+  "TimelockController": "0xFBcC128edfddb638B0939a67f6F505b37425F587"
 }
