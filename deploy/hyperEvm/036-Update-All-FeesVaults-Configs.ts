@@ -114,19 +114,6 @@ async function main() {
     );
   }
 
-  for (const { feesVault } of feesVaultsByPool) {
-    const config = await getDistributionConfig(FeesVaultFactoryUpgradeable, feesVault);
-    if (isTargetConfig(config)) {
-      continue;
-    }
-
-    console.log(`FeesVault ${feesVault} still has non-target config after creator reset: ${JSON.stringify(formatConfig(config))}`);
-    await logTx(
-      FeesVaultFactoryUpgradeable,
-      FeesVaultFactoryUpgradeable.setCustomDistributionConfig(feesVault, TARGET_CONFIG),
-    );
-  }
-
   const failed: { pool: string; feesVault: string; config: ReturnType<typeof formatConfig> }[] = [];
   for (const { pool, feesVault } of feesVaultsByPool) {
     const config = await getDistributionConfig(FeesVaultFactoryUpgradeable, feesVault);
