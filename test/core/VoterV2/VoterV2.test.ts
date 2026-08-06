@@ -1,9 +1,19 @@
+import { abi as POOL_ABI } from '@cryptoalgebra/integral-core/artifacts/contracts/AlgebraPool.sol/AlgebraPool.json';
+import { encodePriceSqrt } from '@cryptoalgebra/integral-core/test/shared/utilities';
 import { loadFixture, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { ERC20Mock, VoterUpgradeableV2, VotingEscrowUpgradeableV2 } from '../../../typechain-types';
-import { ERRORS, getAccessControlError } from '../../utils/constants';
-import completeFixture, { CoreFixtureDeployed, deployERC20MockToken, SignersList } from '../../utils/coreFixture';
+import { ERRORS, GaugeType, getAccessControlError } from '../../utils/constants';
+import completeFixture, {
+  CoreFixtureDeployed,
+  deployAlgebraCore,
+  deployERC20MockToken,
+  deployGaugeFactory,
+  deployGaugeImplementation,
+  FactoryFixture,
+  SignersList,
+} from '../../utils/coreFixture';
 
 describe('VotingEscrow_V2', function () {
   let VotingEscrow: VotingEscrowUpgradeableV2;
@@ -26,6 +36,36 @@ describe('VotingEscrow_V2', function () {
 
   async function updateMinterPeriod() {
     await deployed.minter.update_period();
+  }
+
+  async function setupV3GaugeEnvironment(): Promise<FactoryFixture> {
+    const algebraCore = await deployAlgebraCore();
+
+    await deployed.feesVaultFactory.grantRole(await deployed.feesVaultFactory.WHITELISTED_CREATOR_ROLE(), algebraCore.factory.target);
+    await algebraCore.factory.setVaultFactory(deployed.feesVaultFactory.target);
+    await algebraCore.factory.grantRole(await algebraCore.factory.POOLS_CREATOR_ROLE(), signers.deployer.address);
+
+    const v3GaugeImplementation = await deployGaugeImplementation(signers.deployer, GaugeType.V3PairsGauge);
+    const v3GaugeFactory = await deployGaugeFactory(
+      signers.deployer,
+      signers.proxyAdmin.address,
+      await Voter.getAddress(),
+      await v3GaugeImplementation.getAddress(),
+      await deployed.merklGaugeMiddleman.getAddress(),
+    );
+
+    await Voter.updateAddress('v3PoolFactory', algebraCore.factory.target);
+    await Voter.updateAddress('v3GaugeFactory', v3GaugeFactory.target);
+
+    return algebraCore;
+  }
+
+  async function createClassicV3Pool(algebraCore: FactoryFixture, tokenA: string, tokenB: string) {
+    const poolAddress = await algebraCore.factory.createPool.staticCall(tokenA, tokenB);
+    await algebraCore.factory.createPool(tokenA, tokenB);
+    const pool = await ethers.getContractAt(POOL_ABI, poolAddress);
+    await pool.initialize(encodePriceSqrt(1, 1));
+    return pool;
   }
 
   describe('Deployment', async () => {
@@ -533,6 +573,85 @@ describe('VotingEscrow_V2', function () {
           await deployed.v2PairFactory.createPair(deployed.fenix.target, token.target, false);
           await Voter.createV2Gauge(pair);
           await expect(Voter.createV3Gauge(pair)).to.be.revertedWithCustomError(Voter, 'GaugeForPoolAlreadyExists');
+        });
+
+        it('pool was not created by v3 factory', async () => {
+          await setupV3GaugeEnvironment();
+          const pool = await ethers.deployContract('PoolMock');
+          await pool.setTokens(deployed.fenix.target, token.target);
+
+          await expect(Voter.createV3Gauge(pool.target)).to.be.revertedWithCustomError(Voter, 'PoolNotCreatedByFactory');
+        });
+      });
+
+      describe('success create v3 gauge', async () => {
+        it('classic algebra pool', async () => {
+          const algebraCore = await setupV3GaugeEnvironment();
+          const pool = await createClassicV3Pool(algebraCore, deployed.fenix.target as string, token.target as string);
+          const poolAddress = await pool.getAddress();
+
+          const res = await Voter.createV3Gauge.staticCall(poolAddress);
+          const tx = await Voter.createV3Gauge(poolAddress);
+          const gaugeState = await Voter.gaugesState(res.gauge);
+
+          expect(await algebraCore.factory.deployerByPool(poolAddress)).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.poolToGauge(poolAddress)).to.be.eq(res.gauge);
+          expect(await Voter.isGauge(res.gauge)).to.be.true;
+          expect(await Voter.poolForGauge(res.gauge)).to.be.eq(poolAddress);
+          expect(gaugeState.isGauge).to.be.true;
+          expect(gaugeState.isAlive).to.be.true;
+          expect(gaugeState.internalBribe).to.be.eq(res.internalBribe);
+          expect(gaugeState.externalBribe).to.be.eq(res.externalBribe);
+          expect(gaugeState.pool).to.be.eq(poolAddress);
+          expect(gaugeState.claimable).to.be.eq(0);
+          expect(gaugeState.index).to.be.eq(0);
+          expect(gaugeState.lastDistributionTimestamp).to.be.eq(await Voter.epochTimestamp());
+          expect(await Voter.v3Pools(0)).to.be.eq(poolAddress);
+          expect(await Voter.pools(0)).to.be.eq(poolAddress);
+
+          const gauge = await ethers.getContractAt('GaugeUpgradeable', res.gauge);
+          expect(await gauge.feeVault()).to.be.eq(await pool.communityVault());
+
+          await expect(tx)
+            .to.be.emit(Voter, 'GaugeCreated')
+            .withArgs(res.gauge, signers.deployer.address, res.internalBribe, res.externalBribe, poolAddress);
+          await expect(tx).to.be.emit(Voter, 'GaugeCreatedType').withArgs(res.gauge, 1);
+        });
+
+        it('custom algebra pool', async () => {
+          const algebraCore = await setupV3GaugeEnvironment();
+          const pluginFactory = await ethers.deployContract('AlgebraCustomPoolPluginFactoryMock');
+          await algebraCore.factory.grantRole(await algebraCore.factory.CUSTOM_POOL_DEPLOYER(), pluginFactory.target);
+
+          const poolAddress = await pluginFactory.createCustomPool.staticCall(
+            algebraCore.factory.target,
+            signers.deployer.address,
+            deployed.fenix.target,
+            token.target,
+            '0x1234',
+          );
+          await pluginFactory.createCustomPool(algebraCore.factory.target, signers.deployer.address, deployed.fenix.target, token.target, '0x1234');
+
+          const pool = await ethers.getContractAt(POOL_ABI, poolAddress);
+          await pool.initialize(encodePriceSqrt(1, 1));
+
+          const customDeployer = await algebraCore.factory.deployerByPool(poolAddress);
+          expect(customDeployer).to.be.eq(pluginFactory.target);
+          expect(await algebraCore.factory.customPoolByPair(customDeployer, deployed.fenix.target, token.target)).to.be.eq(poolAddress);
+
+          const res = await Voter.createV3Gauge.staticCall(poolAddress);
+          const tx = await Voter.createV3Gauge(poolAddress);
+
+          expect(await Voter.poolToGauge(poolAddress)).to.be.eq(res.gauge);
+          expect(await Voter.v3Pools(0)).to.be.eq(poolAddress);
+
+          const gauge = await ethers.getContractAt('GaugeUpgradeable', res.gauge);
+          expect(await gauge.feeVault()).to.be.eq(await pool.communityVault());
+
+          await expect(tx)
+            .to.be.emit(Voter, 'GaugeCreated')
+            .withArgs(res.gauge, signers.deployer.address, res.internalBribe, res.externalBribe, poolAddress);
+          await expect(tx).to.be.emit(Voter, 'GaugeCreatedType').withArgs(res.gauge, 1);
         });
       });
     });
