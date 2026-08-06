@@ -24,6 +24,10 @@ describe('VotingEscrow_V2', function () {
     return (BigInt(await time.latest()) / 604800n) * 604800n + 604800n;
   }
 
+  async function updateMinterPeriod() {
+    await deployed.minter.update_period();
+  }
+
   describe('Deployment', async () => {
     describe('should fail if', async () => {
       it('try call initialize on implementation', async () => {
@@ -198,44 +202,54 @@ describe('VotingEscrow_V2', function () {
       describe('should fail if ', async () => {
         it('try use poke during vote window', async () => {
           let nextEpoch = await getNextEpochTime();
-          await time.increase(nextEpoch - 3600n + 1n);
-          expect(await Voter.connect(signers.otherUser1).poke(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch - 3600n + 1n);
+          await expect(Voter.connect(signers.otherUser1).poke(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
 
-          await time.increase(nextEpoch);
-          expect(await Voter.connect(signers.otherUser1).poke(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch);
+          await updateMinterPeriod();
+          await expect(Voter.connect(signers.otherUser1).poke(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
 
-          await time.increase(nextEpoch + 3600n - 1n);
-          expect(await Voter.connect(signers.otherUser1).poke(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
-          await time.increase(nextEpoch + 3700n);
-          expect(await Voter.connect(signers.otherUser1).poke(1)).to.be.not.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch + 3600n - 1n);
+          await expect(Voter.connect(signers.otherUser1).poke(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch + 3700n);
+          await expect(Voter.connect(signers.otherUser1).poke(1)).to.be.not.revertedWithCustomError(Voter, 'DistributionWindow');
         });
 
         it('try use reset during vote window', async () => {
           let nextEpoch = await getNextEpochTime();
-          await time.increase(nextEpoch - 3600n + 1n);
-          expect(await Voter.connect(signers.otherUser1).reset(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch - 3600n + 1n);
+          await expect(Voter.connect(signers.otherUser1).reset(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
 
-          await time.increase(nextEpoch);
-          expect(await Voter.connect(signers.otherUser1).reset(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch);
+          await updateMinterPeriod();
+          await expect(Voter.connect(signers.otherUser1).reset(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
 
-          await time.increase(nextEpoch + 3600n - 1n);
-          expect(await Voter.connect(signers.otherUser1).reset(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
-          await time.increase(nextEpoch + 3700n);
-          expect(await Voter.connect(signers.otherUser1).reset(1)).to.be.not.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch + 3600n - 1n);
+          await expect(Voter.connect(signers.otherUser1).reset(1)).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch + 3700n);
+          await expect(Voter.connect(signers.otherUser1).reset(1)).to.be.not.revertedWithCustomError(Voter, 'DistributionWindow');
         });
 
         it('try use vote during vote window', async () => {
           let nextEpoch = await getNextEpochTime();
-          await time.increase(nextEpoch - 3600n + 1n);
-          expect(await Voter.connect(signers.otherUser1).vote(1, [], [])).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch - 3600n + 1n);
+          await expect(Voter.connect(signers.otherUser1).vote(1, [], [])).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
 
-          await time.increase(nextEpoch);
-          expect(await Voter.connect(signers.otherUser1).vote(1, [], [])).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch);
+          await updateMinterPeriod();
+          await expect(Voter.connect(signers.otherUser1).vote(1, [], [])).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
 
-          await time.increase(nextEpoch + 3600n - 1n);
-          expect(await Voter.connect(signers.otherUser1).vote(1, [], [])).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
-          await time.increase(nextEpoch + 3700n);
-          expect(await Voter.connect(signers.otherUser1).vote(1, [], [])).to.be.not.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch + 3600n - 1n);
+          await expect(Voter.connect(signers.otherUser1).vote(1, [], [])).to.be.revertedWithCustomError(Voter, 'DistributionWindow');
+          await time.increaseTo(nextEpoch + 3700n);
+          await expect(Voter.connect(signers.otherUser1).vote(1, [], [])).to.be.not.revertedWithCustomError(Voter, 'DistributionWindow');
+        });
+
+        it('try use vote after epoch change before minter period is updated', async () => {
+          let nextEpoch = await getNextEpochTime();
+          await time.increaseTo(nextEpoch + 3700n);
+
+          await expect(Voter.connect(signers.otherUser1).vote(1, [], [])).to.be.revertedWithCustomError(Voter, 'EpochNotFlipped');
         });
       });
     });

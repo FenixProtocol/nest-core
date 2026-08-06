@@ -43,6 +43,10 @@ describe('VoterV2 Contract', function () {
     return Math.floor((await currentEpoch()) + _WEEK);
   }
 
+  async function updateMinterPeriod() {
+    await deployed.minter.update_period();
+  }
+
   async function previuesEpoch() {
     return Math.floor((await currentEpoch()) - _WEEK);
   }
@@ -130,6 +134,7 @@ describe('VoterV2 Contract', function () {
         await deployed.votingEscrow.createLockFor(ethers.parseEther('1'), 182 * 86400, signers.otherUser1.address, true, false, 0);
 
         await time.increaseTo(await nextEpoch());
+        await updateMinterPeriod();
 
         await expect(voter.connect(signers.otherUser1).reset(userTokenId)).to.be.revertedWithCustomError(voter, 'DistributionWindow');
 
@@ -150,6 +155,7 @@ describe('VoterV2 Contract', function () {
         await deployed.votingEscrow.createLockFor(ethers.parseEther('1'), 182 * 86400, signers.otherUser1.address, true, false, 0);
 
         await time.increaseTo(await nextEpoch());
+        await updateMinterPeriod();
 
         await expect(voter.connect(signers.otherUser1).poke(userTokenId)).to.be.revertedWithCustomError(voter, 'DistributionWindow');
 
@@ -225,6 +231,7 @@ describe('VoterV2 Contract', function () {
       );
 
       await time.increase(await voter.distributionWindowDuration());
+      await updateMinterPeriod();
 
       await expect(voter.connect(signers.otherUser1).attachToManagedNFT(userTokenId, managedTokenId)).to.be.revertedWithCustomError(
         voter,
@@ -353,6 +360,7 @@ describe('VoterV2 Contract', function () {
       );
 
       await time.increase(await voter.distributionWindowDuration());
+      await updateMinterPeriod();
 
       await expect(voter.connect(signers.otherUser1).dettachFromManagedNFT(userTokenId)).to.be.revertedWithCustomError(
         voter,

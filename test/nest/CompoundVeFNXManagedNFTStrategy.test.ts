@@ -33,6 +33,10 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
     return Math.floor((await currentEpoch()) + _WEEK);
   }
 
+  async function updateMinterPeriod() {
+    await deployed.minter.update_period();
+  }
+
   let signers: SignersList;
   let deployed: CoreFixtureDeployed;
 
@@ -209,6 +213,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
       expect(await firstStrategy.getLockedRewardsBalance(userNftId)).to.be.eq(ZERO);
 
       await time.increaseTo(await nextEpoch());
+      await updateMinterPeriod();
 
       await deployed.fenix.transfer(firstStrategy.target, ethers.parseEther('22'));
 
@@ -374,6 +379,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
       });
       it('should emit Compound event with zero rewards when compounding already attached tokens', async () => {
         await time.increase(86400 * 7);
+        await updateMinterPeriod();
 
         await deployed.fenix.approve(deployed.votingEscrow.target, ethers.parseEther('100'));
 
@@ -477,6 +483,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
 
         it('user success withdraw with rewards after one epoch', async () => {
           await time.increase(86400 * 7);
+          await updateMinterPeriod();
 
           let tx = await deployed.voter.connect(signers.otherUser1).dettachFromManagedNFT(userNftId);
 
@@ -585,6 +592,7 @@ describe('CompoundVeFNXManagedStrategy Contract', function () {
 
       it('user success withdraw with rewards after one epoch', async () => {
         await time.increase(86400 * 7);
+        await updateMinterPeriod();
 
         let tx = await deployed.voter.connect(signers.otherUser1).dettachFromManagedNFT(userNftId);
 
