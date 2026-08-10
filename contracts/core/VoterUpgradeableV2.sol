@@ -359,8 +359,11 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
         }
         address token0 = IPairIntegrationInfo(pool_).token0();
         address token1 = IPairIntegrationInfo(pool_).token1();
-        if (IAlgebraFactory(v3PoolFactory).poolByPair(token0, token1) != pool_) {
-            revert PoolNotCreatedByFactory();
+        address deployer = IAlgebraFactory(v3PoolFactory).deployerByPool(pool_);
+        if (deployer == address(0)) {
+            if (IAlgebraFactory(v3PoolFactory).poolByPair(token0, token1) != pool_) revert PoolNotCreatedByFactory();
+        } else {
+            if (IAlgebraFactory(v3PoolFactory).customPoolByPair(deployer, token0, token1) != pool_) revert PoolNotCreatedByFactory();
         }
 
         address feeVault = IPairIntegrationInfo(pool_).communityVault();
@@ -877,6 +880,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             for (; lastDistributionTimestampCache <= currentTimestamp - _WEEK; lastDistributionTimestampCache += _WEEK) {
                 uint256 totalVotesWeight = weightsPerEpoch[lastDistributionTimestampCache][state.pool];
                 uint256 indexCache = indexPerEpoch[lastDistributionTimestampCache + _WEEK];
+                if (indexCache == 0) continue;
                 if (totalVotesWeight > 0) {
                     uint256 delta = indexCache - state.index;
                     if (delta > 0) {
@@ -888,7 +892,7 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
                         }
                     }
                 }
-                state.index = indexCache;
+                if (indexCache > state.index) state.index = indexCache;
             }
             gaugesState[gauge_].index = index;
             gaugesState[gauge_].lastDistributionTimestamp = currentTimestamp;
@@ -1063,10 +1067,16 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     /**
      * @dev Ensures that the current time is after the start of the voting window.
      * @custom:error DistributionWindow Thrown if the current time is before the start of the voting window.
+     * @custom:error EpochNotFlipped Thrown if the minter epoch has not been flipped to the current epoch.
      */
     function _checkStartVoteWindow() internal view {
         if (block.timestamp <= (block.timestamp - (block.timestamp % _WEEK) + distributionWindowDuration)) {
             revert DistributionWindow();
+        }
+        // in case if epoch wasn't flipped, we don't allow voting, a user must call minter.update_period() first
+        // if current time is greater than active_period + 1 week, that means that minter returns previous epoch
+        if (block.timestamp > IMinter(minter).active_period() + _WEEK) {
+            revert EpochNotFlipped();
         }
     }
 
