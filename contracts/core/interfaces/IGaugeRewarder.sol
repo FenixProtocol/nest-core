@@ -24,6 +24,15 @@ interface IGaugeRewarder {
     event Claim(address target, uint256 reward, uint256 totalAmount);
 
     /**
+     * @dev Emitted when a position reward claim is made.
+     * @param target The address of the recipient of the claimed reward.
+     * @param reward The amount of reward claimed.
+     * @param totalAmount The total claimable amount.
+     * @param identifier The identifier included in the signed position claim.
+     */
+    event PositionClaim(address target, uint256 reward, uint256 totalAmount, bytes32 identifier);
+
+    /**
      * @dev Emitted when the signer address is set.
      * @param signer The address of the new signer.
      */
@@ -60,6 +69,23 @@ interface IGaugeRewarder {
     function claimFor(address target_, uint256 totalAmount_, uint256 deadline_, bytes memory signature_) external returns (uint256);
 
     /**
+     * @notice Claims rewards on behalf of a specified target address using a position claim identifier.
+     * @param target_ The address of the recipient of the claimed reward.
+     * @param totalAmount_ The total amount of reward being claimed.
+     * @param deadline_ The expiration time of the claim.
+     * @param identifier_ The identifier included in the signed position claim.
+     * @param signature_ The signature authorizing the claim.
+     * @return The amount of reward claimed.
+     */
+    function claimFor(
+        address target_,
+        uint256 totalAmount_,
+        uint256 deadline_,
+        bytes32 identifier_,
+        bytes memory signature_
+    ) external returns (uint256);
+
+    /**
      * @notice Claims rewards for the caller.
      * @param totalAmount_ The total amount of reward being claimed.
      * @param deadline_ The expiration time of the claim.
@@ -67,6 +93,16 @@ interface IGaugeRewarder {
      * @return The amount of reward claimed.
      */
     function claim(uint256 totalAmount_, uint256 deadline_, bytes memory signature_) external returns (uint256);
+
+    /**
+     * @notice Claims rewards for the caller using a position claim identifier.
+     * @param totalAmount_ The total amount of reward being claimed.
+     * @param deadline_ The expiration time of the claim.
+     * @param identifier_ The identifier included in the signed position claim.
+     * @param signature_ The signature authorizing the claim.
+     * @return The amount of reward claimed.
+     */
+    function claim(uint256 totalAmount_, uint256 deadline_, bytes32 identifier_, bytes memory signature_) external returns (uint256);
 
     /**
      * @notice Gets the total reward distributed so far.

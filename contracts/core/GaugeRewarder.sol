@@ -33,6 +33,12 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     bytes32 internal constant _CLAIM_TYPEHASH = keccak256("Claim(address user,uint256 totalAmount,uint256 deadline)");
 
     /**
+     * @dev Type hash for EIP-712 position claim signature.
+     */
+    bytes32 internal constant _POSITION_CLAIM_TYPEHASH =
+        keccak256("PositionClaim(address user,uint256 totalAmount,uint256 deadline,bytes32 identifier)");
+
+    /**
      * @notice The address of the reward token.
      */
     address public token;
@@ -115,7 +121,7 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     error InsufficientAvailableBalance();
 
     error AddressZero();
-    
+
     /**
      * @dev Modifier to restrict access to either a gauge or an authorized rewarder.
      */
@@ -200,6 +206,25 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     }
 
     /**
+     * @notice Claims rewards on behalf for specified target address using a position claim identifier.
+     * @param target_ The address of the recipient of the claimed reward.
+     * @param totalAmount_ The total amount of reward being claimed.
+     * @param deadline_ The expiration time of the claim.
+     * @param identifier_ The identifier included in the signed position claim.
+     * @param signature_ The signature authorizing the claim.
+     * @return The amount of reward claimed.
+     */
+    function claimFor(
+        address target_,
+        uint256 totalAmount_,
+        uint256 deadline_,
+        bytes32 identifier_,
+        bytes memory signature_
+    ) external onlyRole(_CLAMER_FOR_ROLE) returns (uint256) {
+        return _claimPosition(target_, totalAmount_, deadline_, identifier_, signature_);
+    }
+
+    /**
      * @notice Claims rewards for the caller.
      * @param totalAmount_ The total amount of reward being claimed.
      * @param deadline_ The expiration time of the claim.
@@ -208,6 +233,18 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
      */
     function claim(uint256 totalAmount_, uint256 deadline_, bytes memory signature_) external returns (uint256) {
         return _claim(_msgSender(), totalAmount_, deadline_, signature_);
+    }
+
+    /**
+     * @notice Claims rewards for the caller using a position claim identifier.
+     * @param totalAmount_ The total amount of reward being claimed.
+     * @param deadline_ The expiration time of the claim.
+     * @param identifier_ The identifier included in the signed position claim.
+     * @param signature_ The signature authorizing the claim.
+     * @return The amount of reward claimed.
+     */
+    function claim(uint256 totalAmount_, uint256 deadline_, bytes32 identifier_, bytes memory signature_) external returns (uint256) {
+        return _claimPosition(_msgSender(), totalAmount_, deadline_, identifier_, signature_);
     }
 
     /**
@@ -250,6 +287,60 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
         uint256 deadline_,
         bytes memory signature_
     ) internal virtual returns (uint256 reward) {
+        reward = _claimWithDigest(
+            target_,
+            totalAmount_,
+            deadline_,
+            signature_,
+            _hashTypedDataV4(keccak256(abi.encode(_CLAIM_TYPEHASH, target_, totalAmount_, deadline_)))
+        );
+
+        emit Claim(target_, reward, totalAmount_);
+    }
+
+    /**
+     * @dev Internal function to handle position reward claims.
+     * @param target_ The address of the recipient of the claimed reward.
+     * @param totalAmount_ The total amount of reward being claimed.
+     * @param deadline_ The expiration time of the claim.
+     * @param identifier_ The identifier included in the signed position claim.
+     * @param signature_ The signature authorizing the claim.
+     * @return reward The amount of reward claimed.
+     */
+    function _claimPosition(
+        address target_,
+        uint256 totalAmount_,
+        uint256 deadline_,
+        bytes32 identifier_,
+        bytes memory signature_
+    ) internal virtual returns (uint256 reward) {
+        reward = _claimWithDigest(
+            target_,
+            totalAmount_,
+            deadline_,
+            signature_,
+            _hashTypedDataV4(keccak256(abi.encode(_POSITION_CLAIM_TYPEHASH, target_, totalAmount_, deadline_, identifier_)))
+        );
+
+        emit PositionClaim(target_, reward, totalAmount_, identifier_);
+    }
+
+    /**
+     * @dev Internal function to handle common reward claim validation and accounting.
+     * @param target_ The address of the recipient of the claimed reward.
+     * @param totalAmount_ The total amount of reward being claimed.
+     * @param deadline_ The expiration time of the claim.
+     * @param signature_ The signature authorizing the claim.
+     * @param digest_ The EIP-712 digest expected to have been signed by `signer`.
+     * @return reward The amount of reward claimed.
+     */
+    function _claimWithDigest(
+        address target_,
+        uint256 totalAmount_,
+        uint256 deadline_,
+        bytes memory signature_,
+        bytes32 digest_
+    ) internal virtual returns (uint256 reward) {
         if (signer == address(0)) {
             revert ClaimDisabled();
         }
@@ -262,12 +353,7 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
         if (totalAmount_ <= claimedAmount) {
             revert AlreadyClaimed();
         }
-        if (
-            ECDSAUpgradeable.recover(
-                _hashTypedDataV4(keccak256(abi.encode(_CLAIM_TYPEHASH, target_, totalAmount_, deadline_))),
-                signature_
-            ) != signer
-        ) {
+        if (ECDSAUpgradeable.recover(digest_, signature_) != signer) {
             revert InvalidSignature();
         }
         reward = totalAmount_ - claimedAmount;
@@ -277,8 +363,6 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
         totalRewardClaimed += reward;
 
         IERC20Upgradeable(token).safeTransfer(target_, reward);
-
-        emit Claim(target_, reward, totalAmount_);
     }
 
     /**
