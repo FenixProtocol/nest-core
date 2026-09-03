@@ -1,3 +1,4 @@
 [submodule "lib/nest-algebra"]
 	path = lib/nest-algebra
 	url = https://github.com/FenixProtocol/nest-algebra
+	branch = main
