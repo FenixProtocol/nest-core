@@ -71,6 +71,66 @@ describe('GaugeRewarder Contract', function () {
     return await signer.signTypedData(domain, types, value);
   }
 
+  async function createPositionClaimSignature(
+    signer: HardhatEthersSigner,
+    user: string,
+    totalAmount: bigint,
+    deadline: number,
+    identifier: string,
+  ) {
+    const domain = {
+      name: 'GaugeRewarder',
+      version: '1',
+      chainId: (await ethers.provider.getNetwork()).chainId,
+      verifyingContract: await instance.getAddress(),
+    };
+    const types = {
+      PositionClaim: [
+        { name: 'user', type: 'address' },
+        { name: 'totalAmount', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' },
+        { name: 'identifier', type: 'bytes32' },
+      ],
+    };
+    const value = {
+      user: user,
+      totalAmount: totalAmount,
+      deadline: deadline,
+      identifier: identifier,
+    };
+
+    return await signer.signTypedData(domain, types, value);
+  }
+
+  function claim(rewarder: GaugeRewarder, totalAmount: bigint | number, deadline: bigint | number, signature: string) {
+    return (rewarder as any)['claim(uint256,uint256,bytes)'](totalAmount, deadline, signature);
+  }
+
+  function claimFor(rewarder: GaugeRewarder, target: string, totalAmount: bigint | number, deadline: bigint | number, signature: string) {
+    return (rewarder as any)['claimFor(address,uint256,uint256,bytes)'](target, totalAmount, deadline, signature);
+  }
+
+  function positionClaim(
+    rewarder: GaugeRewarder,
+    totalAmount: bigint | number,
+    deadline: bigint | number,
+    identifier: string,
+    signature: string,
+  ) {
+    return (rewarder as any)['claim(uint256,uint256,bytes32,bytes)'](totalAmount, deadline, identifier, signature);
+  }
+
+  function positionClaimFor(
+    rewarder: GaugeRewarder,
+    target: string,
+    totalAmount: bigint | number,
+    deadline: bigint | number,
+    identifier: string,
+    signature: string,
+  ) {
+    return (rewarder as any)['claimFor(address,uint256,uint256,bytes32,bytes)'](target, totalAmount, deadline, identifier, signature);
+  }
+
   beforeEach(async function () {
     deployed = await loadFixture(completeFixture);
     signers = deployed.signers;
@@ -406,25 +466,28 @@ describe('GaugeRewarder Contract', function () {
   describe('claimFor', async () => {
     describe('should fail if', async () => {
       it('try call from not _CLAMER_FOR_ROLE', async () => {
-        await expect(instance.claimFor(signers.otherUser1.address, 1, 1, '0x')).to.be.revertedWith(
+        await expect(claimFor(instance, signers.otherUser1.address, 1, 1, '0x')).to.be.revertedWith(
           getAccessControlError(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address),
         );
       });
       it('fail if signer not setup', async () => {
         await instance.grantRole(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address);
-        await expect(instance.claimFor(signers.otherUser1.address, 1, 1, '0x')).to.be.revertedWithCustomError(instance, 'ClaimDisabled');
+        await expect(claimFor(instance, signers.otherUser1.address, 1, 1, '0x')).to.be.revertedWithCustomError(instance, 'ClaimDisabled');
       });
 
       it('fail if deadline expired', async () => {
         await instance.grantRole(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address);
         await instance.setSigner(signers.deployer.address);
-        await expect(instance.claimFor(signers.otherUser1.address, 1, 1, '0x')).to.be.revertedWithCustomError(instance, 'SignatureExpired');
+        await expect(claimFor(instance, signers.otherUser1.address, 1, 1, '0x')).to.be.revertedWithCustomError(
+          instance,
+          'SignatureExpired',
+        );
       });
 
       it('fail if total amount eq or less then aldready claimed amount', async () => {
         await instance.grantRole(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address);
         await instance.setSigner(signers.deployer.address);
-        await expect(instance.claimFor(signers.otherUser1.address, 0, (await time.latest()) + 100, '0x')).to.be.revertedWithCustomError(
+        await expect(claimFor(instance, signers.otherUser1.address, 0, (await time.latest()) + 100, '0x')).to.be.revertedWithCustomError(
           instance,
           'AlreadyClaimed',
         );
@@ -437,7 +500,7 @@ describe('GaugeRewarder Contract', function () {
         let signature = await createSignature(signers.deployer, signers.otherUser1.address, 1n, 0);
 
         await expect(
-          instance.claimFor(signers.otherUser1.address, 2n, (await time.latest()) + 100, signature),
+          claimFor(instance, signers.otherUser1.address, 2n, (await time.latest()) + 100, signature),
         ).to.be.revertedWithCustomError(instance, 'InvalidSignature');
       });
 
@@ -446,7 +509,7 @@ describe('GaugeRewarder Contract', function () {
         await instance.setSigner(signers.deployer.address);
         let deadline = (await time.latest()) + 100;
         let signature = await createSignature(signers.deployer, signers.otherUser1.address, 1n, deadline);
-        await expect(instance.claimFor(signers.otherUser1.address, 2n, deadline, signature)).to.be.revertedWithCustomError(
+        await expect(claimFor(instance, signers.otherUser1.address, 2n, deadline, signature)).to.be.revertedWithCustomError(
           instance,
           'InvalidSignature',
         );
@@ -469,12 +532,12 @@ describe('GaugeRewarder Contract', function () {
         deadline = (await time.latest()) + 100;
         signature = await createSignature(signers.deployer, signers.otherUser1.address, ethers.parseEther('0.1'), deadline);
 
-        tx = await instance.claimFor(signers.otherUser1.address, ethers.parseEther('0.1'), deadline, signature);
+        tx = await claimFor(instance, signers.otherUser1.address, ethers.parseEther('0.1'), deadline, signature);
       });
 
       it('should fail if use the same data and signature', async () => {
         await expect(
-          instance.claimFor(signers.otherUser1.address, ethers.parseEther('0.1'), deadline, signature),
+          claimFor(instance, signers.otherUser1.address, ethers.parseEther('0.1'), deadline, signature),
         ).to.be.revertedWithCustomError(instance, 'AlreadyClaimed');
       });
 
@@ -503,7 +566,7 @@ describe('GaugeRewarder Contract', function () {
           let deadline = (await time.latest()) + 100;
           let signature = await createSignature(signers.deployer, signers.otherUser1.address, ethers.parseEther('0.1'), deadline);
           await expect(
-            instance.connect(signers.otherUser1).claim(ethers.parseEther('0.1'), deadline, signature),
+            claim(instance.connect(signers.otherUser1), ethers.parseEther('0.1'), deadline, signature),
           ).to.be.revertedWithCustomError(instance, 'AlreadyClaimed');
         });
 
@@ -516,7 +579,7 @@ describe('GaugeRewarder Contract', function () {
             let deadline = (await time.latest()) + 100;
             let signature = await createSignature(signers.deployer, signers.otherUser1.address, ethers.parseEther('0.2'), deadline);
 
-            tx = await instance.connect(signers.otherUser1).claim(ethers.parseEther('0.2'), deadline, signature);
+            tx = await claim(instance.connect(signers.otherUser1), ethers.parseEther('0.2'), deadline, signature);
           });
 
           it('change token balance', async () => {
@@ -541,6 +604,147 @@ describe('GaugeRewarder Contract', function () {
           });
         });
       });
+    });
+  });
+
+  describe('position claim', async () => {
+    let identifier: string;
+    let otherIdentifier: string;
+
+    beforeEach(async () => {
+      identifier = ethers.id('position-claim-1');
+      otherIdentifier = ethers.id('position-claim-2');
+
+      await fenix.transfer(signers.otherUser1.address, ONE_ETHER);
+      await fenix.connect(signers.otherUser1).approve(instance.target, ONE_ETHER);
+      await instance.grantRole(ethers.id('REWARDER_ROLE'), signers.otherUser1.address);
+      await instance.connect(signers.otherUser1).notifyRewardWithTransfer(GAUGE_ADDRESS_1, ONE_ETHER);
+      await instance.setSigner(signers.deployer.address);
+    });
+
+    describe('should fail if', async () => {
+      it('try call claimFor from not _CLAMER_FOR_ROLE', async () => {
+        await expect(positionClaimFor(instance, signers.otherUser1.address, 1, 1, identifier, '0x')).to.be.revertedWith(
+          getAccessControlError(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address),
+        );
+      });
+
+      it('provide signature with different identifier', async () => {
+        await instance.grantRole(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address);
+        let deadline = (await time.latest()) + 100;
+        let signature = await createPositionClaimSignature(
+          signers.deployer,
+          signers.otherUser1.address,
+          ethers.parseEther('0.1'),
+          deadline,
+          identifier,
+        );
+
+        await expect(
+          positionClaimFor(instance, signers.otherUser1.address, ethers.parseEther('0.1'), deadline, otherIdentifier, signature),
+        ).to.be.revertedWithCustomError(instance, 'InvalidSignature');
+      });
+
+      it('use legacy Claim signature with position claim overload', async () => {
+        await instance.grantRole(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address);
+        let deadline = (await time.latest()) + 100;
+        let signature = await createSignature(signers.deployer, signers.otherUser1.address, ethers.parseEther('0.1'), deadline);
+
+        await expect(
+          positionClaimFor(instance, signers.otherUser1.address, ethers.parseEther('0.1'), deadline, identifier, signature),
+        ).to.be.revertedWithCustomError(instance, 'InvalidSignature');
+      });
+
+      it('use PositionClaim signature with legacy claim overload', async () => {
+        await instance.grantRole(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address);
+        let deadline = (await time.latest()) + 100;
+        let signature = await createPositionClaimSignature(
+          signers.deployer,
+          signers.otherUser1.address,
+          ethers.parseEther('0.1'),
+          deadline,
+          identifier,
+        );
+
+        await expect(
+          claimFor(instance, signers.otherUser1.address, ethers.parseEther('0.1'), deadline, signature),
+        ).to.be.revertedWithCustomError(instance, 'InvalidSignature');
+      });
+    });
+
+    it('successfully claims for caller and emits PositionClaim', async () => {
+      let deadline = (await time.latest()) + 100;
+      let signature = await createPositionClaimSignature(
+        signers.deployer,
+        signers.otherUser1.address,
+        ethers.parseEther('0.1'),
+        deadline,
+        identifier,
+      );
+
+      let tx = await positionClaim(instance.connect(signers.otherUser1), ethers.parseEther('0.1'), deadline, identifier, signature);
+
+      await expect(tx)
+        .to.be.emit(instance, 'PositionClaim')
+        .withArgs(signers.otherUser1.address, ethers.parseEther('0.1'), ethers.parseEther('0.1'), identifier);
+      await expect(tx).to.be.emit(fenix, 'Transfer').withArgs(instance.target, signers.otherUser1.address, ethers.parseEther('0.1'));
+      expect(await fenix.balanceOf(instance.target)).to.be.eq(ethers.parseEther('0.9'));
+      expect(await fenix.balanceOf(signers.otherUser1.address)).to.be.eq(ethers.parseEther('0.1'));
+      expect(await instance.totalRewardClaimed()).to.be.eq(ethers.parseEther('0.1'));
+      expect(await instance.claimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('0.1'));
+    });
+
+    it('successfully claims for target and emits PositionClaim', async () => {
+      await instance.grantRole(ethers.id('CLAMER_FOR_ROLE'), signers.deployer.address);
+      let deadline = (await time.latest()) + 100;
+      let signature = await createPositionClaimSignature(
+        signers.deployer,
+        signers.otherUser1.address,
+        ethers.parseEther('0.1'),
+        deadline,
+        identifier,
+      );
+
+      let tx = await positionClaimFor(instance, signers.otherUser1.address, ethers.parseEther('0.1'), deadline, identifier, signature);
+
+      await expect(tx)
+        .to.be.emit(instance, 'PositionClaim')
+        .withArgs(signers.otherUser1.address, ethers.parseEther('0.1'), ethers.parseEther('0.1'), identifier);
+      await expect(tx).to.be.emit(fenix, 'Transfer').withArgs(instance.target, signers.otherUser1.address, ethers.parseEther('0.1'));
+      expect(await fenix.balanceOf(instance.target)).to.be.eq(ethers.parseEther('0.9'));
+      expect(await fenix.balanceOf(signers.otherUser1.address)).to.be.eq(ethers.parseEther('0.1'));
+      expect(await instance.totalRewardClaimed()).to.be.eq(ethers.parseEther('0.1'));
+      expect(await instance.claimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('0.1'));
+    });
+
+    it('uses cumulative claimed accounting across identifiers', async () => {
+      let deadline = (await time.latest()) + 100;
+      let firstSignature = await createPositionClaimSignature(
+        signers.deployer,
+        signers.otherUser1.address,
+        ethers.parseEther('0.1'),
+        deadline,
+        identifier,
+      );
+
+      await positionClaim(instance.connect(signers.otherUser1), ethers.parseEther('0.1'), deadline, identifier, firstSignature);
+
+      deadline = (await time.latest()) + 100;
+      let secondSignature = await createPositionClaimSignature(
+        signers.deployer,
+        signers.otherUser1.address,
+        ethers.parseEther('0.2'),
+        deadline,
+        otherIdentifier,
+      );
+
+      await expect(
+        positionClaim(instance.connect(signers.otherUser1), ethers.parseEther('0.2'), deadline, otherIdentifier, secondSignature),
+      )
+        .to.be.emit(instance, 'PositionClaim')
+        .withArgs(signers.otherUser1.address, ethers.parseEther('0.1'), ethers.parseEther('0.2'), otherIdentifier);
+      expect(await instance.totalRewardClaimed()).to.be.eq(ethers.parseEther('0.2'));
+      expect(await instance.claimed(signers.otherUser1.address)).to.be.eq(ethers.parseEther('0.2'));
     });
   });
 
@@ -576,7 +780,7 @@ describe('GaugeRewarder Contract', function () {
       await instance.notifyRewardWithTransfer(GAUGE_ADDRESS_1, ethers.parseEther('100'));
       let deadline = (await time.latest()) + 100;
       let signature = await createSignature(signers.deployer, signers.otherUser1.address, ethers.parseEther('90'), deadline);
-      await expect(instance.connect(signers.otherUser1).claim(ethers.parseEther('90'), deadline, signature))
+      await expect(claim(instance.connect(signers.otherUser1), ethers.parseEther('90'), deadline, signature))
         .to.be.emit(instance, 'Claim')
         .withArgs(signers.otherUser1.address, ethers.parseEther('90'), ethers.parseEther('90'));
 
@@ -638,25 +842,25 @@ describe('GaugeRewarder Contract', function () {
       deadline = (await time.latest()) + 100;
 
       signature = await createSignature(signers.deployer, signers.otherUser1.address, ethers.parseEther('100'), deadline);
-      await expect(instance.connect(signers.otherUser1).claim(ethers.parseEther('100'), deadline, signature))
+      await expect(claim(instance.connect(signers.otherUser1), ethers.parseEther('100'), deadline, signature))
         .to.be.emit(instance, 'Claim')
         .withArgs(signers.otherUser1.address, ethers.parseEther('10'), ethers.parseEther('100'));
 
       signature = await createSignature(signers.deployer, signers.otherUser2.address, ethers.parseEther('50'), deadline);
 
-      await expect(instance.connect(signers.otherUser2).claim(ethers.parseEther('50'), deadline, signature))
+      await expect(claim(instance.connect(signers.otherUser2), ethers.parseEther('50'), deadline, signature))
         .to.be.emit(instance, 'Claim')
         .withArgs(signers.otherUser2.address, ethers.parseEther('50'), ethers.parseEther('50'));
 
       signature = await createSignature(signers.deployer, signers.otherUser2.address, ethers.parseEther('60'), deadline);
 
-      await expect(instance.connect(signers.otherUser2).claim(ethers.parseEther('60'), deadline, signature))
+      await expect(claim(instance.connect(signers.otherUser2), ethers.parseEther('60'), deadline, signature))
         .to.be.emit(instance, 'Claim')
         .withArgs(signers.otherUser2.address, ethers.parseEther('10'), ethers.parseEther('60'));
 
       signature = await createSignature(signers.deployer, signers.otherUser3.address, ethers.parseEther('60'), deadline);
 
-      await expect(instance.claimFor(signers.otherUser3.address, ethers.parseEther('60'), deadline, signature))
+      await expect(claimFor(instance, signers.otherUser3.address, ethers.parseEther('60'), deadline, signature))
         .to.be.emit(instance, 'Claim')
         .withArgs(signers.otherUser3.address, ethers.parseEther('60'), ethers.parseEther('60'));
 
@@ -708,7 +912,7 @@ describe('GaugeRewarder Contract', function () {
       deadline = (await time.latest()) + 100;
       signature = await createSignature(signers.deployer, signers.otherUser2.address, ethers.parseEther('70'), deadline);
 
-      await expect(instance.connect(signers.otherUser2).claim(ethers.parseEther('70'), deadline, signature))
+      await expect(claim(instance.connect(signers.otherUser2), ethers.parseEther('70'), deadline, signature))
         .to.be.emit(instance, 'Claim')
         .withArgs(signers.otherUser2.address, ethers.parseEther('10'), ethers.parseEther('70'));
 
