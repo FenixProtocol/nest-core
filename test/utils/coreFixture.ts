@@ -381,7 +381,7 @@ export async function deployAlgebraCore(): Promise<FactoryFixture> {
       .target,
   ) as any;
 
-  await factory.initialize(poolDeployerAddress);
+  await factory.initialize(poolDeployerAddress, signers.deployer.address);
 
   const poolDeployerFactory = await ethers.getContractFactory(POOL_DEPLOYER_ABI, POOL_DEPLOYER_BYTECODE);
   const poolDeployer = (await poolDeployerFactory.deploy(factory)) as any as AlgebraPoolDeployer;

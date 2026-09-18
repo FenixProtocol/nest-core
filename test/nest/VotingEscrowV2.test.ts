@@ -43,6 +43,10 @@ describe('VotingEscrowV2 Contract', function () {
     return Math.floor((await currentEpoch()) + _WEEK);
   }
 
+  async function updateMinterPeriod() {
+    await deployed.minter.update_period();
+  }
+
   async function checkNftState(
     tokenId: bigint,
     expectState: {
@@ -184,6 +188,7 @@ describe('VotingEscrowV2 Contract', function () {
         expect(await votingEscrow.balanceOfNftIgnoreOwnershipChange(2)).to.be.closeTo(ethers.parseEther('10'), ethers.parseEther('2'));
         expect(await votingEscrow.balanceOfNftIgnoreOwnershipChange(managedNFTId)).to.be.eq(ZERO);
 
+        await updateMinterPeriod();
         await voter.connect(signers.otherUser1).attachToManagedNFT(ONE, managedNFTId);
 
         expect(await votingEscrow.balanceOfNftIgnoreOwnershipChange(1)).to.be.eq(ZERO);
@@ -206,6 +211,7 @@ describe('VotingEscrowV2 Contract', function () {
         expect(await votingEscrow.balanceOfNftIgnoreOwnershipChange(2)).to.be.eq(ZERO);
         expect(await votingEscrow.balanceOfNftIgnoreOwnershipChange(managedNFTId)).to.be.eq(ethers.parseEther('3'));
 
+        await updateMinterPeriod();
         await voter.connect(signers.otherUser1).dettachFromManagedNFT(ONE);
 
         expect(await votingEscrow.balanceOfNftIgnoreOwnershipChange(1)).to.be.closeTo(ethers.parseEther('3'), ethers.parseEther('0.3'));

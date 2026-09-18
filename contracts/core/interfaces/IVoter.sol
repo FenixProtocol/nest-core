@@ -4,6 +4,11 @@ import {IAccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acc
 
 interface IVoter is IAccessControlUpgradeable {
     /**
+     * @notice Reverts when the minter epoch has not been flipped to the current epoch.
+     */
+    error EpochNotFlipped();
+
+    /**
      * @notice Represents the state of a gauge.
      * @param isGauge Indicates if the address is a gauge.
      * @param isAlive Indicates if the gauge is active.
