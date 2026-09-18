@@ -102,7 +102,7 @@ const config: HardhatUserConfig = {
       url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
       chainId: 999,
       gasPrice: 2e9,
-      accounts: [`${process.env.DEV_PK}`],
+      accounts: [`${process.env.DEV_PK}`], // or you can use mnemonic as shown in other networks
     },
     baseSepolia: {
       url: `${process.env.BASE_SEPOLIA_RPC || 'https://sepolia.base.org'}`,

@@ -26,7 +26,7 @@
   "FeesVaultUpgradeable_Implementation": "0x7B12E8Ed9740d9d190b498A9AAc3584D81C7cf03",
   "GaugeUpgradeable_V2Pools_Implementation": "0x65b3066Cb19386F44FBdbb97250eAe3F722F66f4",
   "GaugeUpgradeable_V3Pools_Implementation": "0x78652F32fDcF241f75156dab53e99636DD9C6305",
-  "GaugeRewader_Implementation": "0x4158958Bf30C818491b36020f4b709404ce645Ee",
+  "GaugeRewader_Implementation": "0x992dF0C4831c7e84dB7c942528270d83b0737081",
   "CompoundEmissionExtensionUpgradeable_Implementation": "0x8b3f6eb2C9BFBEE74CFc5372EB88A6353EA0a887",
   "ProxyAdmin": "0xb688d5e73777DfaaDbD7c5Fe98Aee6F35CF20124",
   "BribeFactoryUpgradeable_Proxy": "0x638e382300Ee2ece790164DAfAF7a9f16045621b",
