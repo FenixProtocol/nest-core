@@ -2,7 +2,7 @@ import { loadFixture, time } from '@nomicfoundation/hardhat-toolbox/network-help
 import { expect } from 'chai';
 import { ContractTransactionResponse } from 'ethers';
 import { ethers } from 'hardhat';
-import { BribeUpgradeable, Fenix, GaugeMock, VoterUpgradeableV2, VotingEscrowUpgradeableV2 } from '../../typechain-types';
+import { BribeUpgradeable, Fenix, GaugeMock, GaugeRewarder, VoterUpgradeableV2, VotingEscrowUpgradeableV2 } from '../../typechain-types';
 import { CompoundEmissionExtensionUpgradeableMock } from '../../typechain-types/contracts/mocks/CompoundEmissionExtensionUpgradeableMock';
 import { ERRORS } from '../utils/constants';
 import completeFixture, { CoreFixtureDeployed, deployERC20MockToken, SignersList } from '../utils/coreFixture';
@@ -1410,7 +1410,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
               target: signers.otherUser2,
               gauges: [],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             }),
           ).to.be.revertedWithCustomError(CompoundEmissionExtension, 'AccessDenied');
 
@@ -1418,10 +1418,111 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
               target: signers.otherUser1,
               gauges: [],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             }),
           ).to.be.not.reverted;
         });
+      });
+    });
+
+    describe('Blaze rewards', async () => {
+      let gaugeRewarder: GaugeRewarder;
+
+      async function createClaimSignature(user: string, totalAmount: bigint, deadline: number) {
+        return signers.deployer.signTypedData(
+          {
+            name: 'GaugeRewarder',
+            version: '1',
+            chainId: (await ethers.provider.getNetwork()).chainId,
+            verifyingContract: await gaugeRewarder.getAddress(),
+          },
+          {
+            Claim: [
+              { name: 'user', type: 'address' },
+              { name: 'totalAmount', type: 'uint256' },
+              { name: 'deadline', type: 'uint256' },
+            ],
+          },
+          { user, totalAmount, deadline },
+        );
+      }
+
+      async function createPositionClaimSignature(user: string, totalAmount: bigint, deadline: number, identifier: string) {
+        return signers.deployer.signTypedData(
+          {
+            name: 'GaugeRewarder',
+            version: '1',
+            chainId: (await ethers.provider.getNetwork()).chainId,
+            verifyingContract: await gaugeRewarder.getAddress(),
+          },
+          {
+            PositionClaim: [
+              { name: 'user', type: 'address' },
+              { name: 'totalAmount', type: 'uint256' },
+              { name: 'deadline', type: 'uint256' },
+              { name: 'identifier', type: 'bytes32' },
+            ],
+          },
+          { user, totalAmount, deadline, identifier },
+        );
+      }
+
+      beforeEach(async () => {
+        const implementation = await ethers.deployContract('GaugeRewarder');
+        const proxy = await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, signers.proxyAdmin.address, '0x']);
+        gaugeRewarder = await ethers.getContractAt('GaugeRewarder', proxy.target);
+
+        await gaugeRewarder.initialize(Fenix.target, Voter.target, deployed.minter.target);
+        await gaugeRewarder.setSigner(signers.deployer.address);
+        await gaugeRewarder.grantRole(ethers.id('CLAMER_FOR_ROLE'), Voter.target);
+        await gaugeRewarder.grantRole(ethers.id('REWARDER_ROLE'), signers.deployer.address);
+        await Voter.updateAddress('gaugeRewarder', gaugeRewarder.target);
+        await Fenix.approve(gaugeRewarder.target, ethers.parseEther('1'));
+        await gaugeRewarder.notifyRewardWithTransfer(ethers.ZeroAddress, ethers.parseEther('1'));
+      });
+
+      it('claims with the legacy signature when identifier is zero', async () => {
+        const totalAmount = ethers.parseEther('0.1');
+        const deadline = (await time.latest()) + 100;
+        const signature = await createClaimSignature(signers.otherUser1.address, totalAmount, deadline);
+
+        const tx = await CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
+          target: signers.otherUser1.address,
+          gauges: [],
+          blaze: { totalAmount, deadline, identifier_: ethers.ZeroHash, signature },
+        });
+
+        await expect(tx).to.emit(gaugeRewarder, 'Claim').withArgs(signers.otherUser1.address, totalAmount, totalAmount);
+        expect(await gaugeRewarder.claimed(signers.otherUser1.address)).to.eq(totalAmount);
+        expect(await Fenix.balanceOf(signers.otherUser1.address)).to.eq(totalAmount);
+      });
+
+      it('claims and compounds with the position signature when identifier is nonzero', async () => {
+        const totalAmount = ethers.parseEther('0.1');
+        const deadline = (await time.latest()) + 100;
+        const identifier = ethers.id('position-claim-1');
+        const signature = await createPositionClaimSignature(signers.otherUser1.address, totalAmount, deadline, identifier);
+
+        await Fenix.connect(signers.otherUser1).approve(Voter.target, ethers.MaxUint256);
+        updateCompoundEmissionClaimParams.shouldUpdateGeneralPercentages = true;
+        updateCompoundEmissionClaimParams.shouldUpdateTargetLocks = true;
+        updateCompoundEmissionClaimParams.toLocksPercentage = ethers.parseEther('1');
+        updateCompoundEmissionClaimParams.targetLocks = [{ tokenId: 1, percentage: ethers.parseEther('1') }];
+        await CompoundEmissionExtension.connect(signers.otherUser1).setCompoundEmissionConfig(updateCompoundEmissionClaimParams);
+
+        const tx = await CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
+          target: signers.otherUser1.address,
+          gauges: [],
+          blaze: { totalAmount, deadline, identifier_: identifier, signature },
+        });
+
+        await expect(tx).to.emit(gaugeRewarder, 'PositionClaim').withArgs(signers.otherUser1.address, totalAmount, totalAmount, identifier);
+        await expect(tx)
+          .to.emit(CompoundEmissionExtension, 'CompoundEmissionToTargetLock')
+          .withArgs(signers.otherUser1.address, 1, totalAmount);
+        expect(await gaugeRewarder.claimed(signers.otherUser1.address)).to.eq(totalAmount);
+        expect(await Fenix.balanceOf(signers.otherUser1.address)).to.eq(0);
+        expect((await VotingEscrow.getNftState(1)).locked.amount).to.eq(ethers.parseEther('1.1'));
       });
     });
 
@@ -1463,12 +1564,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1502,12 +1603,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
 
@@ -1550,12 +1651,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1649,12 +1750,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1743,12 +1844,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1857,7 +1958,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1976,7 +2077,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -2079,7 +2180,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -2168,12 +2269,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
 
@@ -2272,7 +2373,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 },
+              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
 

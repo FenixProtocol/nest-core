@@ -130,7 +130,12 @@ describe('VotingEscrow_V2', function () {
 
     it('#onCompoundEmissionClaim', async () => {
       await expect(
-        Voter.onCompoundEmissionClaim(ethers.ZeroAddress, [], { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 }),
+        Voter.onCompoundEmissionClaim(ethers.ZeroAddress, [], {
+          totalAmount: 0,
+          deadline: 0,
+          identifier_: ethers.ZeroHash,
+          signature: ethers.ZeroHash,
+        }),
       ).to.be.revertedWithCustomError(Voter, 'AccessDenied');
     });
   });

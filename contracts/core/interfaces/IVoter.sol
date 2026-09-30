@@ -74,11 +74,13 @@ interface IVoter is IAccessControlUpgradeable {
      * @notice Parameters for claiming Blaze data.
      * @param totalAmount The total amount of reward being claimed.
      * @param deadline The expiration time of the claim.
+     * @param identifier_ The identifier included in the signed position claim. Use zero for legacy claims.
      * @param signature The signature authorizing the claim.
      */
     struct AggregateClaimBlazeDataParams {
         uint256 totalAmount;
         uint256 deadline;
+        bytes32 identifier_;
         bytes signature;
     }
 

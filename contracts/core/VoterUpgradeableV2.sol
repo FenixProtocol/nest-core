@@ -1037,7 +1037,11 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
             IGaugeRewarder rewarder = IGaugeRewarder(gaugeRewarder);
             uint256 claimed = rewarder.claimed(target_);
             if (blaze_.totalAmount > claimed) {
-                IGaugeRewarder(gaugeRewarder).claimFor(target_, blaze_.totalAmount, blaze_.deadline, blaze_.signature);
+                if (blaze_.identifier_ == bytes32(0)) {
+                    rewarder.claimFor(target_, blaze_.totalAmount, blaze_.deadline, blaze_.signature);
+                } else {
+                    rewarder.claimFor(target_, blaze_.totalAmount, blaze_.deadline, blaze_.identifier_, blaze_.signature);
+                }
             }
         }
     }
