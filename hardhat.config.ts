@@ -77,6 +77,7 @@ const config: HardhatUserConfig = {
       etherscan: `${process.env.ETHERSCAN_API_KEY}`,
       hyperEvm: `${process.env.ETHERSCAN_API_KEY}`,
       baseSepolia: `${process.env.ETHERSCAN_API_KEY}`,
+      elysium_testnet: `${process.env.ETHERSCAN_API_KEY}`,
     },
     customChains: [
       {
@@ -95,6 +96,14 @@ const config: HardhatUserConfig = {
           browserURL: 'https://sepolia.basescan.org',
         },
       },
+      {
+        network: 'elysium_testnet',
+        chainId: 99801,
+        urls: {
+          apiURL: 'https://elysium.kinetiq.xyz/api',
+          browserURL: 'https://elysium.kinetiq.xyz',
+        },
+      },
     ],
   },
   networks: {
@@ -102,7 +111,7 @@ const config: HardhatUserConfig = {
       url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
       chainId: 999,
       gasPrice: 2e9,
-      accounts: [`${process.env.DEV_PK}`], // or you can use mnemonic as shown in other networks
+      accounts: [`${process.env.DEV_PK || `0x0000000000000000000000000000000000000000`}`], // or you can use mnemonic as shown in other networks
     },
     baseSepolia: {
       url: `${process.env.BASE_SEPOLIA_RPC || 'https://sepolia.base.org'}`,
@@ -126,20 +135,25 @@ const config: HardhatUserConfig = {
         passphrase: '',
       },
     },
+    elysium_testnet: {
+      url: `${process.env.ELYSIUM_TESTNET_RPC || 'https://testnet-rpc.elysium.kinetiq.xyz'}`,
+      chainId: 99801,
+      accounts: [`${process.env.DEV_PK || `0x0000000000000000000000000000000000000000`}`],
+    },
     hardhat: {
       allowUnlimitedContractSize: true,
       forking: {
         enabled: false, // set to true to run fork tests
         url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
-        blockNumber: 32612975// previous block numbers 31369069, 25055503
+        blockNumber: 32612975, // previous block numbers 31369069, 25055503
       },
       chains: {
         999: {
           hardforkHistory: {
-            prague: 25055503
-          }
-        }
-      }
+            prague: 25055503,
+          },
+        },
+      },
     },
   },
   solidity: {
