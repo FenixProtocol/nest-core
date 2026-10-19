@@ -16,19 +16,19 @@ interface IGaugeRewarder {
     event NotifyReward(address indexed caller, address indexed gauge, uint256 indexed epoch, uint256 amount);
 
     /**
-     * @dev Emitted when a reward claim is made.
+     * @dev Emitted by claim overloads that do not include a backend tracking identifier.
      * @param target The address of the recipient of the claimed reward.
      * @param reward The amount of reward claimed.
-     * @param totalAmount The total claimable amount.
+     * @param totalAmount The user's cumulative entitlement across all claim overloads.
      */
     event Claim(address target, uint256 reward, uint256 totalAmount);
 
     /**
-     * @dev Emitted when a position reward claim is made.
+     * @dev Emitted by claim overloads that include a backend tracking identifier; Claim is not also emitted.
      * @param target The address of the recipient of the claimed reward.
      * @param reward The amount of reward claimed.
-     * @param totalAmount The total claimable amount.
-     * @param identifier The identifier included in the signed position claim.
+     * @param totalAmount The user's cumulative entitlement across all claim overloads.
+     * @param identifier The backend tracking identifier included in the signed claim.
      */
     event PositionClaim(address target, uint256 reward, uint256 totalAmount, bytes32 identifier);
 
@@ -61,19 +61,19 @@ interface IGaugeRewarder {
     /**
      * @notice Claims rewards on behalf of a specified target address.
      * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
+     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
      * @param signature_ The signature authorizing the claim.
      * @return The amount of reward claimed.
      */
     function claimFor(address target_, uint256 totalAmount_, uint256 deadline_, bytes memory signature_) external returns (uint256);
 
     /**
-     * @notice Claims rewards on behalf of a specified target address using a position claim identifier.
+     * @notice Claims rewards on behalf of a specified target address with an identifier for backend tracking.
      * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
-     * @param identifier_ The identifier included in the signed position claim.
+     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
+     * @param identifier_ The backend tracking identifier included in the signature and event.
      * @param signature_ The signature authorizing the claim.
      * @return The amount of reward claimed.
      */
@@ -87,18 +87,18 @@ interface IGaugeRewarder {
 
     /**
      * @notice Claims rewards for the caller.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
+     * @param totalAmount_ The caller's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
      * @param signature_ The signature authorizing the claim.
      * @return The amount of reward claimed.
      */
     function claim(uint256 totalAmount_, uint256 deadline_, bytes memory signature_) external returns (uint256);
 
     /**
-     * @notice Claims rewards for the caller using a position claim identifier.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
-     * @param identifier_ The identifier included in the signed position claim.
+     * @notice Claims rewards for the caller with an identifier for backend tracking.
+     * @param totalAmount_ The caller's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
+     * @param identifier_ The backend tracking identifier included in the signature and event.
      * @param signature_ The signature authorizing the claim.
      * @return The amount of reward claimed.
      */
@@ -117,7 +117,7 @@ interface IGaugeRewarder {
     function totalRewardClaimed() external view returns (uint256);
 
     /**
-     * @notice Gets the claimed reward amount for a specific address.
+     * @notice Gets the cumulative amount claimed by an address across all claim overloads.
      * @param user The address of the user.
      * @return The amount of rewards claimed by the user.
      */

@@ -72,9 +72,9 @@ interface IVoter is IAccessControlUpgradeable {
 
     /**
      * @notice Parameters for claiming Blaze data.
-     * @param totalAmount The total amount of reward being claimed.
-     * @param deadline The expiration time of the claim.
-     * @param identifier_ The identifier included in the signed position claim. Use zero for legacy claims.
+     * @param totalAmount The user's cumulative reward entitlement across all claim overloads.
+     * @param deadline The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline.
+     * @param identifier_ The backend tracking identifier. Use zero to call the overload without an identifier.
      * @param signature The signature authorizing the claim.
      */
     struct AggregateClaimBlazeDataParams {
