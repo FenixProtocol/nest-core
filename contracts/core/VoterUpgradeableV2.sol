@@ -405,6 +405,8 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
      * @return internalBribe The address of the created internal bribe.
      * @return externalBribe The address of the created external bribe.
      * @custom:error GaugeForPoolAlreadyExists Thrown if a gauge already exists for the specified pool.
+     * @custom:error GaugeAlreadyExists Thrown if the specified gauge is already registered.
+     * @custom:error InvalidGauge Thrown if the specified gauge is the zero address.
      */
     function createCustomGauge(
         address gauge_,
@@ -416,6 +418,12 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     ) external nonReentrant onlyRole(_GOVERNANCE_ROLE) returns (address gauge, address internalBribe, address externalBribe) {
         if (poolToGauge[pool_] != address(0x0)) {
             revert GaugeForPoolAlreadyExists();
+        }
+        if (gauge_ == address(0)) {
+            revert InvalidGauge();
+        }
+        if (gaugesState[gauge_].isGauge) {
+            revert GaugeAlreadyExists();
         }
 
         gauge = gauge_;
@@ -439,12 +447,14 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
 
         uint256 epochCache = epochTimestamp();
         uint256 weightAt = totalWeightsPerEpoch[epochCache - _WEEK]; // minter call notify after updates active_period, loads votes - 1 week
+        uint256 receivedAmount;
         if (weightAt > 0) {
             index += (amount_ * 1e18) / weightAt;
             IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
+            receivedAmount = amount_;
         }
         indexPerEpoch[epochCache] = index;
-        emit NotifyReward(_msgSender(), token, amount_);
+        emit NotifyReward(_msgSender(), token, receivedAmount);
     }
 
     /**
@@ -874,6 +884,9 @@ contract VoterUpgradeableV2 is IVoter, AccessControlUpgradeable, ReentrancyGuard
     /// @notice distribute the emission
     function _distribute(address gauge_) internal {
         GaugeState memory state = gaugesState[gauge_];
+        if (!state.isGauge) {
+            revert InvalidGauge();
+        }
         uint256 currentTimestamp = epochTimestamp();
         uint256 lastDistributionTimestampCache = state.lastDistributionTimestamp;
         if (state.lastDistributionTimestamp < currentTimestamp) {
