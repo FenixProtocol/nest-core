@@ -1410,7 +1410,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
               target: signers.otherUser2,
               gauges: [],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             }),
           ).to.be.revertedWithCustomError(CompoundEmissionExtension, 'AccessDenied');
 
@@ -1418,7 +1418,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
               target: signers.otherUser1,
               gauges: [],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             }),
           ).to.be.not.reverted;
         });
@@ -1489,7 +1489,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
         const tx = await CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
           target: signers.otherUser1.address,
           gauges: [],
-          blaze: { totalAmount, deadline, identifier_: ethers.ZeroHash, signature },
+          blaze: { totalAmount, deadline, identifier: ethers.ZeroHash, signature },
         });
 
         await expect(tx).to.emit(gaugeRewarder, 'Claim').withArgs(signers.otherUser1.address, totalAmount, totalAmount);
@@ -1513,7 +1513,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
         const tx = await CompoundEmissionExtension.connect(signers.otherUser1).compoundEmisisonClaim({
           target: signers.otherUser1.address,
           gauges: [],
-          blaze: { totalAmount, deadline, identifier_: identifier, signature },
+          blaze: { totalAmount, deadline, identifier: identifier, signature },
         });
 
         await expect(tx).to.emit(gaugeRewarder, 'PositionClaim').withArgs(signers.otherUser1.address, totalAmount, totalAmount, identifier);
@@ -1564,12 +1564,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1603,12 +1603,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
 
@@ -1651,12 +1651,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1750,12 +1750,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1844,12 +1844,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -1958,7 +1958,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -2077,7 +2077,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -2180,7 +2180,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
           await expect(tx).to.be.emit(Fenix, 'Transfer').withArgs(gauge1, signers.otherUser1, ethers.parseEther('100'));
@@ -2269,12 +2269,12 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
             {
               target: signers.otherUser2,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
 
@@ -2373,7 +2373,7 @@ describe('CompoundEmissionExtensionUpgradeable', function () {
             {
               target: signers.otherUser1,
               gauges: [gauge1, gauge2],
-              blaze: { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              blaze: { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             },
           ]);
 

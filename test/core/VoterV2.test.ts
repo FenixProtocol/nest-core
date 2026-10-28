@@ -99,7 +99,7 @@ describe('Voter change governance/admin functionality', function () {
           [],
           { bribes: [], tokens: [] },
           { bribes: [], tokens: [], tokenId: 0 },
-          { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+          { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
           { inPureTokens: false, amount: 0, proofs: [], withPermanentLock: false, managedTokenIdForAttach: 0 },
           {
             percentageToLock: 0,
@@ -119,7 +119,7 @@ describe('Voter change governance/admin functionality', function () {
           [],
           { bribes: [], tokens: [] },
           { bribes: [], tokens: [], tokenId: 0 },
-          { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+          { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
           { inPureTokens: false, amount: 0, proofs: [], withPermanentLock: false, managedTokenIdForAttach: 0 },
           {
             percentageToLock: ethers.parseEther('1') + 1n,
@@ -138,7 +138,7 @@ describe('Voter change governance/admin functionality', function () {
           [],
           { bribes: [], tokens: [] },
           { bribes: [ZERO_ADDRESS], tokens: [], tokenId: 5 },
-          { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+          { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
           { inPureTokens: false, amount: 0, proofs: [], withPermanentLock: false, managedTokenIdForAttach: 0 },
           {
             percentageToLock: 0,
@@ -188,7 +188,7 @@ describe('Voter change governance/admin functionality', function () {
           [],
           { bribes: [], tokens: [] },
           { bribes: [], tokens: [], tokenId: 0 },
-          { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+          { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
           {
             inPureTokens: false,
             amount: ethers.parseEther('1'),
@@ -259,7 +259,7 @@ describe('Voter change governance/admin functionality', function () {
           [],
           { bribes: [], tokens: [] },
           { bribes: [], tokens: [], tokenId: 0 },
-          { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+          { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
           {
             inPureTokens: true,
             withPermanentLock: false,
@@ -331,7 +331,7 @@ describe('Voter change governance/admin functionality', function () {
               [],
               { bribes: [], tokens: [] },
               { bribes: [], tokens: [], tokenId: 0 },
-              { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+              { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
               {
                 inPureTokens: true,
                 withPermanentLock: false,
@@ -362,7 +362,7 @@ describe('Voter change governance/admin functionality', function () {
             [],
             { bribes: [], tokens: [] },
             { bribes: [], tokens: [], tokenId: 0 },
-            { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+            { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             {
               inPureTokens: true,
               withPermanentLock: false,
@@ -421,7 +421,7 @@ describe('Voter change governance/admin functionality', function () {
             [],
             { bribes: [], tokens: [] },
             { bribes: [], tokens: [], tokenId: 0 },
-            { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+            { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             {
               inPureTokens: true,
               withPermanentLock: false,
@@ -491,7 +491,7 @@ describe('Voter change governance/admin functionality', function () {
             [],
             { bribes: [], tokens: [] },
             { bribes: [], tokens: [], tokenId: 0 },
-            { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+            { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
             {
               inPureTokens: true,
               withPermanentLock: false,
@@ -584,7 +584,7 @@ describe('Voter change governance/admin functionality', function () {
           [],
           { bribes: [], tokens: [] },
           { bribes: [], tokens: [], tokenId: 0 },
-          { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+          { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
           {
             inPureTokens: false,
             amount: ethers.parseEther('1'),
@@ -670,7 +670,7 @@ describe('Voter change governance/admin functionality', function () {
           [],
           { bribes: [], tokens: [] },
           { bribes: [], tokens: [], tokenId: 0 },
-          { totalAmount: 0, deadline: 0, identifier_: ethers.ZeroHash, signature: ethers.ZeroHash },
+          { totalAmount: 0, deadline: 0, identifier: ethers.ZeroHash, signature: ethers.ZeroHash },
           {
             inPureTokens: false,
             amount: ethers.parseEther('1'),

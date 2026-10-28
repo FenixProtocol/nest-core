@@ -133,7 +133,7 @@ describe('VotingEscrow_V2', function () {
         Voter.onCompoundEmissionClaim(ethers.ZeroAddress, [], {
           totalAmount: 0,
           deadline: 0,
-          identifier_: ethers.ZeroHash,
+          identifier: ethers.ZeroHash,
           signature: ethers.ZeroHash,
         }),
       ).to.be.revertedWithCustomError(Voter, 'AccessDenied');
