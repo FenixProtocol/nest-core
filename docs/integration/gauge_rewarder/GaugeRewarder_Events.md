@@ -17,15 +17,28 @@ event NotifyReward(address indexed caller, address indexed gauge, uint256 indexe
 
 ```solidity
 /**
- * @dev Emitted when a reward claim is made.
+ * @dev Emitted by claim overloads that do not include a backend tracking identifier.
  * @param target The address of the recipient of the claimed reward.
  * @param reward The amount of reward claimed.
- * @param totalAmount The total claimable amount.
+ * @param totalAmount The user's cumulative reward entitlement across all claim overloads.
  */
 event Claim(address target, uint256 reward, uint256 totalAmount);
 ```
 
-- **When Emitted**: This event is emitted when a reward is successfully claimed by a user or on behalf of a user, through either the `claim` or `claimFor` functions.
+- **When Emitted**: This event is emitted by the `claim` and `claimFor` overloads that do not accept an `identifier`.
+
+```solidity
+/**
+ * @dev Emitted by claim overloads that include a backend tracking identifier.
+ * @param target The address of the recipient of the claimed reward.
+ * @param reward The amount of reward claimed.
+ * @param totalAmount The user's cumulative reward entitlement across all claim overloads.
+ * @param identifier The backend tracking identifier included in the signed claim.
+ */
+event PositionClaim(address target, uint256 reward, uint256 totalAmount, bytes32 identifier);
+```
+
+- **When Emitted**: This event is emitted by the `claim` and `claimFor` overloads that accept an `identifier`. The identifier is backend tracking metadata and does not change claim accounting. These overloads do not also emit `Claim`, so indexers calculating all payouts must process both event types.
 
 ```solidity
 /**

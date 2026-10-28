@@ -248,6 +248,33 @@ describe('BribeUpgradeable - Reward Precision Fix', function () {
         });
     });
 
+    describe('Epoch synchronization', function () {
+        it('should reject bribes after the epoch boundary until the minter flips the epoch', async function () {
+            const bribeAmount = ethers.parseEther('10');
+            const staleEpoch = await deployed.minter.active_period();
+            await token18.mint(signers.deployer.address, bribeAmount);
+
+            await time.setNextBlockTimestamp(staleEpoch + BigInt(WEEK));
+
+            await expect(internalBribe.notifyRewardAmount(token18.target, bribeAmount)).to.be.revertedWithCustomError(
+                internalBribe,
+                'EpochNotFlipped',
+            );
+
+            expect((await internalBribe.rewardData(token18.target, staleEpoch)).rewardsPerEpoch).to.be.eq(0);
+            expect(await token18.balanceOf(internalBribe.target)).to.be.eq(0);
+
+            await deployed.minter.update_period();
+            const currentEpoch = await deployed.minter.active_period();
+            expect(currentEpoch).to.be.gt(staleEpoch);
+
+            await expect(internalBribe.notifyRewardAmount(token18.target, bribeAmount))
+                .to.emit(internalBribe, 'RewardAdded')
+                .withArgs(token18.target, bribeAmount, currentEpoch);
+            expect((await internalBribe.rewardData(token18.target, currentEpoch)).rewardsPerEpoch).to.be.eq(bribeAmount);
+        });
+    });
+
     describe('Zero supply edge case', function () {
         it('should return 0 earned when no one voted', async function () {
             const btcBribeAmount = 10_000_000n;
