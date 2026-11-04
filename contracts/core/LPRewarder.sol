@@ -12,7 +12,6 @@ import {ILPRewarder} from "./interfaces/ILPRewarder.sol";
  * @notice Distributes NEST rewards to liquidity providers.
  * @dev An admin funds and notifies rewards. An authorized signer assigns cumulative entitlements
  * to providers, who claim the difference between their signed entitlement and prior claims.
- * Notifications are recorded by pool and weekly epoch for distribution accounting.
  */
 contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Upgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -21,9 +20,6 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
      * @dev Role for claiming rewards on behalf of users.
      */
     bytes32 internal constant _CLAMER_FOR_ROLE = keccak256("CLAMER_FOR_ROLE");
-
-    /** @notice Length of an epoch, aligned with the NEST minter's weekly periods. */
-    uint256 public constant WEEK = 86400 * 7;
 
     /**
      * @dev Type hash for EIP-712 claim signature.
@@ -61,12 +57,6 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
      * @dev All claim overloads share this counter.
      */
     mapping(address => uint256) public claimed;
-
-    /** @notice NEST allocated to each pool in each weekly epoch. */
-    mapping(uint256 epoch => mapping(address pool => uint256)) public rewardPerPoolPerEpoch;
-
-    /** @notice Total NEST allocated in each weekly epoch. */
-    mapping(uint256 epoch => uint256) public rewardPerEpoch;
 
     /**
      * @dev Error thrown when attempting to distribute zero reward amount.
@@ -132,25 +122,23 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
     }
 
     /**
-     * @notice Allocates NEST already held by this contract to a pool's current epoch.
+     * @notice Allocates NEST already held by this contract for provider claims.
      * @dev Passing zero allocates all currently unallocated NEST.
-     * @param pool_ The LP pool associated with the reward allocation.
      * @param amount_ The amount of NEST to allocate.
      */
-    function notifyReward(address pool_, uint256 amount_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _notifyReward(pool_, amount_);
+    function notifyReward(uint256 amount_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        _notifyReward(amount_);
     }
 
     /**
-     * @notice Pulls NEST from the admin and allocates it to a pool's current epoch.
+     * @notice Pulls NEST from the admin and allocates it for provider claims.
      * @dev The admin must approve this contract first. Passing zero allocates any NEST
      * already held by this contract that has not yet been allocated.
-     * @param pool_ The LP pool associated with the reward allocation.
      * @param amount_ The amount of NEST to transfer and allocate.
      */
-    function notifyRewardWithTransfer(address pool_, uint256 amount_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+    function notifyRewardWithTransfer(uint256 amount_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
-        _notifyReward(pool_, amount_);
+        _notifyReward(amount_);
     }
 
     /**
@@ -213,11 +201,10 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
     }
 
     /**
-     * @dev Reserves only unallocated NEST and records the pool and current weekly epoch.
-     * @param pool_ The LP pool associated with the reward allocation.
+     * @dev Reserves only unallocated NEST, keeping earlier allocations available for claims.
      * @param amount_ The amount to allocate, or zero for the full unallocated balance.
      */
-    function _notifyReward(address pool_, uint256 amount_) internal {
+    function _notifyReward(uint256 amount_) internal {
         uint256 availableBalance = IERC20Upgradeable(token).balanceOf(address(this)) - (totalRewardDistributed - totalRewardClaimed);
         if (amount_ == 0) {
             amount_ = availableBalance;
@@ -229,12 +216,8 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
             revert ZeroRewardAmount();
         }
 
-        uint256 epoch = (block.timestamp / WEEK) * WEEK;
         totalRewardDistributed += amount_;
-        rewardPerEpoch[epoch] += amount_;
-        rewardPerPoolPerEpoch[epoch][pool_] += amount_;
-
-        emit NotifyReward(_msgSender(), pool_, epoch, amount_);
+        emit NotifyReward(_msgSender(), amount_);
     }
 
     /**
