@@ -2,19 +2,19 @@
 pragma solidity =0.8.19;
 
 import {AccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
-import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
-import "./interfaces/IVoter.sol";
-import "./interfaces/IMinter.sol";
-import "./interfaces/IGaugeRewarder.sol";
+import {EIP712Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
+import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import {ILPRewarder} from "./interfaces/ILPRewarder.sol";
 
 /**
  * @title LPRewarder
- * @dev This contract is responsible for managing reward distributions to gauges and handling claims.
- * It allows setting rewards, transferring rewards, and claiming rewards based on a signature.
+ * @notice Distributes NEST rewards to liquidity providers.
+ * @dev An admin funds and notifies rewards. An authorized signer assigns cumulative entitlements
+ * to providers, who claim the difference between their signed entitlement and prior claims.
+ * Notifications are recorded by pool and weekly epoch for distribution accounting.
  */
-contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP712Upgradeable {
+contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Upgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**
@@ -22,10 +22,8 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
      */
     bytes32 internal constant _CLAMER_FOR_ROLE = keccak256("CLAMER_FOR_ROLE");
 
-    /**
-     * @dev Role for managing reward notifications.
-     */
-    bytes32 internal constant _REWARDER_ROLE = keccak256("REWARDER_ROLE");
+    /** @notice Length of an epoch, aligned with the NEST minter's weekly periods. */
+    uint256 public constant WEEK = 86400 * 7;
 
     /**
      * @dev Type hash for EIP-712 claim signature.
@@ -39,19 +37,9 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
         keccak256("PositionClaim(address user,uint256 totalAmount,uint256 deadline,bytes32 identifier)");
 
     /**
-     * @notice The address of the reward token.
+     * @notice The address of the NEST reward token.
      */
     address public token;
-
-    /**
-     * @notice The address of the minter contract.
-     */
-    address public minter;
-
-    /**
-     * @notice The address of the voter contract.
-     */
-    address public voter;
 
     /**
      * @notice The address of the authorized signer for reward claims.
@@ -59,12 +47,12 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
     address public signer;
 
     /**
-     * @notice The total amount of rewards distributed so far.
+     * @notice The cumulative amount of NEST allocated for provider claims.
      */
     uint256 public totalRewardDistributed;
 
     /**
-     * @notice The total amount of rewards claimed so far.
+     * @notice The cumulative amount of NEST paid to providers.
      */
     uint256 public totalRewardClaimed;
 
@@ -74,27 +62,16 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
      */
     mapping(address => uint256) public claimed;
 
-    /**
-     * @notice A mapping to track rewards per gauge per epoch.
-     * @dev Maps the epoch to gauge addresses and their corresponding rewards.
-     */
-    mapping(uint256 epoch => mapping(address gauge => uint256)) public rewardPerGaugePerEpoch;
+    /** @notice NEST allocated to each pool in each weekly epoch. */
+    mapping(uint256 epoch => mapping(address pool => uint256)) public rewardPerPoolPerEpoch;
 
-    /**
-     * @notice A mapping to track rewards per epoch.
-     * @dev Maps the epoch to the total reward for that epoch.
-     */
+    /** @notice Total NEST allocated in each weekly epoch. */
     mapping(uint256 epoch => uint256) public rewardPerEpoch;
 
     /**
      * @dev Error thrown when attempting to distribute zero reward amount.
      */
     error ZeroRewardAmount();
-
-    /**
-     * @dev Error thrown when access is denied for the requested action.
-     */
-    error AccessDenied();
 
     /**
      * @dev Error thrown when a signature has expired.
@@ -124,16 +101,6 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
     error AddressZero();
 
     /**
-     * @dev Modifier to restrict access to either a gauge or an authorized rewarder.
-     */
-    modifier onlyGaugeOrRewarder() {
-        if (!IVoter(voter).isGauge(_msgSender()) && !hasRole(_REWARDER_ROLE, _msgSender())) {
-            revert AccessDenied();
-        }
-        _;
-    }
-
-    /**
      * @dev Initializes the contract by disabling initializers.
      */
     constructor() {
@@ -141,15 +108,11 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
     }
 
     /**
-     * @notice Initializes the contract with the specified parameters.
-     * @param token_ The address of the reward token.
-     * @param voter_ The address of the voter contract.
-     * @param minter_ The address of the minter contract.
+     * @notice Initializes the distributor with the NEST token address.
+     * @param token_ The address of the NEST token.
      */
-    function initialize(address token_, address voter_, address minter_) external initializer {
+    function initialize(address token_) external initializer {
         _checkAddressZero(token_);
-        _checkAddressZero(minter_);
-        _checkAddressZero(voter_);
 
         __EIP712_init("LPRewarder", "1");
         __AccessControlEnumerable_init();
@@ -157,8 +120,6 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
         token = token_;
-        minter = minter_;
-        voter = voter_;
     }
 
     /**
@@ -171,22 +132,25 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
     }
 
     /**
-     * @notice Notifies a reward for a specified gauge.
-     * @param gauge_ The address of the gauge to receive the reward.
-     * @param amount_ The amount of reward tokens.
+     * @notice Allocates NEST already held by this contract to a pool's current epoch.
+     * @dev Passing zero allocates all currently unallocated NEST.
+     * @param pool_ The LP pool associated with the reward allocation.
+     * @param amount_ The amount of NEST to allocate.
      */
-    function notifyReward(address gauge_, uint256 amount_) external virtual onlyGaugeOrRewarder {
-        _notifyReward(gauge_, amount_);
+    function notifyReward(address pool_, uint256 amount_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        _notifyReward(pool_, amount_);
     }
 
     /**
-     * @notice Transfers tokens and notifies a reward for a specified gauge.
-     * @param gauge_ The address of the gauge to receive the reward.
-     * @param amount_ The amount of reward tokens.
+     * @notice Pulls NEST from the admin and allocates it to a pool's current epoch.
+     * @dev The admin must approve this contract first. Passing zero allocates any NEST
+     * already held by this contract that has not yet been allocated.
+     * @param pool_ The LP pool associated with the reward allocation.
+     * @param amount_ The amount of NEST to transfer and allocate.
      */
-    function notifyRewardWithTransfer(address gauge_, uint256 amount_) external virtual onlyGaugeOrRewarder {
+    function notifyRewardWithTransfer(address pool_, uint256 amount_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
-        _notifyReward(gauge_, amount_);
+        _notifyReward(pool_, amount_);
     }
 
     /**
@@ -249,11 +213,11 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
     }
 
     /**
-     * @dev Internal function to notify rewards for a gauge.
-     * @param gauge_ The address of the gauge to receive the reward.
-     * @param amount_ The amount of reward tokens.
+     * @dev Reserves only unallocated NEST and records the pool and current weekly epoch.
+     * @param pool_ The LP pool associated with the reward allocation.
+     * @param amount_ The amount to allocate, or zero for the full unallocated balance.
      */
-    function _notifyReward(address gauge_, uint256 amount_) internal {
+    function _notifyReward(address pool_, uint256 amount_) internal {
         uint256 availableBalance = IERC20Upgradeable(token).balanceOf(address(this)) - (totalRewardDistributed - totalRewardClaimed);
         if (amount_ == 0) {
             amount_ = availableBalance;
@@ -265,13 +229,12 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
             revert ZeroRewardAmount();
         }
 
-        uint256 epoch = IMinter(minter).active_period();
-
+        uint256 epoch = (block.timestamp / WEEK) * WEEK;
         totalRewardDistributed += amount_;
         rewardPerEpoch[epoch] += amount_;
-        rewardPerGaugePerEpoch[epoch][gauge_] += amount_;
+        rewardPerPoolPerEpoch[epoch][pool_] += amount_;
 
-        emit NotifyReward(_msgSender(), gauge_, IMinter(minter).active_period(), amount_);
+        emit NotifyReward(_msgSender(), pool_, epoch, amount_);
     }
 
     /**
@@ -358,6 +321,9 @@ contract LPRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EIP71
             revert InvalidSignature();
         }
         reward = totalAmount_ - claimedAmount;
+        if (reward > totalRewardDistributed - totalRewardClaimed) {
+            revert InsufficientAvailableBalance();
+        }
 
         claimed[target_] = totalAmount_;
 
