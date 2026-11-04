@@ -42,6 +42,16 @@ error PoolNotCreatedByFactory();
 error GaugeForPoolAlreadyExists();
 
 /**
+ * @notice Reverts when an attempt is made to register an address that is already a gauge.
+ */
+error GaugeAlreadyExists();
+
+/**
+ * @notice Reverts when an address is not a registered gauge or is the zero address.
+ */
+error InvalidGauge();
+
+/**
  * @notice Reverts when a voting operation is attempted without a prior reset.
  */
 error NoResetBefore();

@@ -334,16 +334,21 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
         }
     }
 
-    /// @notice Notify a bribe amount
-    /// @dev    Rewards are saved into NEXT EPOCH mapping.
+    /// @notice Notify a bribe amount for the active epoch
+    /// @dev    Reverts when the minter has not yet advanced to the current epoch.
     function notifyRewardAmount(address _rewardsToken, uint256 reward) external nonReentrant {
         require(
             isRewardToken[_rewardsToken] || IBribeFactory(bribeFactory).isDefaultRewardToken(_rewardsToken),
             "reward token not verified"
         );
+
+        uint256 _startTimestamp = IMinter(minter).active_period();
+        if (block.timestamp >= _startTimestamp + WEEK) {
+            revert EpochNotFlipped();
+        }
+
         IERC20Upgradeable(_rewardsToken).safeTransferFrom(msg.sender, address(this), reward);
 
-        uint256 _startTimestamp = IMinter(minter).active_period(); //period points to the current thursday. Bribes are distributed from next epoch (thursday)
         if (firstBribeTimestamp == 0) {
             firstBribeTimestamp = _startTimestamp;
         }

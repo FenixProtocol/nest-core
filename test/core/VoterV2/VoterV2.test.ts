@@ -130,8 +130,47 @@ describe('VotingEscrow_V2', function () {
 
     it('#onCompoundEmissionClaim', async () => {
       await expect(
-        Voter.onCompoundEmissionClaim(ethers.ZeroAddress, [], { totalAmount: 0, signature: ethers.ZeroHash, deadline: 0 }),
+        Voter.onCompoundEmissionClaim(ethers.ZeroAddress, [], {
+          totalAmount: 0,
+          deadline: 0,
+          identifier: ethers.ZeroHash,
+          signature: ethers.ZeroHash,
+        }),
       ).to.be.revertedWithCustomError(Voter, 'AccessDenied');
+    });
+  });
+
+  describe('#notifyRewardAmount', function () {
+    it('emits a zero amount and does not pull tokens when the previous epoch has no voting weight', async () => {
+      await time.increaseTo(await getNextEpochTime());
+
+      await expect(deployed.minter.update_period())
+        .to.emit(Voter, 'NotifyReward')
+        .withArgs(deployed.minter.target, deployed.fenix.target, 0);
+      expect(await deployed.fenix.balanceOf(Voter.target)).to.be.eq(0);
+    });
+
+    it('emits and pulls the full gauge emission when the previous epoch has voting weight', async () => {
+      const pair = await deployed.v2PairFactory.createPair.staticCall(deployed.fenix.target, token.target, false);
+      await deployed.v2PairFactory.createPair(deployed.fenix.target, token.target, false);
+      await Voter.createV2Gauge(pair);
+
+      const lockAmount = ethers.parseEther('10');
+      await deployed.fenix.transfer(signers.otherUser1.address, lockAmount);
+      await deployed.fenix.connect(signers.otherUser1).approve(VotingEscrow.target, lockAmount);
+      await VotingEscrow.connect(signers.otherUser1).createLockFor(lockAmount, 0, signers.otherUser1.address, false, true, 0);
+      await Voter.connect(signers.otherUser1).vote(1, [pair], [10000]);
+
+      const weekly = await deployed.minter.weekly();
+      const teamRate = await deployed.minter.teamRate();
+      const precision = await deployed.minter.PRECISION();
+      const gaugeEmission = weekly - (weekly * teamRate) / precision;
+      await time.increaseTo(await getNextEpochTime());
+
+      await expect(deployed.minter.update_period())
+        .to.emit(Voter, 'NotifyReward')
+        .withArgs(deployed.minter.target, deployed.fenix.target, gaugeEmission);
+      expect(await deployed.fenix.balanceOf(Voter.target)).to.be.eq(gaugeEmission);
     });
   });
 
@@ -174,7 +213,14 @@ describe('VotingEscrow_V2', function () {
         // Create veNFT lock and vote for the pool
         await deployed.fenix.transfer(signers.otherUser1.address, ethers.parseEther('10'));
         await deployed.fenix.connect(signers.otherUser1).approve(VotingEscrow.target, ethers.parseEther('10'));
-        await VotingEscrow.connect(signers.otherUser1).createLockFor(ethers.parseEther('10'), 15724800, signers.otherUser1.address, false, false, 0);
+        await VotingEscrow.connect(signers.otherUser1).createLockFor(
+          ethers.parseEther('10'),
+          15724800,
+          signers.otherUser1.address,
+          false,
+          false,
+          0,
+        );
 
         // Vote for the pool
         await Voter.connect(signers.otherUser1).vote(1, [pair], [10000]);
@@ -630,7 +676,13 @@ describe('VotingEscrow_V2', function () {
             token.target,
             '0x1234',
           );
-          await pluginFactory.createCustomPool(algebraCore.factory.target, signers.deployer.address, deployed.fenix.target, token.target, '0x1234');
+          await pluginFactory.createCustomPool(
+            algebraCore.factory.target,
+            signers.deployer.address,
+            deployed.fenix.target,
+            token.target,
+            '0x1234',
+          );
 
           const pool = await ethers.getContractAt(POOL_ABI, poolAddress);
           await pool.initialize(encodePriceSqrt(1, 1));
@@ -653,6 +705,99 @@ describe('VotingEscrow_V2', function () {
             .withArgs(res.gauge, signers.deployer.address, res.internalBribe, res.externalBribe, poolAddress);
           await expect(tx).to.be.emit(Voter, 'GaugeCreatedType').withArgs(res.gauge, 1);
         });
+      });
+    });
+
+    describe('#createCustomGauge', function () {
+      describe('fail if', function () {
+        it('caller does not have GOVERNANCE_ROLE', async () => {
+          await expect(
+            Voter.connect(signers.otherUser1).createCustomGauge(
+              signers.otherUser1.address,
+              signers.otherUser2.address,
+              deployed.fenix.target,
+              token.target,
+              'external bribe',
+              'internal bribe',
+            ),
+          ).to.be.revertedWith(getAccessControlError(ethers.id('GOVERNANCE_ROLE'), signers.otherUser1.address));
+        });
+
+        it('gauge is the zero address', async () => {
+          await expect(
+            Voter.createCustomGauge(
+              ethers.ZeroAddress,
+              signers.otherUser1.address,
+              deployed.fenix.target,
+              token.target,
+              'external bribe',
+              'internal bribe',
+            ),
+          ).to.be.revertedWithCustomError(Voter, 'InvalidGauge');
+        });
+
+        it('gauge is already registered and preserves its original state', async () => {
+          const gauge = signers.otherUser1.address;
+          const originalPool = signers.otherUser2.address;
+          const newPool = signers.deployer.address;
+          await Voter.createCustomGauge(gauge, originalPool, deployed.fenix.target, token.target, 'external bribe', 'internal bribe');
+          const originalState = await Voter.gaugesState(gauge);
+
+          await expect(
+            Voter.createCustomGauge(gauge, newPool, deployed.fenix.target, token.target, 'new external bribe', 'new internal bribe'),
+          ).to.be.revertedWithCustomError(Voter, 'GaugeAlreadyExists');
+
+          expect(await Voter.poolToGauge(originalPool)).to.be.eq(gauge);
+          expect(await Voter.poolToGauge(newPool)).to.be.eq(ethers.ZeroAddress);
+          expect(await Voter.gaugesState(gauge)).to.deep.eq(originalState);
+        });
+      });
+
+      it('registers a valid custom gauge', async () => {
+        const gauge = signers.otherUser1.address;
+        const pool = signers.otherUser2.address;
+        const result = await Voter.createCustomGauge.staticCall(
+          gauge,
+          pool,
+          deployed.fenix.target,
+          token.target,
+          'external bribe',
+          'internal bribe',
+        );
+
+        const tx = await Voter.createCustomGauge(gauge, pool, deployed.fenix.target, token.target, 'external bribe', 'internal bribe');
+        const state = await Voter.gaugesState(gauge);
+
+        expect(result.gauge).to.be.eq(gauge);
+        expect(await Voter.poolToGauge(pool)).to.be.eq(gauge);
+        expect(state.isGauge).to.be.true;
+        expect(state.isAlive).to.be.true;
+        expect(state.pool).to.be.eq(pool);
+        expect(state.internalBribe).to.be.eq(result.internalBribe);
+        expect(state.externalBribe).to.be.eq(result.externalBribe);
+        await expect(tx).to.emit(Voter, 'GaugeCreatedType').withArgs(gauge, 2);
+      });
+    });
+
+    describe('#distribute(address[])', function () {
+      it('rejects an address that is not a registered gauge without writing state', async () => {
+        const invalidGauge = signers.otherUser1.address;
+
+        await expect((Voter as any).distribute([invalidGauge])).to.be.revertedWithCustomError(Voter, 'InvalidGauge');
+
+        const state = await Voter.gaugesState(invalidGauge);
+        expect(state.index).to.be.eq(0);
+        expect(state.lastDistributionTimestamp).to.be.eq(0);
+      });
+
+      it('accepts a registered gauge', async () => {
+        const pair = await deployed.v2PairFactory.createPair.staticCall(deployed.fenix.target, token.target, false);
+        await deployed.v2PairFactory.createPair(deployed.fenix.target, token.target, false);
+        await Voter.createV2Gauge(pair);
+        const gauge = await Voter.poolToGauge(pair);
+
+        await expect((Voter as any).distribute([gauge])).not.to.be.reverted;
+        expect((await Voter.gaugesState(gauge)).isGauge).to.be.true;
       });
     });
   });
