@@ -140,6 +140,13 @@ const config: HardhatUserConfig = {
       chainId: 99801,
       accounts: [`${process.env.DEV_PK || `0x0000000000000000000000000000000000000000`}`],
     },
+    elysium_mainnet: {
+      url: process.env.ELYSIUM_MAINNET_RPC || '',
+      httpHeaders: {
+        Authorization: `Bearer ${process.env.ELYSIUM_MAINNET_API_KEY || ''}`,
+      },
+      accounts: [`${process.env.DEV_PK || `0x0000000000000000000000000000000000000000`}`],
+    },
     hardhat: {
       allowUnlimitedContractSize: true,
       forking: {
