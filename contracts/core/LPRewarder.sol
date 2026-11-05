@@ -43,6 +43,7 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
     error InsufficientAvailableBalance();
     error InsufficientRewardAllocation();
     error AddressZero();
+    error LengthMismatch();
 
     constructor() {
         _disableInitializers();
@@ -106,6 +107,27 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
         return _claim(token_, _msgSender(), totalAmount_, deadline_, identifier_, signature_);
     }
 
+    /** @notice Claims multiple signed cumulative rewards for the caller. */
+    function claim(
+        address[] calldata tokens_,
+        uint256[] calldata totalAmounts_,
+        uint256[] calldata deadlines_,
+        bytes32[] calldata identifiers_,
+        bytes[] calldata signatures_
+    ) external returns (uint256[] memory rewards) {
+        uint256 length = tokens_.length;
+        if (
+            length != totalAmounts_.length || length != deadlines_.length || length != identifiers_.length || length != signatures_.length
+        ) {
+            revert LengthMismatch();
+        }
+
+        rewards = new uint256[](length);
+        for (uint256 i; i < length; ++i) {
+            rewards[i] = _claim(tokens_[i], _msgSender(), totalAmounts_[i], deadlines_[i], identifiers_[i], signatures_[i]);
+        }
+    }
+
     /**
      * @notice Claims on behalf of a user who receives the tokens.
      * @dev The caller needs the claim-for role as well as a valid signer authorization.
@@ -126,6 +148,28 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
         bytes calldata signature_
     ) external onlyRole(_CLAMER_FOR_ROLE) returns (uint256 reward) {
         return _claim(token_, user_, totalAmount_, deadline_, identifier_, signature_);
+    }
+
+    /** @notice Claims multiple signed cumulative rewards for a user. */
+    function claimFor(
+        address[] calldata tokens_,
+        address user_,
+        uint256[] calldata totalAmounts_,
+        uint256[] calldata deadlines_,
+        bytes32[] calldata identifiers_,
+        bytes[] calldata signatures_
+    ) external onlyRole(_CLAMER_FOR_ROLE) returns (uint256[] memory rewards) {
+        uint256 length = tokens_.length;
+        if (
+            length != totalAmounts_.length || length != deadlines_.length || length != identifiers_.length || length != signatures_.length
+        ) {
+            revert LengthMismatch();
+        }
+
+        rewards = new uint256[](length);
+        for (uint256 i; i < length; ++i) {
+            rewards[i] = _claim(tokens_[i], user_, totalAmounts_[i], deadlines_[i], identifiers_[i], signatures_[i]);
+        }
     }
 
     function _notifyReward(address token_, address user_, uint256 amount_) internal {

@@ -21,6 +21,14 @@ interface ILPRewarder {
         bytes calldata signature_
     ) external returns (uint256 reward);
 
+    function claim(
+        address[] calldata tokens_,
+        uint256[] calldata totalAmounts_,
+        uint256[] calldata deadlines_,
+        bytes32[] calldata identifiers_,
+        bytes[] calldata signatures_
+    ) external returns (uint256[] memory rewards);
+
     function claimFor(
         address token_,
         address user_,
@@ -29,6 +37,15 @@ interface ILPRewarder {
         bytes32 identifier_,
         bytes calldata signature_
     ) external returns (uint256 reward);
+
+    function claimFor(
+        address[] calldata tokens_,
+        address user_,
+        uint256[] calldata totalAmounts_,
+        uint256[] calldata deadlines_,
+        bytes32[] calldata identifiers_,
+        bytes[] calldata signatures_
+    ) external returns (uint256[] memory rewards);
 
     function signer() external view returns (address);
 
