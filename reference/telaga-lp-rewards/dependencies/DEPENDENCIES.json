@@ -1,0 +1,27 @@
+{
+  "dependencies": [
+    {
+      "name": "openzeppelin-contracts",
+      "repository": "OpenZeppelin/openzeppelin-contracts",
+      "version": "v5.7.0",
+      "commit": "cab19933c33c2ad1d4c7a84864a3601dddfd16f3",
+      "license": "MIT",
+      "licenseFiles": [
+        "openzeppelin-contracts/LICENSE"
+      ],
+      "solidityFiles": 26
+    },
+    {
+      "name": "forge-std",
+      "repository": "foundry-rs/forge-std",
+      "commit": "60acb7aaadcce2d68e52986a0a66fe79f07d138f",
+      "license": "MIT OR Apache-2.0",
+      "licenseFiles": [
+        "forge-std/LICENSE-MIT",
+        "forge-std/LICENSE-APACHE"
+      ],
+      "solidityFiles": 19
+    }
+  ],
+  "scope": "Minimal transitive Solidity import closure for src/AvrRewardPayout.sol and test/AvrRewardPayout.t.sol; exact upstream source bytes preserved."
+}
