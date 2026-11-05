@@ -1,0 +1,37 @@
+{
+  "warning": "Deterministic test-only key, never use for production",
+  "fixtureSignerPrivateKey": "0x00000000000000000000000000000000000000000000000000000000000a11ce",
+  "domain": {
+    "name": "GaugeRewarder",
+    "version": "1",
+    "chainId": 1339,
+    "verifyingContract": "0x0000000000000000000000000000000000001001"
+  },
+  "primaryType": "Claim",
+  "types": {
+    "Claim": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "totalAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ]
+  },
+  "message": {
+    "user": "0x0376AAc07Ad725E01357B1725B5ceC61aE10473c",
+    "totalAmount": "150000000000000000000",
+    "deadline": 1800003600
+  },
+  "domainSeparator": "0xd9c3cf69ad931d61d58a62eb768e2b76891e0bf6d7803659c78c86d5c62ec824",
+  "structHash": "0x1d254b763db5915a40272bfd642ca9b099be225ea8923aa6bfc1663de8ead959",
+  "digest": "0x7b241616a93836b5b08afdee4579ae71ef59b4f1f92888669bffb564c006c681",
+  "signer": "0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7",
+  "signature": "0xee896591fd4de1016e6724ab6af51ae0418c1c5edb348bfef3e6a60cc1f49fba5cfddaa669d9698445252bfc16741ade7da60cabe4281f086b26d9d478c78afa1c"
+}

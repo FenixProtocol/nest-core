@@ -1,0 +1,21 @@
+[profile.default]
+src = "src"
+test = "test"
+out = "out"
+cache_path = "cache"
+libs = ["dependencies"]
+allow_paths = ["dependencies"]
+solc = "0.8.26"
+auto_detect_solc = false
+auto_detect_remappings = false
+offline = true
+ffi = false
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+bytecode_hash = "none"
+remappings = ["@openzeppelin/contracts/=dependencies/openzeppelin-contracts/contracts/", "forge-std/=dependencies/forge-std/src/"]
+fs_permissions = [{access = "read", path = "./test/fixtures"}]
+
+[profile.default.fuzz]
+runs = 256
