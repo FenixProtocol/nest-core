@@ -10,8 +10,8 @@ import {ILPRewarder} from "./interfaces/ILPRewarder.sol";
 /**
  * @title LPRewarder
  * @notice Distributes rewards in multiple ERC-20 tokens to individual liquidity providers.
- * @dev An admin funds and allocates each token to a user. An authorized signer then approves
- * cumulative claim amounts, and the user receives only the amount not previously claimed.
+ * @dev An authorized signer approves cumulative claim amounts. Tokens must be funded separately.
+ * The user receives only the amount not previously claimed.
  */
 contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Upgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -23,27 +23,19 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
     /** @notice The signer authorized to approve cumulative claims. Zero disables claims. */
     address public signer;
 
-    /** @notice Cumulative rewards allocated to a user for a token. */
-    mapping(address token => mapping(address user => uint256)) public totalRewards;
-
     /** @notice Cumulative rewards claimed by a user for a token. */
     mapping(address token => mapping(address user => uint256)) public claimed;
-
-    /** @notice Total rewards allocated across users for each token. */
-    mapping(address token => uint256) public totalRewardDistributed;
 
     /** @notice Total rewards paid across users for each token. */
     mapping(address token => uint256) public totalRewardClaimed;
 
-    error ZeroRewardAmount();
     error SignatureExpired();
     error ClaimDisabled();
     error AlreadyClaimed();
     error InvalidSignature();
-    error InsufficientAvailableBalance();
-    error InsufficientRewardAllocation();
     error AddressZero();
     error LengthMismatch();
+    error NativeTransferFailed();
 
     constructor() {
         _disableInitializers();
@@ -62,30 +54,15 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
         emit SetSigner(signer_);
     }
 
-    /**
-     * @notice Allocates tokens already held by this contract to a user.
-     * @dev Passing zero allocates the token's full unallocated balance.
-     * @param token_ The reward token.
-     * @param user_ The beneficiary.
-     * @param amount_ The amount to allocate, or zero for the full unallocated balance.
-     */
-    function notifyReward(address token_, address user_, uint256 amount_) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _notifyReward(token_, user_, amount_);
-    }
-
-    /**
-     * @notice Pulls tokens from the admin and allocates them to a user.
-     * @dev The admin must approve this contract first. A zero amount allocates any existing
-     * unallocated balance of the token without pulling tokens.
-     * @param token_ The reward token.
-     * @param user_ The beneficiary.
-     * @param amount_ The amount to transfer and allocate.
-     */
-    function notifyRewardWithTransfer(address token_, address user_, uint256 amount_) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _checkAddressZero(token_);
-        _checkAddressZero(user_);
-        IERC20Upgradeable(token_).safeTransferFrom(_msgSender(), address(this), amount_);
-        _notifyReward(token_, user_, amount_);
+    /** @notice Transfers ERC-20 tokens or native tokens (token_ = address(0)) to the admin. */
+    function recoverTokens(address token_, uint256 amount_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (token_ == address(0)) {
+            (bool success, ) = payable(_msgSender()).call{value: amount_}("");
+            if (!success) revert NativeTransferFailed();
+        } else {
+            IERC20Upgradeable(token_).safeTransfer(_msgSender(), amount_);
+        }
+        emit RecoverToken(token_, amount_);
     }
 
     /**
@@ -172,26 +149,6 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
         }
     }
 
-    function _notifyReward(address token_, address user_, uint256 amount_) internal {
-        _checkAddressZero(token_);
-        _checkAddressZero(user_);
-
-        uint256 availableBalance = IERC20Upgradeable(token_).balanceOf(address(this)) -
-            (totalRewardDistributed[token_] - totalRewardClaimed[token_]);
-        if (amount_ == 0) {
-            amount_ = availableBalance;
-        } else if (amount_ > availableBalance) {
-            revert InsufficientAvailableBalance();
-        }
-        if (amount_ == 0) {
-            revert ZeroRewardAmount();
-        }
-
-        totalRewards[token_][user_] += amount_;
-        totalRewardDistributed[token_] += amount_;
-        emit NotifyReward(_msgSender(), token_, user_, amount_);
-    }
-
     function _claim(
         address token_,
         address user_,
@@ -202,24 +159,14 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
     ) internal returns (uint256 reward) {
         _checkAddressZero(token_);
         _checkAddressZero(user_);
-        if (signer == address(0)) {
-            revert ClaimDisabled();
-        }
-        if (deadline_ <= block.timestamp) {
-            revert SignatureExpired();
-        }
+        if (signer == address(0)) revert ClaimDisabled();
+        if (deadline_ <= block.timestamp) revert SignatureExpired();
 
         uint256 claimedAmount = claimed[token_][user_];
-        if (totalAmount_ <= claimedAmount) {
-            revert AlreadyClaimed();
-        }
+        if (totalAmount_ <= claimedAmount) revert AlreadyClaimed();
+
         bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(_CLAIM_TYPEHASH, token_, user_, totalAmount_, deadline_, identifier_)));
-        if (ECDSAUpgradeable.recover(digest, signature_) != signer) {
-            revert InvalidSignature();
-        }
-        if (totalAmount_ > totalRewards[token_][user_]) {
-            revert InsufficientRewardAllocation();
-        }
+        if (ECDSAUpgradeable.recover(digest, signature_) != signer) revert InvalidSignature();
 
         reward = totalAmount_ - claimedAmount;
         claimed[token_][user_] = totalAmount_;
@@ -229,8 +176,6 @@ contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Up
     }
 
     function _checkAddressZero(address addr_) internal pure {
-        if (addr_ == address(0)) {
-            revert AddressZero();
-        }
+        if (addr_ == address(0)) revert AddressZero();
     }
 }
