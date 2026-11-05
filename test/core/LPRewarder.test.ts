@@ -1,225 +1,267 @@
 import { loadFixture, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
+import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 import { LPRewarder } from '../../typechain-types';
 import { getAccessControlError } from '../utils/constants';
 
 describe('LPRewarder', function () {
   async function fixture() {
-    const [admin, provider, otherProvider, operator, proxyAdmin] = await ethers.getSigners();
+    const [admin, user, otherUser, operator, proxyAdmin] = await ethers.getSigners();
     const nest = await ethers.deployContract('ERC20Mock', ['NEST', 'NEST', 18]);
+    const otherToken = await ethers.deployContract('ERC20Mock', ['Other', 'OTHER', 18]);
     const implementation = await ethers.deployContract('LPRewarder');
     const proxy = await ethers.deployContract('TransparentUpgradeableProxy', [implementation.target, proxyAdmin.address, '0x']);
     const rewarder = await ethers.getContractAt('LPRewarder', proxy.target);
-    await rewarder.initialize(nest.target);
-    await nest.mint(admin.address, ethers.parseEther('1000'));
-    return { admin, provider, otherProvider, operator, nest, implementation, rewarder };
+    await rewarder.initialize();
+    await nest.mint(admin.address, ethers.parseEther('100'));
+    await otherToken.mint(admin.address, ethers.parseEther('100'));
+    return { admin, user, otherUser, operator, nest, otherToken, implementation, rewarder };
   }
 
   async function signClaim(
     rewarder: LPRewarder,
     signer: HardhatEthersSigner,
+    token: string,
     user: string,
     totalAmount: bigint,
     deadline: number,
-    identifier?: string,
+    identifier: string,
     domainName = 'LPRewarder',
   ) {
-    const domain = {
-      name: domainName,
-      version: '1',
-      chainId: (await ethers.provider.getNetwork()).chainId,
-      verifyingContract: await rewarder.getAddress(),
-    };
-    if (identifier !== undefined) {
-      return signer.signTypedData(
-        domain,
-        {
-          PositionClaim: [
-            { name: 'user', type: 'address' },
-            { name: 'totalAmount', type: 'uint256' },
-            { name: 'deadline', type: 'uint256' },
-            { name: 'identifier', type: 'bytes32' },
-          ],
-        },
-        { user, totalAmount, deadline, identifier },
-      );
-    }
     return signer.signTypedData(
-      domain,
+      {
+        name: domainName,
+        version: '1',
+        chainId: (await ethers.provider.getNetwork()).chainId,
+        verifyingContract: await rewarder.getAddress(),
+      },
       {
         Claim: [
+          { name: 'token', type: 'address' },
           { name: 'user', type: 'address' },
           { name: 'totalAmount', type: 'uint256' },
           { name: 'deadline', type: 'uint256' },
+          { name: 'identifier', type: 'bytes32' },
         ],
       },
-      { user, totalAmount, deadline },
+      { token, user, totalAmount, deadline, identifier },
     );
   }
 
-  it('initializes once with NEST and the deployer as admin', async () => {
-    const { admin, nest, implementation, rewarder } = await loadFixture(fixture);
-    expect(await rewarder.token()).to.equal(nest.target);
+  it('initializes once and assigns the deployer admin role', async () => {
+    const { admin, implementation, rewarder } = await loadFixture(fixture);
     expect(await rewarder.hasRole(await rewarder.DEFAULT_ADMIN_ROLE(), admin.address)).to.be.true;
-    expect(await rewarder.totalRewardDistributed()).to.equal(0);
-    expect(await rewarder.totalRewardClaimed()).to.equal(0);
-    await expect(rewarder.initialize(nest.target)).to.be.revertedWith('Initializable: contract is already initialized');
-    await expect(implementation.initialize(nest.target)).to.be.revertedWith('Initializable: contract is already initialized');
-    const proxy = await ethers.deployContract('TransparentUpgradeableProxy', [
-      implementation.target,
-      (await ethers.getSigners())[4].address,
-      '0x',
-    ]);
-    const fresh = await ethers.getContractAt('LPRewarder', proxy.target);
-    await expect(fresh.initialize(ethers.ZeroAddress)).to.be.revertedWithCustomError(fresh, 'AddressZero');
+    expect(await rewarder.signer()).to.equal(ethers.ZeroAddress);
+    await expect(rewarder.initialize()).to.be.revertedWith('Initializable: contract is already initialized');
+    await expect(implementation.initialize()).to.be.revertedWith('Initializable: contract is already initialized');
   });
 
-  it('limits signer management and both notification methods to admins', async () => {
-    const { admin, operator, rewarder } = await loadFixture(fixture);
+  it('restricts allocations and signer changes to admins', async () => {
+    const { admin, user, operator, nest, rewarder } = await loadFixture(fixture);
     const error = getAccessControlError(await rewarder.DEFAULT_ADMIN_ROLE(), operator.address);
     await expect(rewarder.connect(operator).setSigner(operator.address)).to.be.revertedWith(error);
-    await expect(rewarder.connect(operator).notifyReward(0)).to.be.revertedWith(error);
-    await expect(rewarder.connect(operator).notifyRewardWithTransfer(1)).to.be.revertedWith(error);
-    await rewarder.grantRole(await rewarder.DEFAULT_ADMIN_ROLE(), operator.address);
-    await expect(rewarder.connect(operator).setSigner(admin.address)).to.emit(rewarder, 'SetSigner').withArgs(admin.address);
+    await expect(rewarder.connect(operator).notifyReward(nest.target, user.address, 1)).to.be.revertedWith(error);
+    await expect(rewarder.connect(operator).notifyRewardWithTransfer(nest.target, user.address, 1)).to.be.revertedWith(error);
+    await expect(rewarder.setSigner(admin.address)).to.emit(rewarder, 'SetSigner').withArgs(admin.address);
   });
 
-  it('allocates only unallocated NEST, including deposits made before and after claims', async () => {
-    const { admin, provider, nest, rewarder } = await loadFixture(fixture);
-    const ten = ethers.parseEther('10');
-    await expect(rewarder.notifyReward(0)).to.be.revertedWithCustomError(rewarder, 'ZeroRewardAmount');
-    await nest.transfer(rewarder.target, ten);
-    await expect(rewarder.notifyReward(ten + 1n)).to.be.revertedWithCustomError(rewarder, 'InsufficientAvailableBalance');
-    await expect(rewarder.notifyReward(ethers.parseEther('4')))
+  it('allocates deposited tokens by token and user without allocating the same balance twice', async () => {
+    const { admin, user, otherUser, nest, otherToken, rewarder } = await loadFixture(fixture);
+    await nest.transfer(rewarder.target, ethers.parseEther('10'));
+    await otherToken.transfer(rewarder.target, ethers.parseEther('5'));
+    await expect(rewarder.notifyReward(nest.target, user.address, ethers.parseEther('6')))
       .to.emit(rewarder, 'NotifyReward')
-      .withArgs(admin.address, ethers.parseEther('4'));
-    await expect(rewarder.notifyReward(0)).to.emit(rewarder, 'NotifyReward').withArgs(admin.address, ethers.parseEther('6'));
-    await expect(rewarder.notifyReward(1)).to.be.revertedWithCustomError(rewarder, 'InsufficientAvailableBalance');
-
-    await rewarder.setSigner(admin.address);
-    const deadline = (await time.latest()) + 100;
-    const signature = await signClaim(rewarder, admin, provider.address, ethers.parseEther('3'), deadline);
-    await rewarder.connect(provider)['claim(uint256,uint256,bytes)'](ethers.parseEther('3'), deadline, signature);
-    await nest.transfer(rewarder.target, ethers.parseEther('2'));
-    await expect(rewarder.notifyReward(0)).to.emit(rewarder, 'NotifyReward').withArgs(admin.address, ethers.parseEther('2'));
-    expect(await rewarder.totalRewardDistributed()).to.equal(ethers.parseEther('12'));
-    expect(await rewarder.totalRewardClaimed()).to.equal(ethers.parseEther('3'));
-    expect(await nest.balanceOf(rewarder.target)).to.equal(ethers.parseEther('9'));
+      .withArgs(admin.address, nest.target, user.address, ethers.parseEther('6'));
+    await expect(rewarder.notifyReward(nest.target, otherUser.address, ethers.parseEther('5'))).to.be.revertedWithCustomError(
+      rewarder,
+      'InsufficientAvailableBalance',
+    );
+    await rewarder.notifyReward(nest.target, otherUser.address, ethers.parseEther('4'));
+    await rewarder.notifyReward(otherToken.target, user.address, 0);
+    expect(await rewarder.totalRewards(nest.target, user.address)).to.equal(ethers.parseEther('6'));
+    expect(await rewarder.totalRewards(nest.target, otherUser.address)).to.equal(ethers.parseEther('4'));
+    expect(await rewarder.totalRewards(otherToken.target, user.address)).to.equal(ethers.parseEther('5'));
+    expect(await rewarder.totalRewardDistributed(nest.target)).to.equal(ethers.parseEther('10'));
+    expect(await rewarder.totalRewardDistributed(otherToken.target)).to.equal(ethers.parseEther('5'));
+    await expect(rewarder.notifyReward(nest.target, user.address, 0)).to.be.revertedWithCustomError(rewarder, 'ZeroRewardAmount');
   });
 
-  it('pulls approved NEST from an admin and rolls back when transfer fails', async () => {
-    const { admin, operator, nest, rewarder } = await loadFixture(fixture);
-    const amount = ethers.parseEther('5');
-    await expect(rewarder.notifyRewardWithTransfer(amount)).to.be.revertedWith('ERC20: insufficient allowance');
+  it('pulls tokens from an admin and validates allocation addresses', async () => {
+    const { admin, user, nest, rewarder } = await loadFixture(fixture);
+    const amount = ethers.parseEther('3');
+    await expect(rewarder.notifyRewardWithTransfer(nest.target, user.address, amount)).to.be.revertedWith('ERC20: insufficient allowance');
     await nest.approve(rewarder.target, amount);
-    await expect(rewarder.notifyRewardWithTransfer(amount))
+    await expect(rewarder.notifyRewardWithTransfer(nest.target, user.address, amount))
       .to.emit(rewarder, 'NotifyReward')
-      .withArgs(admin.address, amount)
-      .and.to.emit(nest, 'Transfer')
-      .withArgs(admin.address, rewarder.target, amount);
-    expect(await rewarder.totalRewardDistributed()).to.equal(amount);
-    await expect(rewarder.notifyRewardWithTransfer(0)).to.be.revertedWithCustomError(rewarder, 'ZeroRewardAmount');
-    await rewarder.grantRole(await rewarder.DEFAULT_ADMIN_ROLE(), operator.address);
-    await nest.mint(operator.address, amount);
-    await nest.connect(operator).approve(rewarder.target, amount);
-    await expect(rewarder.connect(operator).notifyRewardWithTransfer(amount))
-      .to.emit(rewarder, 'NotifyReward')
-      .withArgs(operator.address, amount);
-    expect(await rewarder.totalRewardDistributed()).to.equal(amount * 2n);
+      .withArgs(admin.address, nest.target, user.address, amount);
+    expect(await nest.balanceOf(rewarder.target)).to.equal(amount);
+    expect(await rewarder.totalRewards(nest.target, user.address)).to.equal(amount);
+    await expect(rewarder.notifyReward(ethers.ZeroAddress, user.address, 1)).to.be.revertedWithCustomError(rewarder, 'AddressZero');
+    await expect(rewarder.notifyReward(nest.target, ethers.ZeroAddress, 1)).to.be.revertedWithCustomError(rewarder, 'AddressZero');
+    await expect(rewarder.notifyRewardWithTransfer(ethers.ZeroAddress, user.address, 1)).to.be.revertedWithCustomError(
+      rewarder,
+      'AddressZero',
+    );
   });
 
-  it('pays only the increase in a provider’s signed cumulative entitlement', async () => {
-    const { admin, provider, otherProvider, nest, rewarder } = await loadFixture(fixture);
+  it('claims cumulative amounts independently per token and user', async () => {
+    const { admin, user, otherUser, nest, otherToken, rewarder } = await loadFixture(fixture);
     await nest.approve(rewarder.target, ethers.parseEther('10'));
-    await rewarder.notifyRewardWithTransfer(ethers.parseEther('10'));
+    await otherToken.approve(rewarder.target, ethers.parseEther('5'));
+    await rewarder.notifyRewardWithTransfer(nest.target, user.address, ethers.parseEther('7'));
+    await rewarder.notifyRewardWithTransfer(nest.target, otherUser.address, ethers.parseEther('3'));
+    await rewarder.notifyRewardWithTransfer(otherToken.target, user.address, ethers.parseEther('5'));
     await rewarder.setSigner(admin.address);
-    let deadline = (await time.latest()) + 100;
-    let signature = await signClaim(rewarder, admin, provider.address, ethers.parseEther('4'), deadline);
-    await expect(rewarder.connect(provider)['claim(uint256,uint256,bytes)'](ethers.parseEther('4'), deadline, signature))
+
+    const deadline = (await time.latest()) + 100;
+    const identifier = ethers.id('first');
+    const nestFour = await signClaim(rewarder, admin, nest.target.toString(), user.address, ethers.parseEther('4'), deadline, identifier);
+    await expect(rewarder.connect(user).claim(nest.target, ethers.parseEther('4'), deadline, identifier, nestFour))
       .to.emit(rewarder, 'Claim')
-      .withArgs(provider.address, ethers.parseEther('4'), ethers.parseEther('4'));
+      .withArgs(nest.target, user.address, ethers.parseEther('4'), ethers.parseEther('4'), identifier);
     await expect(
-      rewarder.connect(provider)['claim(uint256,uint256,bytes)'](ethers.parseEther('4'), deadline, signature),
+      rewarder.connect(user).claim(nest.target, ethers.parseEther('4'), deadline, identifier, nestFour),
     ).to.be.revertedWithCustomError(rewarder, 'AlreadyClaimed');
-    deadline = (await time.latest()) + 100;
-    signature = await signClaim(rewarder, admin, provider.address, ethers.parseEther('7'), deadline);
-    await expect(rewarder.connect(provider)['claim(uint256,uint256,bytes)'](ethers.parseEther('7'), deadline, signature))
-      .to.emit(rewarder, 'Claim')
-      .withArgs(provider.address, ethers.parseEther('3'), ethers.parseEther('7'));
-    expect(await rewarder.claimed(provider.address)).to.equal(ethers.parseEther('7'));
-    expect(await rewarder.totalRewardClaimed()).to.equal(ethers.parseEther('7'));
-    expect(await nest.balanceOf(provider.address)).to.equal(ethers.parseEther('7'));
+    const nestSeven = await signClaim(
+      rewarder,
+      admin,
+      nest.target.toString(),
+      user.address,
+      ethers.parseEther('7'),
+      deadline,
+      ethers.id('second'),
+    );
+    await rewarder.connect(user).claim(nest.target, ethers.parseEther('7'), deadline, ethers.id('second'), nestSeven);
+    const otherFive = await signClaim(
+      rewarder,
+      admin,
+      otherToken.target.toString(),
+      user.address,
+      ethers.parseEther('5'),
+      deadline,
+      identifier,
+    );
+    await rewarder.connect(user).claim(otherToken.target, ethers.parseEther('5'), deadline, identifier, otherFive);
+    const otherUserThree = await signClaim(
+      rewarder,
+      admin,
+      nest.target.toString(),
+      otherUser.address,
+      ethers.parseEther('3'),
+      deadline,
+      identifier,
+    );
+    await rewarder.connect(otherUser).claim(nest.target, ethers.parseEther('3'), deadline, identifier, otherUserThree);
 
-    const otherSignature = await signClaim(rewarder, admin, otherProvider.address, ethers.parseEther('4'), deadline);
-    await expect(
-      rewarder.connect(otherProvider)['claim(uint256,uint256,bytes)'](ethers.parseEther('4'), deadline, otherSignature),
-    ).to.be.revertedWithCustomError(rewarder, 'InsufficientAvailableBalance');
-    await nest.transfer(rewarder.target, ethers.parseEther('1'));
-    await rewarder.notifyReward(ethers.parseEther('1'));
-    await rewarder.connect(otherProvider)['claim(uint256,uint256,bytes)'](ethers.parseEther('4'), deadline, otherSignature);
-    expect(await rewarder.totalRewardClaimed()).to.equal(ethers.parseEther('11'));
+    expect(await rewarder.claimed(nest.target, user.address)).to.equal(ethers.parseEther('7'));
+    expect(await rewarder.claimed(nest.target, otherUser.address)).to.equal(ethers.parseEther('3'));
+    expect(await rewarder.claimed(otherToken.target, user.address)).to.equal(ethers.parseEther('5'));
+    expect(await rewarder.totalRewardClaimed(nest.target)).to.equal(ethers.parseEther('10'));
+    expect(await rewarder.totalRewardClaimed(otherToken.target)).to.equal(ethers.parseEther('5'));
+    expect(await nest.balanceOf(user.address)).to.equal(ethers.parseEther('7'));
+    expect(await otherToken.balanceOf(user.address)).to.equal(ethers.parseEther('5'));
   });
 
-  it('shares claim accounting across claim forms and enforces claimFor role', async () => {
-    const { admin, provider, operator, nest, rewarder } = await loadFixture(fixture);
-    await nest.approve(rewarder.target, ethers.parseEther('10'));
-    await rewarder.notifyRewardWithTransfer(ethers.parseEther('10'));
-    await rewarder.setSigner(admin.address);
+  it('requires a valid token, user, amount, identifier and EIP-712 domain in signatures', async () => {
+    const { admin, user, otherUser, nest, otherToken, rewarder } = await loadFixture(fixture);
+    await nest.approve(rewarder.target, ethers.parseEther('2'));
+    await rewarder.notifyRewardWithTransfer(nest.target, user.address, ethers.parseEther('2'));
     const deadline = (await time.latest()) + 100;
-    const first = await signClaim(rewarder, admin, provider.address, ethers.parseEther('2'), deadline);
-    await expect(
-      rewarder['claimFor(address,uint256,uint256,bytes)'](provider.address, ethers.parseEther('2'), deadline, first),
-    ).to.be.revertedWith(getAccessControlError(ethers.id('CLAMER_FOR_ROLE'), admin.address));
-    await rewarder.grantRole(ethers.id('CLAMER_FOR_ROLE'), operator.address);
-    await rewarder.connect(operator)['claimFor(address,uint256,uint256,bytes)'](provider.address, ethers.parseEther('2'), deadline, first);
-
-    const identifier = ethers.id('LP position 1');
-    const second = await signClaim(rewarder, admin, provider.address, ethers.parseEther('5'), deadline, identifier);
-    await expect(rewarder.connect(provider)['claim(uint256,uint256,bytes32,bytes)'](ethers.parseEther('5'), deadline, identifier, second))
-      .to.emit(rewarder, 'PositionClaim')
-      .withArgs(provider.address, ethers.parseEther('3'), ethers.parseEther('5'), identifier);
-    const third = await signClaim(rewarder, admin, provider.address, ethers.parseEther('6'), deadline, ethers.id('LP position 2'));
-    await expect(
-      rewarder
-        .connect(operator)
-        ['claimFor(address,uint256,uint256,bytes32,bytes)'](
-          provider.address,
-          ethers.parseEther('6'),
-          deadline,
-          ethers.id('LP position 2'),
-          third,
-        ),
-    )
-      .to.emit(rewarder, 'PositionClaim')
-      .withArgs(provider.address, ethers.parseEther('1'), ethers.parseEther('6'), ethers.id('LP position 2'));
-    expect(await rewarder.claimed(provider.address)).to.equal(ethers.parseEther('6'));
-    expect(await rewarder.totalRewardClaimed()).to.equal(ethers.parseEther('6'));
-  });
-
-  it('rejects disabled, expired, invalid, cross-domain and overallocated claims', async () => {
-    const { admin, provider, otherProvider, nest, rewarder } = await loadFixture(fixture);
-    const deadline = (await time.latest()) + 100;
+    const identifier = ethers.id('allocation');
     const amount = ethers.parseEther('2');
-    const claim = (signature: string) => rewarder.connect(provider)['claim(uint256,uint256,bytes)'](amount, deadline, signature);
-    await expect(claim('0x')).to.be.revertedWithCustomError(rewarder, 'ClaimDisabled');
+    const valid = await signClaim(rewarder, admin, nest.target.toString(), user.address, amount, deadline, identifier);
+    await expect(rewarder.connect(user).claim(nest.target, amount, deadline, identifier, valid)).to.be.revertedWithCustomError(
+      rewarder,
+      'ClaimDisabled',
+    );
     await rewarder.setSigner(admin.address);
-    const valid = await signClaim(rewarder, admin, provider.address, amount, deadline);
-    await expect(rewarder.connect(provider)['claim(uint256,uint256,bytes)'](amount, 1, valid)).to.be.revertedWithCustomError(
+    await expect(rewarder.connect(user).claim(nest.target, amount, 1, identifier, valid)).to.be.revertedWithCustomError(
       rewarder,
       'SignatureExpired',
     );
-    const wrongUser = await signClaim(rewarder, admin, otherProvider.address, amount, deadline);
-    await expect(claim(wrongUser)).to.be.revertedWithCustomError(rewarder, 'InvalidSignature');
-    const wrongDomain = await signClaim(rewarder, admin, provider.address, amount, deadline, undefined, 'GaugeRewarder');
-    await expect(claim(wrongDomain)).to.be.revertedWithCustomError(rewarder, 'InvalidSignature');
-    await nest.transfer(rewarder.target, amount);
-    await expect(claim(valid)).to.be.revertedWithCustomError(rewarder, 'InsufficientAvailableBalance');
-    await rewarder.notifyReward(ethers.parseEther('1'));
-    await expect(claim(valid)).to.be.revertedWithCustomError(rewarder, 'InsufficientAvailableBalance');
-    await rewarder.notifyReward(ethers.parseEther('1'));
-    await claim(valid);
-    expect(await rewarder.totalRewardClaimed()).to.equal(amount);
+    await expect(rewarder.connect(user).claim(otherToken.target, amount, deadline, identifier, valid)).to.be.revertedWithCustomError(
+      rewarder,
+      'InvalidSignature',
+    );
+    await expect(rewarder.connect(otherUser).claim(nest.target, amount, deadline, identifier, valid)).to.be.revertedWithCustomError(
+      rewarder,
+      'InvalidSignature',
+    );
+    await expect(rewarder.connect(user).claim(nest.target, amount, deadline, ethers.id('wrong'), valid)).to.be.revertedWithCustomError(
+      rewarder,
+      'InvalidSignature',
+    );
+    await expect(rewarder.connect(user).claim(nest.target, amount - 1n, deadline, identifier, valid)).to.be.revertedWithCustomError(
+      rewarder,
+      'InvalidSignature',
+    );
+    const wrongDomain = await signClaim(
+      rewarder,
+      admin,
+      nest.target.toString(),
+      user.address,
+      amount,
+      deadline,
+      identifier,
+      'OtherRewarder',
+    );
+    await expect(rewarder.connect(user).claim(nest.target, amount, deadline, identifier, wrongDomain)).to.be.revertedWithCustomError(
+      rewarder,
+      'InvalidSignature',
+    );
+  });
+
+  it('caps claims by the user allocation even when the contract holds extra tokens', async () => {
+    const { admin, user, nest, rewarder } = await loadFixture(fixture);
+    await nest.transfer(rewarder.target, ethers.parseEther('5'));
+    await rewarder.notifyReward(nest.target, user.address, ethers.parseEther('2'));
+    await rewarder.setSigner(admin.address);
+    const deadline = (await time.latest()) + 100;
+    const identifier = ethers.id('allocation');
+    const signature = await signClaim(rewarder, admin, nest.target.toString(), user.address, ethers.parseEther('3'), deadline, identifier);
+    await expect(
+      rewarder.connect(user).claim(nest.target, ethers.parseEther('3'), deadline, identifier, signature),
+    ).to.be.revertedWithCustomError(rewarder, 'InsufficientRewardAllocation');
+    await rewarder.notifyReward(nest.target, user.address, ethers.parseEther('1'));
+    await rewarder.connect(user).claim(nest.target, ethers.parseEther('3'), deadline, identifier, signature);
+    expect(await rewarder.claimed(nest.target, user.address)).to.equal(ethers.parseEther('3'));
+  });
+
+  it('keeps unclaimed allocations reserved when another user is funded after a claim', async () => {
+    const { admin, user, otherUser, nest, rewarder } = await loadFixture(fixture);
+    await nest.approve(rewarder.target, ethers.parseEther('2'));
+    await rewarder.notifyRewardWithTransfer(nest.target, user.address, ethers.parseEther('2'));
+    await rewarder.setSigner(admin.address);
+    const deadline = (await time.latest()) + 100;
+    const identifier = ethers.id('partial');
+    const signature = await signClaim(rewarder, admin, nest.target.toString(), user.address, ethers.parseEther('1'), deadline, identifier);
+    await rewarder.connect(user).claim(nest.target, ethers.parseEther('1'), deadline, identifier, signature);
+
+    await expect(rewarder.notifyReward(nest.target, otherUser.address, ethers.parseEther('1'))).to.be.revertedWithCustomError(
+      rewarder,
+      'InsufficientAvailableBalance',
+    );
+    await nest.transfer(rewarder.target, ethers.parseEther('1'));
+    await rewarder.notifyReward(nest.target, otherUser.address, ethers.parseEther('1'));
+    expect(await rewarder.totalRewards(nest.target, user.address)).to.equal(ethers.parseEther('2'));
+    expect(await rewarder.totalRewards(nest.target, otherUser.address)).to.equal(ethers.parseEther('1'));
+  });
+
+  it('allows the claim-for role to pay the user', async () => {
+    const { admin, user, operator, nest, rewarder } = await loadFixture(fixture);
+    await nest.approve(rewarder.target, ethers.parseEther('2'));
+    await rewarder.notifyRewardWithTransfer(nest.target, user.address, ethers.parseEther('2'));
+    await rewarder.setSigner(admin.address);
+    const deadline = (await time.latest()) + 100;
+    const identifier = ethers.id('claim-for');
+    const signature = await signClaim(rewarder, admin, nest.target.toString(), user.address, ethers.parseEther('2'), deadline, identifier);
+    await expect(rewarder.claimFor(nest.target, user.address, ethers.parseEther('2'), deadline, identifier, signature)).to.be.revertedWith(
+      getAccessControlError(ethers.id('CLAMER_FOR_ROLE'), admin.address),
+    );
+    await rewarder.grantRole(ethers.id('CLAMER_FOR_ROLE'), operator.address);
+    await rewarder.connect(operator).claimFor(nest.target, user.address, ethers.parseEther('2'), deadline, identifier, signature);
+    expect(await nest.balanceOf(user.address)).to.equal(ethers.parseEther('2'));
+    expect(await nest.balanceOf(operator.address)).to.equal(0);
   });
 });

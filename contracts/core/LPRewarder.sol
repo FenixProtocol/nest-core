@@ -9,318 +9,182 @@ import {ILPRewarder} from "./interfaces/ILPRewarder.sol";
 
 /**
  * @title LPRewarder
- * @notice Distributes NEST rewards to liquidity providers.
- * @dev An admin funds and notifies rewards. An authorized signer assigns cumulative entitlements
- * to providers, who claim the difference between their signed entitlement and prior claims.
+ * @notice Distributes rewards in multiple ERC-20 tokens to individual liquidity providers.
+ * @dev An admin funds and allocates each token to a user. An authorized signer then approves
+ * cumulative claim amounts, and the user receives only the amount not previously claimed.
  */
 contract LPRewarder is ILPRewarder, AccessControlEnumerableUpgradeable, EIP712Upgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    /**
-     * @dev Role for claiming rewards on behalf of users.
-     */
     bytes32 internal constant _CLAMER_FOR_ROLE = keccak256("CLAMER_FOR_ROLE");
+    bytes32 internal constant _CLAIM_TYPEHASH =
+        keccak256("Claim(address token,address user,uint256 totalAmount,uint256 deadline,bytes32 identifier)");
 
-    /**
-     * @dev Type hash for EIP-712 claim signature.
-     */
-    bytes32 internal constant _CLAIM_TYPEHASH = keccak256("Claim(address user,uint256 totalAmount,uint256 deadline)");
-
-    /**
-     * @dev Type hash for an EIP-712 claim signature that includes a backend tracking identifier.
-     */
-    bytes32 internal constant _POSITION_CLAIM_TYPEHASH =
-        keccak256("PositionClaim(address user,uint256 totalAmount,uint256 deadline,bytes32 identifier)");
-
-    /**
-     * @notice The address of the NEST reward token.
-     */
-    address public token;
-
-    /**
-     * @notice The address of the authorized signer for reward claims.
-     */
+    /** @notice The signer authorized to approve cumulative claims. Zero disables claims. */
     address public signer;
 
-    /**
-     * @notice The cumulative amount of NEST allocated for provider claims.
-     */
-    uint256 public totalRewardDistributed;
+    /** @notice Cumulative rewards allocated to a user for a token. */
+    mapping(address token => mapping(address user => uint256)) public totalRewards;
 
-    /**
-     * @notice The cumulative amount of NEST paid to providers.
-     */
-    uint256 public totalRewardClaimed;
+    /** @notice Cumulative rewards claimed by a user for a token. */
+    mapping(address token => mapping(address user => uint256)) public claimed;
 
-    /**
-     * @notice The cumulative reward amount claimed by each address.
-     * @dev All claim overloads share this counter.
-     */
-    mapping(address => uint256) public claimed;
+    /** @notice Total rewards allocated across users for each token. */
+    mapping(address token => uint256) public totalRewardDistributed;
 
-    /**
-     * @dev Error thrown when attempting to distribute zero reward amount.
-     */
+    /** @notice Total rewards paid across users for each token. */
+    mapping(address token => uint256) public totalRewardClaimed;
+
     error ZeroRewardAmount();
-
-    /**
-     * @dev Error thrown when a signature has expired.
-     */
     error SignatureExpired();
-
-    /**
-     * @dev Error thrown when claiming is disabled.
-     */
     error ClaimDisabled();
-
-    /**
-     * @dev Error thrown when an address has already claimed the reward.
-     */
     error AlreadyClaimed();
-
-    /**
-     * @dev Error thrown when an invalid signature is provided for a claim.
-     */
     error InvalidSignature();
-
-    /**
-     * @dev Error thrown when there is insufficient available balance for the reward.
-     */
     error InsufficientAvailableBalance();
-
+    error InsufficientRewardAllocation();
     error AddressZero();
 
-    /**
-     * @dev Initializes the contract by disabling initializers.
-     */
     constructor() {
         _disableInitializers();
     }
 
-    /**
-     * @notice Initializes the distributor with the NEST token address.
-     * @param token_ The address of the NEST token.
-     */
-    function initialize(address token_) external initializer {
-        _checkAddressZero(token_);
-
+    /** @notice Initializes the access roles and EIP-712 domain. */
+    function initialize() external initializer {
         __EIP712_init("LPRewarder", "1");
         __AccessControlEnumerable_init();
-
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
-
-        token = token_;
     }
 
-    /**
-     * @notice Sets the signer address for reward claims.
-     * @param signer_ The address of the new signer.
-     */
+    /** @notice Sets the signer for reward claims. */
     function setSigner(address signer_) external onlyRole(DEFAULT_ADMIN_ROLE) {
         signer = signer_;
         emit SetSigner(signer_);
     }
 
     /**
-     * @notice Allocates NEST already held by this contract for provider claims.
-     * @dev Passing zero allocates all currently unallocated NEST.
-     * @param amount_ The amount of NEST to allocate.
+     * @notice Allocates tokens already held by this contract to a user.
+     * @dev Passing zero allocates the token's full unallocated balance.
+     * @param token_ The reward token.
+     * @param user_ The beneficiary.
+     * @param amount_ The amount to allocate, or zero for the full unallocated balance.
      */
-    function notifyReward(uint256 amount_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _notifyReward(amount_);
+    function notifyReward(address token_, address user_, uint256 amount_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _notifyReward(token_, user_, amount_);
     }
 
     /**
-     * @notice Pulls NEST from the admin and allocates it for provider claims.
-     * @dev The admin must approve this contract first. Passing zero allocates any NEST
-     * already held by this contract that has not yet been allocated.
-     * @param amount_ The amount of NEST to transfer and allocate.
+     * @notice Pulls tokens from the admin and allocates them to a user.
+     * @dev The admin must approve this contract first. A zero amount allocates any existing
+     * unallocated balance of the token without pulling tokens.
+     * @param token_ The reward token.
+     * @param user_ The beneficiary.
+     * @param amount_ The amount to transfer and allocate.
      */
-    function notifyRewardWithTransfer(uint256 amount_) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount_);
-        _notifyReward(amount_);
+    function notifyRewardWithTransfer(address token_, address user_, uint256 amount_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _checkAddressZero(token_);
+        _checkAddressZero(user_);
+        IERC20Upgradeable(token_).safeTransferFrom(_msgSender(), address(this), amount_);
+        _notifyReward(token_, user_, amount_);
     }
 
     /**
-     * @notice Claims rewards on behalf for specified target address.
-     * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
-     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
-     * @param signature_ The signature authorizing the claim.
-     * @return The amount of reward claimed.
+     * @notice Claims an authorized cumulative reward amount for the caller.
+     * @param token_ The reward token.
+     * @param totalAmount_ The caller's signed cumulative entitlement for this token.
+     * @param deadline_ The exclusive expiration timestamp.
+     * @param identifier_ A tracking identifier included in the signature and event.
+     * @param signature_ An EIP-712 signature from `signer`.
+     * @return reward The newly claimed amount.
      */
-    function claimFor(
-        address target_,
-        uint256 totalAmount_,
-        uint256 deadline_,
-        bytes memory signature_
-    ) external onlyRole(_CLAMER_FOR_ROLE) returns (uint256) {
-        return _claim(target_, totalAmount_, deadline_, signature_);
-    }
-
-    /**
-     * @notice Claims rewards on behalf of a specified target address with an identifier for backend tracking.
-     * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
-     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
-     * @param identifier_ The backend tracking identifier included in the signature and event.
-     * @param signature_ The signature authorizing the claim.
-     * @return The amount of reward claimed.
-     */
-    function claimFor(
-        address target_,
+    function claim(
+        address token_,
         uint256 totalAmount_,
         uint256 deadline_,
         bytes32 identifier_,
-        bytes memory signature_
-    ) external onlyRole(_CLAMER_FOR_ROLE) returns (uint256) {
-        return _claimPosition(target_, totalAmount_, deadline_, identifier_, signature_);
+        bytes calldata signature_
+    ) external returns (uint256 reward) {
+        return _claim(token_, _msgSender(), totalAmount_, deadline_, identifier_, signature_);
     }
 
     /**
-     * @notice Claims rewards for the caller.
-     * @param totalAmount_ The caller's cumulative reward entitlement across all claim overloads.
-     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
-     * @param signature_ The signature authorizing the claim.
-     * @return The amount of reward claimed.
+     * @notice Claims on behalf of a user who receives the tokens.
+     * @dev The caller needs the claim-for role as well as a valid signer authorization.
+     * @param token_ The reward token.
+     * @param user_ The beneficiary.
+     * @param totalAmount_ The user's signed cumulative entitlement for this token.
+     * @param deadline_ The exclusive expiration timestamp.
+     * @param identifier_ A tracking identifier included in the signature and event.
+     * @param signature_ An EIP-712 signature from `signer`.
+     * @return reward The newly claimed amount.
      */
-    function claim(uint256 totalAmount_, uint256 deadline_, bytes memory signature_) external returns (uint256) {
-        return _claim(_msgSender(), totalAmount_, deadline_, signature_);
+    function claimFor(
+        address token_,
+        address user_,
+        uint256 totalAmount_,
+        uint256 deadline_,
+        bytes32 identifier_,
+        bytes calldata signature_
+    ) external onlyRole(_CLAMER_FOR_ROLE) returns (uint256 reward) {
+        return _claim(token_, user_, totalAmount_, deadline_, identifier_, signature_);
     }
 
-    /**
-     * @notice Claims rewards for the caller with an identifier for backend tracking.
-     * @param totalAmount_ The caller's cumulative reward entitlement across all claim overloads.
-     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
-     * @param identifier_ The backend tracking identifier included in the signature and event.
-     * @param signature_ The signature authorizing the claim.
-     * @return The amount of reward claimed.
-     */
-    function claim(uint256 totalAmount_, uint256 deadline_, bytes32 identifier_, bytes memory signature_) external returns (uint256) {
-        return _claimPosition(_msgSender(), totalAmount_, deadline_, identifier_, signature_);
-    }
+    function _notifyReward(address token_, address user_, uint256 amount_) internal {
+        _checkAddressZero(token_);
+        _checkAddressZero(user_);
 
-    /**
-     * @dev Reserves only unallocated NEST, keeping earlier allocations available for claims.
-     * @param amount_ The amount to allocate, or zero for the full unallocated balance.
-     */
-    function _notifyReward(uint256 amount_) internal {
-        uint256 availableBalance = IERC20Upgradeable(token).balanceOf(address(this)) - (totalRewardDistributed - totalRewardClaimed);
+        uint256 availableBalance = IERC20Upgradeable(token_).balanceOf(address(this)) -
+            (totalRewardDistributed[token_] - totalRewardClaimed[token_]);
         if (amount_ == 0) {
             amount_ = availableBalance;
         } else if (amount_ > availableBalance) {
             revert InsufficientAvailableBalance();
         }
-
         if (amount_ == 0) {
             revert ZeroRewardAmount();
         }
 
-        totalRewardDistributed += amount_;
-        emit NotifyReward(_msgSender(), amount_);
+        totalRewards[token_][user_] += amount_;
+        totalRewardDistributed[token_] += amount_;
+        emit NotifyReward(_msgSender(), token_, user_, amount_);
     }
 
-    /**
-     * @dev Internal function to handle reward claims.
-     * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
-     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
-     * @param signature_ The signature authorizing the claim.
-     * @return reward The amount of reward claimed.
-     */
     function _claim(
-        address target_,
-        uint256 totalAmount_,
-        uint256 deadline_,
-        bytes memory signature_
-    ) internal virtual returns (uint256 reward) {
-        reward = _claimWithDigest(
-            target_,
-            totalAmount_,
-            deadline_,
-            signature_,
-            _hashTypedDataV4(keccak256(abi.encode(_CLAIM_TYPEHASH, target_, totalAmount_, deadline_)))
-        );
-
-        emit Claim(target_, reward, totalAmount_);
-    }
-
-    /**
-     * @dev Internal function to handle claims that include a backend tracking identifier.
-     * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
-     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
-     * @param identifier_ The backend tracking identifier included in the signature and PositionClaim event.
-     * @param signature_ The signature authorizing the claim.
-     * @return reward The amount of reward claimed.
-     */
-    function _claimPosition(
-        address target_,
+        address token_,
+        address user_,
         uint256 totalAmount_,
         uint256 deadline_,
         bytes32 identifier_,
-        bytes memory signature_
-    ) internal virtual returns (uint256 reward) {
-        reward = _claimWithDigest(
-            target_,
-            totalAmount_,
-            deadline_,
-            signature_,
-            _hashTypedDataV4(keccak256(abi.encode(_POSITION_CLAIM_TYPEHASH, target_, totalAmount_, deadline_, identifier_)))
-        );
-
-        emit PositionClaim(target_, reward, totalAmount_, identifier_);
-    }
-
-    /**
-     * @dev Internal function to handle common reward claim validation and accounting.
-     * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
-     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
-     * @param signature_ The signature authorizing the claim.
-     * @param digest_ The EIP-712 digest expected to have been signed by `signer`.
-     * @return reward The amount of reward claimed.
-     */
-    function _claimWithDigest(
-        address target_,
-        uint256 totalAmount_,
-        uint256 deadline_,
-        bytes memory signature_,
-        bytes32 digest_
-    ) internal virtual returns (uint256 reward) {
+        bytes calldata signature_
+    ) internal returns (uint256 reward) {
+        _checkAddressZero(token_);
+        _checkAddressZero(user_);
         if (signer == address(0)) {
             revert ClaimDisabled();
         }
-
         if (deadline_ <= block.timestamp) {
             revert SignatureExpired();
         }
 
-        uint256 claimedAmount = claimed[target_];
+        uint256 claimedAmount = claimed[token_][user_];
         if (totalAmount_ <= claimedAmount) {
             revert AlreadyClaimed();
         }
-        if (ECDSAUpgradeable.recover(digest_, signature_) != signer) {
+        bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(_CLAIM_TYPEHASH, token_, user_, totalAmount_, deadline_, identifier_)));
+        if (ECDSAUpgradeable.recover(digest, signature_) != signer) {
             revert InvalidSignature();
         }
-        reward = totalAmount_ - claimedAmount;
-        if (reward > totalRewardDistributed - totalRewardClaimed) {
-            revert InsufficientAvailableBalance();
+        if (totalAmount_ > totalRewards[token_][user_]) {
+            revert InsufficientRewardAllocation();
         }
 
-        claimed[target_] = totalAmount_;
-
-        totalRewardClaimed += reward;
-
-        IERC20Upgradeable(token).safeTransfer(target_, reward);
+        reward = totalAmount_ - claimedAmount;
+        claimed[token_][user_] = totalAmount_;
+        totalRewardClaimed[token_] += reward;
+        IERC20Upgradeable(token_).safeTransfer(user_, reward);
+        emit Claim(token_, user_, reward, totalAmount_, identifier_);
     }
 
-    /**
-     * @dev Checks if an address is zero and reverts if it is.
-     * @param addr_ The address to check.
-     * @notice Reverts with `AddressZero` if the address is zero.
-     */
-    function _checkAddressZero(address addr_) internal pure virtual {
+    function _checkAddressZero(address addr_) internal pure {
         if (addr_ == address(0)) {
             revert AddressZero();
         }
