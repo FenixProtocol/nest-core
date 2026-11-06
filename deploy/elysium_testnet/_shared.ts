@@ -32,35 +32,35 @@ function validatePrivateKey(): void {
 }
 
 async function validateWrappedNative(deployer: HardhatEthersSigner): Promise<string> {
-  const configuredAddress = requireEnvironmentVariable('ELYSIUM_WRAPPED_NATIVE');
+  const configuredAddress = '0xCD57F65c2B0e5881CFC2E609F7CD53b746E1F234';
   let wrappedNative: string;
 
   try {
     wrappedNative = ethers.getAddress(configuredAddress);
   } catch {
-    throw new Error(`ELYSIUM_WRAPPED_NATIVE is not a valid address: ${configuredAddress}`);
+    throw new Error(`WNATIVE is not a valid address: ${configuredAddress}`);
   }
 
   if (wrappedNative === ethers.ZeroAddress) {
-    throw new Error('ELYSIUM_WRAPPED_NATIVE must not be the zero address');
+    throw new Error('WNATIVE must not be the zero address');
   }
 
   const code = await ethers.provider.getCode(wrappedNative);
   if (code === '0x') {
-    throw new Error(`ELYSIUM_WRAPPED_NATIVE has no deployed bytecode: ${wrappedNative}`);
+    throw new Error(`WNATIVE has no deployed bytecode: ${wrappedNative}`);
   }
 
   const wrapper = new ethers.Contract(wrappedNative, WRAPPED_NATIVE_ABI, deployer);
   const decimals = await wrapper.decimals();
   if (decimals !== 18n) {
-    throw new Error(`ELYSIUM_WRAPPED_NATIVE must use 18 decimals; received ${decimals.toString()}`);
+    throw new Error(`WNATIVE must use 18 decimals; received ${decimals.toString()}`);
   }
 
   try {
     await wrapper.deposit.staticCall({ value: 0 });
     await wrapper.withdraw.staticCall(0);
   } catch {
-    throw new Error(`ELYSIUM_WRAPPED_NATIVE does not expose a compatible deposit/withdraw interface: ${wrappedNative}`);
+    throw new Error(`WNATIVE does not expose a compatible deposit/withdraw interface: ${wrappedNative}`);
   }
 
   return wrappedNative;

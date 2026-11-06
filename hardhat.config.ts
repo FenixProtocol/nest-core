@@ -69,15 +69,14 @@ const config: HardhatUserConfig = {
   mocha: {
     timeout: 300000, // 5 minutes for fork tests
   },
-  sourcify: {
-    enabled: true,
-  },
+  sourcify: { enabled: false },
   etherscan: {
     apiKey: {
       etherscan: `${process.env.ETHERSCAN_API_KEY}`,
       hyperEvm: `${process.env.ETHERSCAN_API_KEY}`,
       baseSepolia: `${process.env.ETHERSCAN_API_KEY}`,
       elysium_testnet: `${process.env.ETHERSCAN_API_KEY}`,
+      elysium_mainnet: `${process.env.ELYSIUM_ACCESS_CODE}`,
     },
     customChains: [
       {
@@ -101,6 +100,14 @@ const config: HardhatUserConfig = {
         chainId: 99801,
         urls: {
           apiURL: 'https://elysium.kinetiq.xyz/api',
+          browserURL: 'https://elysium.kinetiq.xyz',
+        },
+      },
+      {
+        network: 'elysium_mainnet',
+        chainId: 99901,
+        urls: {
+          apiURL: 'https://elysium.kinetiq.xyz/api/verify',
           browserURL: 'https://elysium.kinetiq.xyz',
         },
       },
@@ -142,9 +149,7 @@ const config: HardhatUserConfig = {
     },
     elysium_mainnet: {
       url: process.env.ELYSIUM_MAINNET_RPC || '',
-      httpHeaders: {
-        Authorization: `Bearer ${process.env.ELYSIUM_MAINNET_API_KEY || ''}`,
-      },
+      chainId: 99901,
       accounts: [`${process.env.DEV_PK || `0x0000000000000000000000000000000000000000`}`],
     },
     hardhat: {
