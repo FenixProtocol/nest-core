@@ -2,6 +2,7 @@ export enum AliasDeployedContracts {
   UtilsUpgradeable_Proxy = 'UtilsUpgradeable_Proxy',
   UtilsUpgradeable_Implementation = 'UtilsUpgradeable_Implementation',
   ProxyAdmin = 'ProxyAdmin',
+  WrappedNative = 'WrappedNative',
   BribeUpgradeable_Implementation = 'BribeUpgradeable_Implementation',
   Pair_Implementation = 'Pair_Implementation',
   UniswapV2PartialRouter = 'UniswapV2PartialRouter',
