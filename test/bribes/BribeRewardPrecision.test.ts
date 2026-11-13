@@ -223,6 +223,68 @@ describe('BribeUpgradeable - Reward Precision Fix', function () {
     });
 
     describe('Multi-epoch accumulation', function () {
+        it('pays a first-time voter after the bribe is older than 50 epochs', async function () {
+            const oldReward = 1_000_000n;
+            const newReward = 2_000_000n;
+            await tokenBTC.mint(signers.deployer.address, oldReward + newReward);
+            await internalBribe.notifyRewardAmount(tokenBTC.target, oldReward);
+            const firstEpoch = await internalBribe.firstBribeTimestamp();
+
+            await time.increase(51 * WEEK);
+            await deployed.minter.update_period();
+            const voteEpoch = await internalBribe.getEpochStart();
+            expect(voteEpoch - firstEpoch).to.be.gte(51n * BigInt(WEEK));
+
+            await deployed.votingEscrow.createLockFor(ethers.parseEther('1000'), 0, signers.otherUser1.address, false, true, 0);
+            await deployed.voter.connect(signers.otherUser1).vote(1, [pair], [100]);
+            expect(await internalBribe.userTimestamp(signers.otherUser1.address, tokenBTC.target)).to.eq(0);
+            expect(await internalBribe.userTimestamp(signers.otherUser1.address, token18.target)).to.eq(0);
+            await internalBribe.notifyRewardAmount(tokenBTC.target, newReward);
+
+            await advanceOneEpoch();
+            expect(await internalBribe['earned(address,address)'](signers.otherUser1.address, tokenBTC.target)).to.eq(newReward);
+            expect(await internalBribe['earned(uint256,address)'](1, tokenBTC.target)).to.eq(newReward);
+
+            await internalBribe.connect(signers.otherUser1)['getReward(address[])']([tokenBTC.target]);
+            expect(await tokenBTC.balanceOf(signers.otherUser1.address)).to.eq(newReward);
+            expect(await internalBribe.userTimestamp(signers.otherUser1.address, tokenBTC.target)).to.eq(await internalBribe.getEpochStart());
+            expect(await internalBribe['earned(address,address)'](signers.otherUser1.address, tokenBTC.target)).to.eq(0);
+        });
+
+        it('pays a returning voter after more than 50 epochs without a claim', async function () {
+            const reward = 1_000_000n;
+            await tokenBTC.mint(signers.deployer.address, reward * 2n);
+            await deployed.votingEscrow.createLockFor(ethers.parseEther('1000'), 0, signers.otherUser1.address, false, true, 0);
+            await deployed.voter.connect(signers.otherUser1).vote(1, [pair], [100]);
+            await internalBribe.notifyRewardAmount(tokenBTC.target, reward);
+            await advanceOneEpoch();
+            await internalBribe.connect(signers.otherUser1)['getReward(address[])']([tokenBTC.target]);
+            expect(await tokenBTC.balanceOf(signers.otherUser1.address)).to.eq(reward);
+
+            await time.increase(51 * WEEK);
+            await deployed.minter.update_period();
+            await deployed.voter.connect(signers.otherUser1).vote(1, [pair], [100]);
+            await internalBribe.notifyRewardAmount(tokenBTC.target, reward);
+            await advanceOneEpoch();
+
+            expect(await internalBribe['earned(address,address)'](signers.otherUser1.address, tokenBTC.target)).to.eq(reward);
+            await internalBribe.connect(signers.otherUser1)['getReward(address[])']([tokenBTC.target]);
+            expect(await tokenBTC.balanceOf(signers.otherUser1.address)).to.eq(reward * 2n);
+        });
+
+        it('does not advance reward cursors on deposits or later votes', async function () {
+            await deployed.votingEscrow.createLockFor(ethers.parseEther('1000'), 0, signers.otherUser1.address, false, true, 0);
+            await deployed.voter.connect(signers.otherUser1).vote(1, [pair], [100]);
+
+            expect(await internalBribe.userTimestamp(signers.otherUser1.address, tokenBTC.target)).to.eq(0);
+            expect(await internalBribe.userTimestamp(signers.otherUser1.address, token18.target)).to.eq(0);
+
+            await advanceOneEpoch();
+            await deployed.voter.connect(signers.otherUser1).vote(1, [pair], [100]);
+            expect(await internalBribe.userTimestamp(signers.otherUser1.address, tokenBTC.target)).to.eq(0);
+            expect(await internalBribe.userTimestamp(signers.otherUser1.address, token18.target)).to.eq(0);
+        });
+
         it('should accumulate rewards across multiple epochs for low-decimal tokens', async function () {
             await deployed.votingEscrow.createLockFor(ethers.parseEther('5000000'), 0, signers.otherUser1.address, false, true, 0);
 

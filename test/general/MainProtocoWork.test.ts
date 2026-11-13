@@ -199,41 +199,7 @@ describe('Main', function () {
     expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO);
     expect(await fenix.balanceOf(deployed.merklDistributionCreator.target)).to.be.eq(ZERO);
   });
-
-  it(`should fail during distribution if gauge params invalid for distribute to merkl`, async () => {
-    await time.increase(86400 * 7);
-
-    expect(await fenix.balanceOf(v2Gauge.target)).to.be.eq(ZERO);
-    expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO);
-    expect(await fenix.balanceOf(deployed.merklDistributionCreator.target)).to.be.eq(ZERO);
-
-    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000'));
-
-    await expect(deployed.voter.distributeAll()).to.be.revertedWithCustomError(deployed.merklGaugeMiddleman, 'InvalidParams');
-  });
-  it(`should success set gauge params and whitelist for distribution to mekrl`, async () => {
-    await deployed.merklDistributionCreator.setRewardTokenMinAmounts([fenix.target], [1]);
-
-    await deployed.merklGaugeMiddleman.setGauge(v3Gauge.target, {
-      uniV3Pool: poolV3FenixTk18.target,
-      rewardToken: fenix.target,
-      positionWrappers: [signers.otherUser1.address, signers.otherUser2.address, signers.deployer.address],
-      wrapperTypes: [0, 1, 2],
-      amount: ethers.parseEther('1'),
-      propToken0: 4000,
-      propToken1: 2000,
-      propFees: 4000,
-      isOutOfRangeIncentivized: 0,
-      epochStart: 1,
-      numEpoch: 1,
-      boostedReward: 0,
-      boostingAddress: ZERO_ADDRESS,
-      rewardId: ethers.id('TEST') as string,
-      additionalData: ethers.id('test2ng') as string,
-    });
-  });
-
-  it(`should success claimFees from vaults adn send to internal_bribes`, async () => {
+  it(`should success claimFees from vaults and send to internal_bribes`, async () => {
     expect(await fenix.balanceOf(await v2Gauge.feeVault())).to.be.eq(ZERO);
     expect(await tokenTK18.balanceOf(await v2Gauge.feeVault())).to.be.eq(ZERO);
 
@@ -290,7 +256,45 @@ describe('Main', function () {
     expect(await fenix.balanceOf(v2Gauge.target)).to.be.eq(ZERO);
     expect(await tokenTK18.balanceOf(v2Gauge.target)).to.be.eq(ZERO);
   });
+  it(`should fail during distribution if gauge params invalid for distribute to merkl`, async () => {
+    await time.increase(86400 * 7);
 
+    expect(await fenix.balanceOf(v2Gauge.target)).to.be.eq(ZERO);
+    expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO);
+    expect(await fenix.balanceOf(deployed.merklDistributionCreator.target)).to.be.eq(ZERO);
+
+    expect(await fenix.totalSupply()).to.be.eq(ethers.parseEther('1000000000'));
+
+    await expect(deployed.voter.distributeAll()).to.be.revertedWithCustomError(deployed.merklGaugeMiddleman, 'InvalidParams');
+  });
+  it(`should fail to claimFees from vaults and send to internal_bribes before epoch flip`, async () => {
+    await fenix.transfer(await v2Gauge.feeVault(), ONE_ETHER);
+    await tokenTK18.mint(await v2Gauge.feeVault(), ONE_ETHER + ONE_ETHER);
+    await fenix.transfer(await v3Gauge.feeVault(), ONE_ETHER + ONE_ETHER + ONE_ETHER);
+    await expect(v2Gauge.claimFees()).to.be.revertedWithCustomError(deployed.bribeImplementation, 'EpochNotFlipped');
+    await expect(v3Gauge.claimFees()).to.be.revertedWithCustomError(deployed.bribeImplementation, 'EpochNotFlipped');
+  });
+  it(`should success set gauge params and whitelist for distribution to mekrl`, async () => {
+    await deployed.merklDistributionCreator.setRewardTokenMinAmounts([fenix.target], [1]);
+
+    await deployed.merklGaugeMiddleman.setGauge(v3Gauge.target, {
+      uniV3Pool: poolV3FenixTk18.target,
+      rewardToken: fenix.target,
+      positionWrappers: [signers.otherUser1.address, signers.otherUser2.address, signers.deployer.address],
+      wrapperTypes: [0, 1, 2],
+      amount: ethers.parseEther('1'),
+      propToken0: 4000,
+      propToken1: 2000,
+      propFees: 4000,
+      isOutOfRangeIncentivized: 0,
+      epochStart: 1,
+      numEpoch: 1,
+      boostedReward: 0,
+      boostingAddress: ZERO_ADDRESS,
+      rewardId: ethers.id('TEST') as string,
+      additionalData: ethers.id('test2ng') as string,
+    });
+  });
   it(`emisison distributed on first epoch based on votes`, async () => {
     expect(await fenix.balanceOf(v2Gauge.target)).to.be.eq(ZERO);
     expect(await fenix.balanceOf(v3Gauge.target)).to.be.eq(ZERO);

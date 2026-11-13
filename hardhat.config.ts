@@ -143,9 +143,9 @@ const config: HardhatUserConfig = {
     hardhat: {
       allowUnlimitedContractSize: true,
       forking: {
-        enabled: false, // set to true to run fork tests
+        enabled: process.env.HYPE_FORK === 'true',
         url: process.env.HYPE_RPC || `https://rpc.hyperliquid.xyz/evm`,
-        blockNumber: 32612975, // previous block numbers 31369069, 25055503
+        blockNumber: process.env.HYPE_FORK_BLOCK ? Number(process.env.HYPE_FORK_BLOCK) : 32612975,
       },
       chains: {
         999: {

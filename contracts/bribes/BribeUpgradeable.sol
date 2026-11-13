@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity =0.8.19;
 
-import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {
+    IERC20Upgradeable,
+    SafeERC20Upgradeable
+} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import {IMinter} from "../core/interfaces/IMinter.sol";
@@ -132,76 +135,32 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
 
     /// @notice Read earned amount given a tokenID and _rewardToken
     function earned(uint256 tokenId, address _rewardToken) public view returns (uint256) {
-        uint256 k = 0;
-        uint256 reward = 0;
-        uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
         address _owner = IVotingEscrow(ve).ownerOf(tokenId);
-        uint256 _userLastTime = userTimestamp[_owner][_rewardToken];
-
-        if (_endTimestamp == _userLastTime) {
-            return 0;
-        }
-
-        // if user first time then set it to first bribe - week to avoid any timestamp problem
-        if (_userLastTime < firstBribeTimestamp) {
-            _userLastTime = firstBribeTimestamp - WEEK;
-        }
-
-        for (k; k < 50; k++) {
-            if (_userLastTime == _endTimestamp) {
-                // if we reach the current epoch, exit
-                break;
-            }
-            reward += _earned(_owner, _rewardToken, _userLastTime);
-            _userLastTime += WEEK;
-        }
+        (uint256 reward,) = earnedWithTimestamp(_owner, _rewardToken);
         return reward;
     }
 
     /// @notice read earned amounts given an address and the reward token
     function earned(address _owner, address _rewardToken) public view returns (uint256) {
-        uint256 k = 0;
-        uint256 reward = 0;
-        uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
-        uint256 _userLastTime = userTimestamp[_owner][_rewardToken];
-
-        if (_endTimestamp == _userLastTime) {
-            return 0;
-        }
-
-        // if user first time then set it to first bribe - week to avoid any timestamp problem
-        if (_userLastTime < firstBribeTimestamp) {
-            _userLastTime = firstBribeTimestamp - WEEK;
-        }
-
-        for (k; k < 50; k++) {
-            if (_userLastTime == _endTimestamp) {
-                // if we reach the current epoch, exit
-                break;
-            }
-            reward += _earned(_owner, _rewardToken, _userLastTime);
-            _userLastTime += WEEK;
-        }
+        (uint256 reward,) = earnedWithTimestamp(_owner, _rewardToken);
         return reward;
     }
 
-    /// @notice Read earned amount given address and reward token, returns the rewards and the last user timestamp (used in case user do not claim since 50+epochs)
+    /// @notice Read all completed epochs and return the reward and the next claim timestamp.
     function earnedWithTimestamp(address _owner, address _rewardToken) private view returns (uint256, uint256) {
-        uint256 k = 0;
         uint256 reward = 0;
         uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
         uint256 _userLastTime = userTimestamp[_owner][_rewardToken];
 
+        if (firstBribeTimestamp == 0) {
+            return (0, _endTimestamp);
+        }
         // if user first time then set it to first bribe - week to avoid any timestamp problem
         if (_userLastTime < firstBribeTimestamp) {
             _userLastTime = firstBribeTimestamp - WEEK;
         }
 
-        for (k; k < 50; k++) {
-            if (_userLastTime == _endTimestamp) {
-                // if we reach the current epoch, exit
-                break;
-            }
+        while (_userLastTime < _endTimestamp) {
             reward += _earned(_owner, _rewardToken, _userLastTime);
             _userLastTime += WEEK;
         }
@@ -265,6 +224,7 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
     }
 
     /// @notice Claim the TOKENID rewards
+    /// @dev With gas limit 3m the function must support claim of one reward token up to ~800 epochs
     function getReward(uint256 tokenId, address[] memory tokens) external nonReentrant whenNotRewardClaimPaused {
         require(IVotingEscrow(ve).isApprovedOrOwner(msg.sender, tokenId));
         uint256 _userLastTime;
@@ -283,6 +243,7 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
     }
 
     /// @notice Claim the rewards given msg.sender
+    /// @dev With gas limit 3m the function must support claim of one reward token up to ~800 epochs
     function getReward(address[] memory tokens) external nonReentrant whenNotRewardClaimPaused {
         uint256 _userLastTime;
         uint256 reward = 0;
@@ -300,6 +261,7 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
     }
 
     /// @notice Claim rewards from voter
+    /// @dev With gas limit 3m the function must support claim of one reward token up to ~800 epochs
     function getRewardForOwner(uint256 tokenId, address[] memory tokens) public nonReentrant whenNotRewardClaimPaused {
         require(msg.sender == voter);
         uint256 _userLastTime;
@@ -318,6 +280,7 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
     }
 
     /// @notice Claim rewards from voter
+    /// @dev With gas limit 3m the function must support claim of one reward token up to ~800 epochs
     function getRewardForAddress(address _owner, address[] memory tokens) public nonReentrant whenNotRewardClaimPaused {
         require(msg.sender == voter);
         uint256 _userLastTime;
@@ -371,7 +334,7 @@ contract BribeUpgradeable is IBribe, ReentrancyGuardUpgradeable, UpgradeCall {
     function getSpecificRewardTokens() external view override returns (address[] memory) {
         uint256 length = rewardTokens.length;
         address[] memory tokens = new address[](length);
-        for (uint256 i; i < length; ) {
+        for (uint256 i; i < length;) {
             tokens[i] = rewardTokens[i];
             unchecked {
                 i++;
