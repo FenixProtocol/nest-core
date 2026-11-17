@@ -46,13 +46,15 @@ The `aggregateClaim` function in the `VoterUpgradeable` contract allows users to
 
     /**
      * @notice Parameters for claiming Blaze data.
-     * @param totalAmount The total amount of reward being claimed.
-     * @param deadline The expiration time of the claim.
+     * @param totalAmount The user's cumulative reward entitlement across all claim overloads.
+     * @param deadline The exclusive expiration timestamp.
+     * @param identifier The backend tracking identifier, or bytes32(0) to call the overload without one.
      * @param signature The signature authorizing the claim.
      */
     struct AggregateClaimBlazeDataParams {
         uint256 totalAmount;
         uint256 deadline;
+        bytes32 identifier;
         bytes signature;
     }
 
@@ -120,6 +122,7 @@ VoterUpgradeableV1_2.aggregateClaim(
     AggregateClaimBlazeDataParams({
         totalAmount: amount1,
         deadline: block.timestamp + 3600,
+        identifier: bytes32(0),
         signature: claimSignature,
     }),
     AggregateClaimVeNestMerklAirdrop({
@@ -182,11 +185,12 @@ This comprehensive aggregation allows users to perform multiple reward and bribe
 ### `blaze_`
 
 - **Type**: `AggregateClaimBlazeDataParams`
-  - `uint256 totalAmount`: The total amount of reward being claimed..
-  - `uint256 deadline`: The expiration time of the claim.
+  - `uint256 totalAmount`: The user's cumulative reward entitlement across all claim overloads.
+  - `uint256 deadline`: The exclusive expiration timestamp.
+  - `bytes32 identifier`: The backend tracking identifier; use zero to call the overload without one.
   - `bytes signature`: The signature authorizing the claim.
-- **Equivalent Call**: `IGaugeRewarder(gaugeRewarder).claim(totalAmount, signature, deadline)`
-- **Details**: This parameter allows for claiming rewards based on Gauge Rewarder claim signature. 
+- **Equivalent Call**: `IGaugeRewarder(gaugeRewarder).claimFor(user, totalAmount, deadline, signature)` when `identifier` is zero, otherwise `claimFor(user, totalAmount, deadline, identifier, signature)`.
+- **Details**: This parameter allows claiming rewards based on a GaugeRewarder signature. The identifier is backend tracking metadata, the deadline is exclusive, and `totalAmount` is cumulative per user across all claim overloads.
 
 ### `splitMerklAidrop_`
 - **Type**: `AggregateClaimVeNestMerklAirdrop`

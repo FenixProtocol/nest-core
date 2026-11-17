@@ -33,7 +33,7 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     bytes32 internal constant _CLAIM_TYPEHASH = keccak256("Claim(address user,uint256 totalAmount,uint256 deadline)");
 
     /**
-     * @dev Type hash for EIP-712 position claim signature.
+     * @dev Type hash for an EIP-712 claim signature that includes a backend tracking identifier.
      */
     bytes32 internal constant _POSITION_CLAIM_TYPEHASH =
         keccak256("PositionClaim(address user,uint256 totalAmount,uint256 deadline,bytes32 identifier)");
@@ -69,7 +69,8 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     uint256 public totalRewardClaimed;
 
     /**
-     * @notice A mapping to track the claimed reward amounts for each address.
+     * @notice The cumulative reward amount claimed by each address.
+     * @dev All claim overloads share this counter.
      */
     mapping(address => uint256) public claimed;
 
@@ -191,8 +192,8 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     /**
      * @notice Claims rewards on behalf for specified target address.
      * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
+     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
      * @param signature_ The signature authorizing the claim.
      * @return The amount of reward claimed.
      */
@@ -206,11 +207,11 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     }
 
     /**
-     * @notice Claims rewards on behalf for specified target address using a position claim identifier.
+     * @notice Claims rewards on behalf of a specified target address with an identifier for backend tracking.
      * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
-     * @param identifier_ The identifier included in the signed position claim.
+     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
+     * @param identifier_ The backend tracking identifier included in the signature and event.
      * @param signature_ The signature authorizing the claim.
      * @return The amount of reward claimed.
      */
@@ -226,8 +227,8 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
 
     /**
      * @notice Claims rewards for the caller.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
+     * @param totalAmount_ The caller's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
      * @param signature_ The signature authorizing the claim.
      * @return The amount of reward claimed.
      */
@@ -236,10 +237,10 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     }
 
     /**
-     * @notice Claims rewards for the caller using a position claim identifier.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
-     * @param identifier_ The identifier included in the signed position claim.
+     * @notice Claims rewards for the caller with an identifier for backend tracking.
+     * @param totalAmount_ The caller's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
+     * @param identifier_ The backend tracking identifier included in the signature and event.
      * @param signature_ The signature authorizing the claim.
      * @return The amount of reward claimed.
      */
@@ -276,8 +277,8 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     /**
      * @dev Internal function to handle reward claims.
      * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
+     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
      * @param signature_ The signature authorizing the claim.
      * @return reward The amount of reward claimed.
      */
@@ -299,11 +300,11 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     }
 
     /**
-     * @dev Internal function to handle position reward claims.
+     * @dev Internal function to handle claims that include a backend tracking identifier.
      * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
-     * @param identifier_ The identifier included in the signed position claim.
+     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
+     * @param identifier_ The backend tracking identifier included in the signature and PositionClaim event.
      * @param signature_ The signature authorizing the claim.
      * @return reward The amount of reward claimed.
      */
@@ -328,8 +329,8 @@ contract GaugeRewarder is IGaugeRewarder, AccessControlEnumerableUpgradeable, EI
     /**
      * @dev Internal function to handle common reward claim validation and accounting.
      * @param target_ The address of the recipient of the claimed reward.
-     * @param totalAmount_ The total amount of reward being claimed.
-     * @param deadline_ The expiration time of the claim.
+     * @param totalAmount_ The user's cumulative reward entitlement across all claim overloads.
+     * @param deadline_ The exclusive expiration timestamp; the claim is invalid when block.timestamp >= deadline_.
      * @param signature_ The signature authorizing the claim.
      * @param digest_ The EIP-712 digest expected to have been signed by `signer`.
      * @return reward The amount of reward claimed.

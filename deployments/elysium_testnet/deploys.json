@@ -1,0 +1,17 @@
+{
+  "Pair_Implementation": "0x1794A65c71C0FCD5dF9c15F58AF05F5eb2430EAd",
+  "FeesVaultUpgradeable_Implementation": "0xFab775125dE0033e866cE685e2a609b4fEa2eA3f",
+  "FeesVaultFactoryUpgradeable_Implementation": "0x46e15aD74b6b354036dA795C708F1369624460eC",
+  "PairFactoryUpgradeable_Implementation": "0xca27F990CA05718a8E41F773bd57c3e3678DD76d",
+  "ProxyAdmin": "0x19534e5EeEC9e60Be9b954b1179cc0C6870a2785",
+  "FeesVaultFactoryUpgradeable_Proxy": "0xc0cCb9144B49A594BEe6b9aDF9Aa6FB9F71759D9",
+  "PairFactoryUpgradeable_Proxy": "0xe4a0C5bdde5097B7F06BF2B3Ed4e91c5cE136DFe",
+  "WrappedNative": "0xCD57F65c2B0e5881CFC2E609F7CD53b746E1F234",
+  "RouterV2": "0x252ACF6e7490DaB7fbe57E70aD066293E2Af014b",
+  "UniswapV2PartialRouter": "0x8b3f6eb2C9BFBEE74CFc5372EB88A6353EA0a887",
+  "ERC20_MockTokenA": "0x2754700494d4B27FCAE6bc6c04c34eA21494C775",
+  "ERC20_MockTokenB": "0x5fb39e33c0fFD3F7f8d9567BFeFDd8a21b0e6699",
+  "V2Pool_MTA_MTB_Volatile": "0xAcF8D8Bf5ce5822eBdA5Be7EE9CA0ABcd1f5fEFA",
+  "V2Pool_MTA_MTB_Stable": "0xaEC20a2DeE73FDb947226A37bC83d3dE867Ab4B8",
+  "V2Pool_WHYPE_71a676b4_Volatile": "0x6f6Bb729ec76B9F67fFEB3B54af55160F81FDb7f"
+}
